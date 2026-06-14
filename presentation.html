@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מצגת: מהרעיון למוצר - בוט ווטסאפ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-emerald: #00ff9d;
+            --dark-bg: #030712;
+            --glass-bg: rgba(10, 15, 30, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: var(--dark-bg);
+            color: #e2e8f0;
+            overflow: hidden; /* We handle scrolling in the container */
+        }
+
+        /* Hide standard scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* The Scroll Snapping Container */
+        .scroll-container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y proximity;
+            scroll-behavior: smooth;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Individual Full-Screen Slides */
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        /* Animated Background Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 1;
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 40vw; height: 40vw;
+            background: radial-gradient(circle, var(--neon-purple) 0%, transparent 70%);
+            top: -10%; right: -10%;
+        }
+        .orb-2 {
+            width: 35vw; height: 35vw;
+            background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%);
+            bottom: -10%; left: -10%;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 25vw; height: 25vw;
+            background: radial-gradient(circle, var(--neon-emerald) 0%, transparent 70%);
+            top: 40%; left: 40%;
+            animation-delay: -10s;
+            opacity: 0.2;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, 30px) scale(1.1); }
+            100% { transform: translate(30px, -50px) scale(0.9); }
+        }
+
+        /* Glassmorphism Panel */
+        .cyber-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(0, 243, 255, 0.3);
+            border-bottom: 1px solid rgba(188, 19, 254, 0.3);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 1100px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Cyber Accents */
+        .cyber-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 40px; height: 40px;
+            border-top: 3px solid var(--neon-cyan);
+            border-right: 3px solid var(--neon-cyan);
+            border-top-right-radius: 24px;
+        }
+        .cyber-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 40px; height: 40px;
+            border-bottom: 3px solid var(--neon-purple);
+            border-left: 3px solid var(--neon-purple);
+            border-bottom-left-radius: 24px;
+        }
+
+        /* Text Glows */
+        .glow-text-cyan {
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        .glow-text-emerald {
+            color: #fff;
+            text-shadow: 0 0 10px var(--neon-emerald), 0 0 20px rgba(0, 255, 157, 0.5);
+        }
+
+        /* Scroll Indicators (Right Side) */
+        .scroll-nav {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 50;
+            padding: 0.75rem 1.5rem;
+            background: rgba(10, 15, 30, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        .nav-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .nav-dot.active {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            transform: scale(1.5);
+        }
+        .nav-dot::after {
+            content: attr(data-label);
+            position: absolute;
+            top: 22px; /* label below the dot */
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .nav-dot:hover::after, .nav-dot.active::after {
+            opacity: 1;
+            color: var(--neon-cyan);
+        }
+
+        /* Content Reveal Animation */
+        .reveal-content {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.2, 1, 0.3, 1), transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .slide.in-view .reveal-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .delay-1 { transition-delay: 0.2s; }
+        .delay-2 { transition-delay: 0.4s; }
+        .delay-3 { transition-delay: 0.6s; }
+
+        .tech-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .tech-box:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        /* Edit Mode Toggle Button (fixed at bottom, visible on every slide) */
+        .edit-toggle {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            z-index: 60;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            cursor: pointer;
+            opacity: 0.35;
+            transition: all 0.3s;
+        }
+        .edit-toggle:hover {
+            opacity: 1;
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+        }
+
+        /* Edit mode active state */
+        body.edit-mode .edit-toggle {
+            opacity: 1;
+            color: var(--neon-emerald);
+            border-color: var(--neon-emerald);
+            box-shadow: 0 0 12px rgba(0, 255, 157, 0.3);
+        }
+        body.edit-mode .cyber-panel {
+            outline: 1px dashed rgba(0, 255, 157, 0.35);
+            outline-offset: 6px;
+        }
+        body.edit-mode .reveal-content {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        [contenteditable="true"]:focus {
+            outline: 2px solid var(--neon-emerald);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Fixed Side Navigation -->
+    <div class="scroll-nav" id="scrollNav">
+        <div class="nav-dot active" data-index="0" data-label="התחלה"></div>
+        <div class="nav-dot" data-index="1" data-label="חלק א': הקמה"></div>
+        <div class="nav-dot" data-index="2" data-label="חלק א': סכנות"></div>
+        <div class="nav-dot" data-index="3" data-label="חלק ב': פרודקשן"></div>
+        <div class="nav-dot" data-index="4" data-label="חלק ב': עסקי"></div>
+        <div class="nav-dot" data-index="5" data-label="חלק ג': נחיתה רכה"></div>
+        <div class="nav-dot" data-index="6" data-label="חלק ג': ולידציה"></div>
+    </div>
+
+    <!-- Main Scrolling Container -->
+    <div class="scroll-container" id="mainContainer">
+
+        <!-- Slide 1: Hero -->
+        <section class="slide" id="slide-0">
+            <div class="cyber-panel text-center">
+                <h1 class="reveal-content delay-1 text-6xl md:text-8xl font-black mb-6 tracking-tight">
+                    מהרעיון למוצר <br>
+                    <span class="glow-text-cyan">בוט ווטסאפ חכם</span>
+                </h1>
+                <p class="reveal-content delay-2 text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+                    המדריך המלא שיקח אותך מקוד ניסיוני שרץ בבית על המחשב, למערכת סייבר-שירות יציבה, חוקית ומאובטחת שעסקים משלמים עליה.
+                </p>
+                <div class="reveal-content delay-3 text-sm text-slate-500 animate-bounce mt-10">
+                    <i class="fa-solid fa-angles-down text-2xl"></i><br>
+                    גלול למטה
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: MVP Setup -->
+        <section class="slide" id="slide-1">
+            <div class="cyber-panel">
+                <div class="reveal-content text-[var(--neon-emerald)] font-bold tracking-widest mb-2 text-sm uppercase">שלב ראשון // הוכחת היתכנות</div>
+                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-emerald">חלק א': השרת המקומי (MVP)</h2>
+                <p class="reveal-content delay-1 text-lg text-slate-300 mb-8 border-r-4 border-[var(--neon-emerald)] pr-4">
+                    המטרה שלנו כאן היא להגיע לתוצאה מהירה ("וואו" ראשוני) בעזרת כלי פיתוח נגישים. זהו אב-טיפוס שמיועד לדמו בלבד.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6 reveal-content delay-2">
+                    <div class="tech-box">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-server ml-2"></i>חומרה וסביבה</h3>
+                        <ul class="space-y-3 text-slate-300 text-sm leading-relaxed">
+                            <li><span class="text-[var(--neon-emerald)] mr-2">■</span> <strong>מחשב אישי עם Node.js (גרסה 18+):</strong> סביבת הריצה של הקוד.</li>
+                            <li><span class="text-[var(--neon-emerald)] mr-2">■</span> <strong>חיבור אינטרנט יציב:</strong> חובה לתקשורת רציפה עם ה-AI.</li>
+                            <li><span class="text-[var(--neon-emerald)] mr-2">■</span> <strong>חשיפת המחשב (Ngrok / Cloudflare Tunnel):</strong> יצירת "מנהרה" כדי שווטסאפ תוכל לשלוח הודעות ישירות למחשב הביתי שלך.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-box">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-key ml-2"></i>גישות ומפתחות</h3>
+                        <ul class="space-y-3 text-slate-300 text-sm leading-relaxed">
+                            <li><span class="text-[var(--neon-emerald)] mr-2">■</span> <strong>מפתח Anthropic API:</strong> שימוש במודל קלוד. קריטי לשפה העברית וליכולת שלו להישמע להוראות מערכת קפדניות.</li>
+                            <li><span class="text-red-400 mr-2">■</span> <strong>מספר ווטסאפ ייעודי:</strong> לא המספר האישי שלך! מספר נפרד שנועד רק לסריקת ה-QR ולטסטים.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: MVP Execution & Risks -->
+        <section class="slide" id="slide-2">
+            <div class="cyber-panel">
+                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 text-white">הקמה והרצה באוויר</h2>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="reveal-content delay-1 space-y-6">
+                        <div class="bg-black/50 p-4 rounded-lg font-mono text-sm text-[var(--neon-cyan)] border border-slate-700 ltr text-left" dir="ltr">
+                            > git clone https://... <br>
+                            > npm install <br>
+                            > echo "ANTHROPIC_API_KEY=xxx" > .env <br>
+                            > npm start
+                        </div>
+                        <p class="text-slate-300 leading-relaxed">
+                            <strong>1. התקנה:</strong> משיכת הקוד והתקנת ספריות.<br>
+                            <strong>2. הזרקת ידע:</strong> עדכון תיקיית ה-<code>knowledge/</code> עם המידע הספציפי על העסק (RAG).<br>
+                            <strong>3. הרצה:</strong> הקלדת הפקודה <code>npm start</code>, סריקת קוד ה-QR שמופיע במסך, והבוט מחובר.
+                        </p>
+                    </div>
+
+                    <div class="reveal-content delay-2 tech-box border-[var(--neon-purple)]">
+                        <div class="text-4xl mb-4 text-[var(--neon-purple)]"><i class="fa-solid fa-triangle-exclamation animate-pulse"></i></div>
+                        <h3 class="text-2xl font-bold mb-3 text-white">מודעות וסיכונים</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed">
+                            שימוש בספריות כמו <code>whatsapp-web.js</code> (שמדמות דפדפן כדי לסרוק QR) הוא <strong>אינו רשמי</strong> בעיני פייסבוק.<br><br>
+                            הסכנה: המערכות של מטא עלולות לזהות פעילות רובוטית ולחסום את המספר לצמיתות (Ban). לכן, שיטה זו מתאימה <strong>אך ורק לדמו קצר</strong>, ואסור לחבר אליה מספר של עסק אמיתי פעיל.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Production Tech -->
+        <section class="slide" id="slide-3">
+            <div class="cyber-panel">
+                <div class="reveal-content text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase">שלב שני // יציבות מערכתית</div>
+                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">חלק ב': המעבר לפרודקשן</h2>
+                <p class="reveal-content delay-1 text-lg text-slate-300 mb-8 border-r-4 border-[var(--neon-cyan)] pr-4">
+                    כשמעבירים את זה מעסק ללקוח שמשלם כסף, אנחנו עוזבים את ה"מחשב בבית" ועוברים למוצר עמיד, יציב ב-100% וחוקי.
+                </p>
+
+                <div class="space-y-6 reveal-content delay-2">
+                    <div class="tech-box flex gap-4 items-start">
+                        <div class="text-3xl text-[var(--neon-emerald)]"><i class="fa-brands fa-whatsapp"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white mb-2">WhatsApp Cloud API רשמי</h4>
+                            <p class="text-slate-400 text-sm">המעבר הקריטי ביותר. התחברות ל-API החוקי של Meta (ישירות או דרך Twilio). אמנם יש עלות לכל הודעה, אך זה מונע חסימות לצמיתות ומאפשר עבודה שקטה ובטוחה.</p>
+                        </div>
+                    </div>
+
+                    <div class="tech-box flex gap-4 items-start">
+                        <div class="text-3xl text-blue-400"><i class="fa-solid fa-cloud"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white mb-2">שרת בענן (Cloud Hosting)</h4>
+                            <p class="text-slate-400 text-sm">במקום להשאיר את המחשב בבית דולק, מעלים את הקוד לשרת אמיתי (כמו Oracle Cloud, AWS, או Cloudflare Workers) שמבטיח זמינות המערכת 24/7 ללא נפילות אינטרנט מקומיות.</p>
+                        </div>
+                    </div>
+
+                    <div class="tech-box flex gap-4 items-start">
+                        <div class="text-3xl text-[var(--neon-purple)]"><i class="fa-solid fa-database"></i></div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white mb-2">בסיס נתונים מתמשך (Database)</h4>
+                            <p class="text-slate-400 text-sm">כדי שהבוט לא ישכח על מה הוא מדבר כשהשרת עושה ריסטארט, מחברים אותו למסד נתונים (כמו Postgres או Supabase) לניהול היסטוריית השיחות והזיכרון הארוך של הבוט.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Production Management & Biz -->
+        <section class="slide" id="slide-4">
+            <div class="cyber-panel">
+                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 text-white">ניהול, משפט והמוצר עצמו</h2>
+
+                <div class="grid md:grid-cols-2 gap-6 reveal-content delay-1">
+                    <div class="tech-box">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-shield-halved ml-2"></i>ניהול ואבטחה</h3>
+                        <ul class="space-y-3 text-slate-300 text-sm">
+                            <li><strong>הפרדת סביבות:</strong> הפרדת מפתחות API וטוקנים לכל לקוח בנפרד (Multi-tenancy).</li>
+                            <li><strong>לוגים וניטור:</strong> מערכות שמתריעות לכם לטלפון בזמן אמת על קריסות (לפני שהלקוח מתלונן).</li>
+                            <li><strong>מנגנון הסלמה (Fallback):</strong> הבוט מזהה קושי או כעס, עוצר את ה-AI ומעביר שיחה לנציג מיד.</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-box">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-scale-balanced ml-2"></i>משפטי ועסקי</h3>
+                        <ul class="space-y-3 text-slate-300 text-sm">
+                            <li><strong>Opt-in:</strong> חובה לדרוש הסכמת פרטיות מהלקוח לקבלת הודעות אוטומטיות.</li>
+                            <li><strong>SLA:</strong> הסכם שירות שמגן עליכם משפטית (פטור מאחריות במקרה של טעות AI).</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-box md:col-span-2 border-[var(--neon-emerald)]">
+                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-emerald)]"><i class="fa-solid fa-box-open ml-2"></i>הממשק ומודל התמחור</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                            הלקוח לא יודע לתכנת. חייבים לתת לו <strong>פאנל ניהול פשוט באינטרנט</strong> שבו הוא מעדכן את התוכן והמידע של הבוט באופן עצמאי.
+                        </p>
+                        <div class="flex items-center gap-4 bg-black/40 p-3 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-money-bill-wave text-2xl text-[var(--neon-emerald)]"></i>
+                            <div class="text-sm text-slate-200">
+                                <strong>מודל רווח:</strong> דמי הקמה חד-פעמיים (על בסיס הידע והחיבור) + מנוי חודשי קבוע (Retainer) על שרתים ותמיכה.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Secret Sauce 1 -->
+        <section class="slide" id="slide-5">
+            <div class="cyber-panel">
+                <div class="reveal-content text-[var(--neon-purple)] font-bold tracking-widest mb-2 text-sm uppercase">שלב שלישי // סודות ההצלחה (1/2)</div>
+                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">תוספות קריטיות לפרימיום</h2>
+                <p class="reveal-content delay-1 text-lg text-slate-300 mb-8">
+                    כדי להפוך את זה מסתם מדריך למוצר ברמת פרימיום אמיתית, הוספתי עוד עקרונות עבודה של מפתחים בכירים:
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 reveal-content delay-2">
+                    <div class="tech-box relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-b from-[var(--neon-purple)] to-transparent opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <div class="text-5xl mb-4">🪂</div>
+                        <h3 class="text-2xl font-bold text-white mb-3">1. מנגנון "נחיתה רכה"</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            הדבר הכי חשוב למנוע <strong>הלוצינציות (המצאות)</strong> של הבינה המלאכותית. תמיד להגדיר לבוט בקוד פקודה קשוחה:<br><br>
+                            <em>"אם אתה לא יודע את התשובה בוודאות לפי המסמכים - אל תמציא מידע בשום אופן. במקום זאת, הצע ללקוח להמתין לעזרה מנציג אנושי."</em>
+                        </p>
+                    </div>
+
+                    <div class="tech-box relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-b from-[var(--neon-cyan)] to-transparent opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <div class="text-5xl mb-4">👁️</div>
+                        <h3 class="text-2xl font-bold text-white mb-3">2. בקרה אנושית (Human In Loop)</h3>
+                        <p class="text-slate-400 leading-relaxed">
+                            הפיצ'ר שהכי מרגיע לקוחות ובעלי עסקים.<br><br>
+                            חובה לספק לבעל העסק ממשק שבו הוא רואה את שיחות הבוט מתנהלות בזמן אמת. המערכת חייבת לאפשר לו להתערב בשיחה בכל רגע נתון, כשברגע ההתערבות - הבוט מושתק (Muted) אוטומטית.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: QA & Outro -->
+        <section class="slide" id="slide-6">
+            <div class="cyber-panel text-center">
+                <div class="reveal-content text-6xl mb-6 text-[var(--neon-emerald)]"><i class="fa-solid fa-vial-circle-check"></i></div>
+                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-6 glow-text-emerald">3. ולידציה למידע (QA)</h2>
+                <p class="reveal-content delay-2 text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed">
+                    לעולם לא מחברים בוט ללקוחות אמיתיים בלי בדיקה מקיפה.<br><br>
+                    לפני שהבוט מתחיל לעבוד על המידע של הלקוח, מריצים <strong>סקריפט בדיקה אוטומטי (QA)</strong> שזורק על הבוט 10 שאלות מאתגרות ונפוצות. רק לאחר שמוודאים שהתשובות הגיוניות ומדויקות - המערכת עולה לאוויר.
+                </p>
+
+                <div class="reveal-content delay-3 pt-8 border-t border-slate-700/50">
+                    <h3 class="text-2xl font-bold text-white mb-4">מוכנים להתחיל לכתוב קוד?</h3>
+                    <button onclick="document.getElementById('slide-0').scrollIntoView({ behavior: 'smooth' });" class="bg-[var(--neon-cyan)] hover:bg-cyan-400 text-slate-900 font-bold py-4 px-10 rounded-full transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(0,243,255,0.4)] text-lg">
+                        התחל פרויקט חדש <i class="fa-solid fa-arrow-up ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Edit Mode Toggle (fixed bottom) -->
+    <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const mainContainer = document.getElementById('mainContainer');
+
+            let currentIndex = 0;
+            let isScrolling = false;
+
+            const goTo = (i) => {
+                i = Math.max(0, Math.min(slides.length - 1, i));
+                const target = document.getElementById('slide-' + i);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            // Setup Intersection Observer for scroll triggers
+            const observerOptions = {
+                root: mainContainer,
+                rootMargin: '0px',
+                threshold: 0.5 // Trigger when 50% of the slide is visible
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Add 'in-view' class to trigger CSS animations inside the slide
+                        entry.target.classList.add('in-view');
+
+                        // Update Side Navigation
+                        const slideId = entry.target.id.split('-')[1];
+                        currentIndex = parseInt(slideId, 10);
+                        navDots.forEach(dot => dot.classList.remove('active'));
+                        const activeDot = document.querySelector(`.nav-dot[data-index="${slideId}"]`);
+                        if(activeDot) activeDot.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all slides
+            slides.forEach(slide => {
+                observer.observe(slide);
+            });
+
+            // Make Nav Dots clickable to scroll
+            navDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    const index = parseInt(dot.getAttribute('data-index'), 10);
+                    goTo(index);
+                });
+            });
+
+            // Wheel: one slide per gesture (prevents jumpy snapping)
+            mainContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                if (isScrolling || Math.abs(e.deltaY) < 8) return;
+                isScrolling = true;
+                goTo(currentIndex + (e.deltaY > 0 ? 1 : -1));
+                setTimeout(() => { isScrolling = false; }, 850);
+            }, { passive: false });
+
+            // ===== Edit Mode =====
+            const editToggle = document.getElementById('editToggle');
+            const editPanels = document.querySelectorAll('.cyber-panel');
+            const STORAGE_KEY = 'presentation_edits_v1';
+            let editMode = false;
+
+            // Restore previously saved edits (survive refresh)
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                if (saved) {
+                    slides.forEach(s => {
+                        const panel = s.querySelector('.cyber-panel');
+                        if (panel && saved[s.id]) panel.innerHTML = saved[s.id];
+                    });
+                }
+            } catch (err) { /* ignore corrupt storage */ }
+
+            const saveEdits = () => {
+                const data = {};
+                slides.forEach(s => {
+                    const panel = s.querySelector('.cyber-panel');
+                    if (panel) data[s.id] = panel.innerHTML;
+                });
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (err) {}
+            };
+
+            editToggle.addEventListener('click', () => {
+                editMode = !editMode;
+                document.body.classList.toggle('edit-mode', editMode);
+                editPanels.forEach(p => p.setAttribute('contenteditable', editMode ? 'true' : 'false'));
+                if (editMode) {
+                    editToggle.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    editToggle.title = 'שמור וסיים';
+                } else {
+                    saveEdits();
+                    editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                    editToggle.title = 'מצב עריכה';
+                }
+            });
+
+            // Keyboard navigation (arrows / PageUp-Down / Space / Home / End)
+            window.addEventListener('keydown', (e) => {
+                if (editMode) return; // let the user type freely while editing
+                if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+                    e.preventDefault(); goTo(currentIndex + 1);
+                } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+                    e.preventDefault(); goTo(currentIndex - 1);
+                } else if (e.key === 'Home') {
+                    e.preventDefault(); goTo(0);
+                } else if (e.key === 'End') {
+                    e.preventDefault(); goTo(slides.length - 1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
