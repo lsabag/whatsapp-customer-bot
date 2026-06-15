@@ -753,7 +753,7 @@
             const labelFor = (slide, i) => {
                 const h = slide.querySelector('h1, h2');
                 const t = (h ? h.textContent : '').trim();
-                return t ? (t.length > 22 ? t.slice(0, 22) + '…' : t) : ('שקופית ' + (i + 1));
+                return t ? (t.length > 45 ? t.slice(0, 45) + '…' : t) : ('שקופית ' + (i + 1));
             };
 
             const goTo = (i) => {
