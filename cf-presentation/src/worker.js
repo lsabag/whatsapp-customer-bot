@@ -6,6 +6,8 @@
 //   POST /<deck>/api/content → שמירת תוכן ל-KV (מוגן בסיסמה: x-edit-password)
 // מצגות עצמאיות (HTML מלא משלהן) — מוגשות מ-public/decks/<name>.html
 const CUSTOM_DECKS = ['ecommerce-bot'];
+// מצגות מוגנות שאי אפשר למחוק (מסומנות "מובנית")
+const PROTECTED_DECKS = ['ecommerce-bot', 'whatsapp-bot'];
 
 export default {
   async fetch(request, env) {
@@ -20,7 +22,7 @@ export default {
       const list = await env.PRES.list({ prefix: 'deck:' });
       const kvDecks = list.keys.map((k) => k.name.replace(/^deck:/, ''));
       const all = [...new Set([...CUSTOM_DECKS, ...kvDecks])];
-      const decks = all.map((name) => ({ name, custom: CUSTOM_DECKS.includes(name) }));
+      const decks = all.map((name) => ({ name, custom: PROTECTED_DECKS.includes(name) }));
       return new Response(JSON.stringify({ decks }), {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
       });
@@ -52,8 +54,8 @@ export default {
         if (!env.EDIT_PASSWORD || pw !== env.EDIT_PASSWORD) {
           return new Response('unauthorized', { status: 401 });
         }
-        if (CUSTOM_DECKS.includes(deck)) {
-          return new Response('cannot delete a built-in deck', { status: 403 });
+        if (PROTECTED_DECKS.includes(deck)) {
+          return new Response('cannot delete a protected deck', { status: 403 });
         }
         await env.PRES.delete(key);
         await env.PRES.delete('tmpl:' + deck);

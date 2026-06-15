@@ -241,6 +241,7 @@
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
     <div class="edit-toolbar" id="editToolbar">
+        <button data-act="cancel" style="border-color: rgba(239,68,68,0.5); color: #dc2626;"><i class="fa-solid fa-xmark"></i> בטל</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
         <button data-act="glow-cyan">🎨 צבע כחול</button>
@@ -386,6 +387,29 @@
                         alert('סיסמת עריכה שגויה — השינוי נשמר מקומית בלבד.');
                     }
                 } catch (e) { /* no server endpoint — saved locally only */ }
+            };
+
+            // ביטול שינויים — שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
+            const cancelEdit = async () => {
+                if (!confirm('לבטל את השינויים שלא נשמרו ולחזור לגרסה השמורה?')) return;
+                let restored = false;
+                try {
+                    const res = await fetch(API_CONTENT, { cache: 'no-store' });
+                    if (res.ok) { const t = await res.text(); if (t && t.trim().length > 20) { mainContainer.innerHTML = t; restored = true; } }
+                } catch (e) {}
+                if (!restored) {
+                    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+                    location.reload();
+                    return;
+                }
+                editMode = false;
+                document.body.classList.remove('edit-mode');
+                setEditable(false);
+                refresh();
+                if (typeof renderRichContent === 'function') { try { renderRichContent(); } catch (e) {} }
+                saveState();
+                editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                editToggle.title = 'מצב עריכה';
             };
 
             const labelFor = (slide, i) => {
@@ -603,6 +627,7 @@
                 else if (act === 'glow-emerald') applyGlow('glow-text-emerald');
                 else if (act === 'unglow') removeGlow();
                 else if (act === 'download') downloadHtml();
+                else if (act === 'cancel') cancelEdit();
             });
 
             // Tap/click a term to toggle its tooltip (for touch + live presenting). Hover works too.
