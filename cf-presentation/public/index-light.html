@@ -713,6 +713,8 @@
 
         const st = document.createElement('style');
         st.textContent = '.edit-toolbar input[type=color]{width:30px;height:28px;border:none;background:none;cursor:pointer;padding:0;border-radius:6px;}'
+          + '.edit-toolbar .size-input{width:52px;text-align:center;font-family:inherit;font-size:0.8rem;font-weight:700;color:#1e293b;background:rgba(0,0,0,0.04);border:1px solid rgba(30,41,59,0.2);border-radius:9999px;padding:0.3rem 0.2rem;}'
+          + '.edit-toolbar .size-input:focus{outline:none;border-color:#4f46e5;}'
           + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
           + '.icon-picker.open{display:flex;}'
           + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
@@ -720,6 +722,7 @@
         document.head.appendChild(st);
 
         let lastRange = null;
+        let sizeInputRef = null;
         document.addEventListener('selectionchange', function () {
             if (!document.body.classList.contains('edit-mode')) return;
             const sel = window.getSelection();
@@ -727,7 +730,13 @@
             const r = sel.getRangeAt(0);
             let n = r.commonAncestorContainer;
             n = n.nodeType === 1 ? n : n.parentElement;
-            if (n && n.closest && n.closest('.cyber-panel')) lastRange = r.cloneRange();
+            if (n && n.closest && n.closest('.cyber-panel')) {
+                lastRange = r.cloneRange();
+                if (sizeInputRef && n) {
+                    const px = parseFloat(getComputedStyle(n).fontSize);
+                    if (px && document.activeElement !== sizeInputRef) sizeInputRef.value = Math.round(px);
+                }
+            }
         });
         function restoreSel() {
             if (!lastRange) return null;
@@ -745,21 +754,40 @@
             try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
             document.execCommand(cmd, false, val);
         }
-        function tbBtn(html, title, fn) {
+        function tbBtn(html, title, fn, parent) {
             const b = document.createElement('button');
             b.innerHTML = html;
             b.title = title;
             b.addEventListener('click', function (e) { e.preventDefault(); fn(); });
-            toolbar.appendChild(b);
+            (parent || toolbar).appendChild(b);
             return b;
         }
 
-        let sizeLevel = 3;
-        tbBtn('A+', 'הגדל טקסט', function () { sizeLevel = Math.min(7, sizeLevel + 1); fmt('fontSize', sizeLevel); });
-        tbBtn('A-', 'הקטן טקסט', function () { sizeLevel = Math.max(1, sizeLevel - 1); fmt('fontSize', sizeLevel); });
-        tbBtn('<i class="fa-solid fa-align-right"></i>', 'יישור לימין', function () { fmt('justifyRight'); });
-        tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); });
-        tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); });
+        // גודל גופן — שדה מספרי שמראה את הגודל הנוכחי (px) במקום +/-
+        function applyFontPx(px) {
+            restoreSel();
+            try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
+            document.execCommand('fontSize', false, '7');
+            document.querySelectorAll('font[size="7"]').forEach(function (f) {
+                f.removeAttribute('size');
+                f.style.fontSize = px + 'px';
+            });
+        }
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'number'; sizeInput.min = '8'; sizeInput.max = '200'; sizeInput.value = '24';
+        sizeInput.className = 'size-input'; sizeInput.title = 'גודל גופן (px) — הקלידו או גללו';
+        sizeInput.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        sizeInput.addEventListener('change', function () { const px = parseInt(sizeInput.value, 10); if (px) applyFontPx(px); });
+        sizeInputRef = sizeInput;
+        toolbar.appendChild(sizeInput);
+
+        // כפתורי יישור — מקובצים יחד כך שלא יישברו לשורה נפרדת
+        const alignGroup = document.createElement('span');
+        alignGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;';
+        toolbar.appendChild(alignGroup);
+        tbBtn('<i class="fa-solid fa-align-right"></i>', 'יישור לימין', function () { fmt('justifyRight'); }, alignGroup);
+        tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
+        tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
 
         const color = document.createElement('input');
         color.type = 'color'; color.title = 'צבע טקסט'; color.value = '#4f46e5';
