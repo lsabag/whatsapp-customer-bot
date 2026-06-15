@@ -57,11 +57,12 @@
         .flow-line { stroke-dasharray: 12; }
         .glow-text-cyan { color: #4f46e5; }
         .glow-text-emerald { color: #059669; }
-        .scroll-nav { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: center; gap: 1.5rem; z-index: 50; padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.1); max-width: 92vw; overflow-x: auto; }
-        .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(30,41,59,0.2); transition: all 0.4s ease; cursor: pointer; position: relative; flex-shrink: 0; }
-        .nav-dot.active { background: #4f46e5; box-shadow: 0 0 12px rgba(79,70,229,0.5); transform: scale(1.5); }
-        .nav-dot::after { content: attr(data-label); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); color: rgba(71,85,105,0.6); font-size: 0.75rem; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        .nav-dot:hover::after, .nav-dot.active::after { opacity: 1; color: #4f46e5; }
+        .scroll-nav { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: safe center; gap: 0.2rem; z-index: 50; padding: 0.5rem 1rem; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 12px rgba(30,41,59,0.06); overflow-x: auto; }
+        .scroll-nav::-webkit-scrollbar { display: none; }
+        .nav-link { cursor: pointer; white-space: nowrap; color: #475569; font-size: 0.85rem; font-weight: 600; padding: 0.3rem 0.7rem; border-radius: 8px; transition: color 0.2s; flex-shrink: 0; position: relative; }
+        .nav-link:hover { color: #4f46e5; }
+        .nav-link.active { color: #4f46e5; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: -1px; left: 0.7rem; right: 0.7rem; height: 2px; background: #4f46e5; border-radius: 2px; }
         .reveal-content { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2,1,0.3,1), transform 0.8s cubic-bezier(0.2,1,0.3,1); }
         .slide.in-view .reveal-content { opacity: 1; transform: translateY(0); }
         .delay-1 { transition-delay: 0.2s; } .delay-2 { transition-delay: 0.4s; } .delay-3 { transition-delay: 0.6s; }
@@ -242,9 +243,9 @@
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
-        <button data-act="glow-cyan">✦ זוהר ציאן</button>
-        <button data-act="glow-emerald">✦ זוהר ירוק</button>
-        <button data-act="unglow">⊘ הסר זוהר</button>
+        <button data-act="glow-cyan">🎨 צבע כחול</button>
+        <button data-act="glow-emerald">🎨 צבע ירוק</button>
+        <button data-act="unglow">⊘ הסר צבע</button>
         <button data-act="download" style="border-color: rgba(0,255,157,0.5); color: var(--neon-emerald);"><i class="fa-solid fa-download"></i> שמור קובץ</button>
     </div>
 
@@ -400,18 +401,20 @@
             };
 
             const setActiveDot = (i) => {
-                scrollNav.querySelectorAll('.nav-dot').forEach((d, di) => d.classList.toggle('active', di === i));
+                scrollNav.querySelectorAll('.nav-item').forEach((d, di) => d.classList.toggle('active', di === i));
+                const active = scrollNav.querySelector('.nav-item.active');
+                if (active) scrollNav.scrollTo({ left: active.offsetLeft - scrollNav.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
             };
 
             const buildNav = () => {
                 scrollNav.innerHTML = '';
                 getSlides().forEach((slide, i) => {
-                    const dot = document.createElement('div');
-                    dot.className = 'nav-dot' + (i === currentIndex ? ' active' : '');
-                    dot.setAttribute('data-index', i);
-                    dot.setAttribute('data-label', labelFor(slide, i));
-                    dot.addEventListener('click', () => goTo(i));
-                    scrollNav.appendChild(dot);
+                    const item = document.createElement('div');
+                    item.className = 'nav-item nav-link' + (i === currentIndex ? ' active' : '');
+                    item.setAttribute('data-index', i);
+                    item.textContent = labelFor(slide, i);
+                    item.addEventListener('click', () => goTo(i));
+                    scrollNav.appendChild(item);
                 });
             };
 
