@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
     <style>
         :root {
@@ -26,34 +28,37 @@
         }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         .scroll-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y proximity; scroll-behavior: smooth; position: relative; z-index: 10; }
-        .slide { height: 100vh; width: 100vw; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; padding: 2rem; }
-        .orb { position: fixed; border-radius: 50%; filter: blur(110px); z-index: 1; opacity: 0.55; animation: float 20s infinite ease-in-out alternate; }
+        .slide { height: 100vh; width: 100vw; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; padding: 2rem; overflow-y: auto; }
+        .orb { position: fixed; border-radius: 50%; filter: blur(110px); z-index: 1; opacity: 0.5; animation: float 20s infinite ease-in-out alternate; }
         .orb-1 { width: 40vw; height: 40vw; background: radial-gradient(circle, #c7d2fe 0%, transparent 70%); top: -10%; right: -10%; }
         .orb-2 { width: 35vw; height: 35vw; background: radial-gradient(circle, #bae6fd 0%, transparent 70%); bottom: -10%; left: -10%; animation-delay: -5s; }
-        .orb-3 { width: 25vw; height: 25vw; background: radial-gradient(circle, #fde68a 0%, transparent 70%); top: 40%; left: 40%; opacity: 0.35; animation-delay: -10s; }
+        .orb-3 { width: 25vw; height: 25vw; background: radial-gradient(circle, #fde68a 0%, transparent 70%); top: 40%; left: 40%; opacity: 0.3; animation-delay: -10s; }
         @keyframes float { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,30px) scale(1.1); } 100% { transform: translate(30px,-50px) scale(0.9); } }
+        /* outer editable wrapper — transparent so inner glass-cards show as designed */
         .cyber-panel {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
             border-radius: 24px;
-            padding: 3rem;
+            padding: 1.5rem;
             width: 100%;
-            max-width: 1100px;
-            box-shadow: 0 20px 45px -12px rgba(30, 41, 59, 0.15);
+            max-width: 1280px;
             position: relative;
             overflow: visible;
+            margin: auto;
         }
         .cyber-panel::before, .cyber-panel::after { display: none; }
+        /* ecommerce glass cards */
+        .glass-card { background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        /* neutralize ecommerce .reveal so content is visible inside slides */
+        .reveal { opacity: 1; transform: none; }
+        .flow-line { stroke-dasharray: 12; }
         .glow-text-cyan { color: #4f46e5; }
         .glow-text-emerald { color: #059669; }
-        .slide .text-white { color: #1e293b !important; }
-        .slide .text-slate-200 { color: #334155 !important; }
-        .slide .text-slate-300 { color: #475569 !important; }
-        .slide .text-slate-400 { color: #64748b !important; }
-        .slide .text-slate-500 { color: #94a3b8 !important; }
-        .scroll-nav { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: center; gap: 1.5rem; z-index: 50; padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.1); }
-        .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(30,41,59,0.2); transition: all 0.4s ease; cursor: pointer; position: relative; }
+        .scroll-nav { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: center; gap: 1.5rem; z-index: 50; padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.1); max-width: 92vw; overflow-x: auto; }
+        .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(30,41,59,0.2); transition: all 0.4s ease; cursor: pointer; position: relative; flex-shrink: 0; }
         .nav-dot.active { background: #4f46e5; box-shadow: 0 0 12px rgba(79,70,229,0.5); transform: scale(1.5); }
         .nav-dot::after { content: attr(data-label); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); color: rgba(71,85,105,0.6); font-size: 0.75rem; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
         .nav-dot:hover::after, .nav-dot.active::after { opacity: 1; color: #4f46e5; }
@@ -90,15 +95,9 @@
             body { overflow: visible !important; background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .orb, .scroll-nav, .edit-toggle, .export-pdf, .edit-toolbar, .slide-controls { display: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
-            .slide { height: auto !important; min-height: 100vh; page-break-after: always; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .slide { height: auto !important; min-height: 100vh; page-break-after: always; break-after: page; overflow: visible !important; }
             .slide:last-child { page-break-after: auto; break-after: auto; }
             .reveal-content { opacity: 1 !important; transform: none !important; }
-            .cyber-panel { outline: none !important; box-shadow: none; }
-            .print-glossary { display: block; margin-top: 1.5rem; padding-top: 0.8rem; border-top: 1px solid rgba(79,70,229,0.35); font-size: 0.72rem; line-height: 1.5; color: #475569; text-align: right; }
-            .print-glossary h4 { color: #4f46e5; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; }
-            .print-glossary ul { list-style: disc; padding-right: 1.2rem; }
-            .print-glossary li { margin-bottom: 0.15rem; }
-            .print-glossary strong { color: #0f172a; }
         }
 
     </style>
@@ -132,6 +131,111 @@
         </section>
     </div>
 
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-[100] flex items-center gap-3"><i class="fa-solid fa-circle-check text-emerald-400"></i> הפרומפט הועתק בהצלחה!</div>
+    <script>
+        // --- העתקה ללוח (לבלוקי הפרומפט) ---
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            navigator.clipboard.writeText(el.innerText).then(() => {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.classList.remove('opacity-0');
+                setTimeout(() => { toast.classList.add('opacity-0'); }, 2500);
+            });
+        }
+
+        // --- גרף ידע אינטראקטיבי (vis-network) ---
+        function initKnowledgeGraph() {
+            const container = document.getElementById('interactive-graph');
+            if (!container || typeof vis === 'undefined') return;
+            if (container.dataset.inited === '1') return;
+            container.dataset.inited = '1';
+
+            const nodes = new vis.DataSet([
+                { id: 1, label: "עונת חורף", value: 35 },
+                { id: 2, label: "קולקציית חורף", value: 25 },
+                { id: 3, label: "סייל חורף 30%", value: 25 },
+                { id: 4, label: "ג'קטים", value: 20 },
+                { id: 5, label: "סוודרים", value: 20 },
+                { id: 6, label: "ג'קט ג'ינס", value: 15 },
+                { id: 7, label: "מעיל צמר", value: 15 },
+                { id: 8, label: "סוודר גולף", value: 15 },
+                { id: 9, label: "ירון (לקוח)", value: 18 },
+                { id: 10, label: "הזמנה 1050", value: 12 },
+                { id: 11, label: "צבע שחור", value: 10 },
+                { id: 12, label: "מידה L", value: 10 },
+                { id: 13, label: "אביזרים", value: 15 },
+                { id: 14, label: "כובע גרב", value: 10 },
+                { id: 15, label: "שרה (לקוחה)", value: 18 },
+                { id: 16, label: "מידה M", value: 10 }
+            ]);
+            const edges = new vis.DataSet([
+                { from: 2, to: 1, label: "מתאים ל" },
+                { from: 4, to: 2, label: "תת-קטגוריה" },
+                { from: 5, to: 2, label: "תת-קטגוריה" },
+                { from: 13, to: 2, label: "תת-קטגוריה" },
+                { from: 6, to: 4, label: "שייך ל" },
+                { from: 7, to: 4, label: "שייך ל" },
+                { from: 8, to: 5, label: "שייך ל" },
+                { from: 14, to: 13, label: "שייך ל" },
+                { from: 2, to: 3, label: "משתתף ב" },
+                { from: 6, to: 11, label: "זמין ב" },
+                { from: 7, to: 11, label: "זמין ב" },
+                { from: 6, to: 12, label: "זמין ב" },
+                { from: 8, to: 16, label: "זמין ב" },
+                { from: 9, to: 10, label: "ביצע" },
+                { from: 10, to: 6, label: "כוללת" },
+                { from: 15, to: 7, label: "צפתה ב" },
+                { from: 15, to: 14, label: "רכשה" }
+            ]);
+            const data = { nodes: nodes, edges: edges };
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    color: { background: '#3b82f6', border: '#2563eb', highlight: { background: '#60a5fa', border: '#1d4ed8' }, hover: { background: '#60a5fa', border: '#1d4ed8' } },
+                    font: { face: 'Rubik, sans-serif', size: 14, color: '#0f172a', strokeWidth: 3, strokeColor: '#ffffff' }
+                },
+                edges: {
+                    color: { color: '#cbd5e1', highlight: '#94a3b8', hover: '#94a3b8' },
+                    smooth: false,
+                    arrows: { to: { enabled: true, scaleFactor: 0.4 } },
+                    font: { face: 'Rubik, sans-serif', size: 11, align: 'top', color: '#64748b', strokeWidth: 0 }
+                },
+                physics: {
+                    forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.005, springLength: 200, springConstant: 0.05 },
+                    maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 150 }
+                },
+                interaction: { hover: true, tooltipDelay: 200, zoomView: true, dragView: true }
+            };
+            const network = new vis.Network(container, data, options);
+
+            const wrapper = document.getElementById('graph-wrapper');
+            const msg = document.getElementById('ctrl-zoom-msg');
+            let msgTimeout;
+            if (wrapper) {
+                wrapper.addEventListener('wheel', function (event) {
+                    if (!event.ctrlKey && !event.metaKey) {
+                        event.stopPropagation();
+                        if (msg) {
+                            msg.classList.remove('opacity-0');
+                            clearTimeout(msgTimeout);
+                            msgTimeout = setTimeout(() => { msg.classList.add('opacity-0'); }, 1500);
+                        }
+                    } else {
+                        event.preventDefault();
+                    }
+                }, { capture: true, passive: false });
+            }
+        }
+
+        // מופעל ע"י ה-shell אחרי שהתוכן נטען מ-KV
+        function renderRichContent() {
+            try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+            try { initKnowledgeGraph(); } catch (e) {}
+        }
+
+    </script>
     <!-- Edit Mode Toggle (fixed bottom) -->
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
@@ -376,10 +480,11 @@
                 const slides = getSlides();
                 const section = document.createElement('section');
                 section.className = 'slide';
+                const darkT = (document.documentElement.dataset.template || 'dark') === 'dark';
                 section.innerHTML =
                     '<div class="cyber-panel"' + (editMode ? ' contenteditable="true"' : '') + '>' +
                     '<h2 class="text-4xl md:text-5xl font-bold mb-6 glow-text-cyan">כותרת חדשה</h2>' +
-                    '<p class="text-lg text-slate-300 leading-relaxed">טקסט רגיל — לחצו כאן כדי לערוך.</p>' +
+                    '<p class="text-lg leading-relaxed ' + (darkT ? 'text-slate-300' : 'text-slate-600') + '">טקסט רגיל — לחצו כאן כדי לערוך.</p>' +
                     '</div>';
                 // Insert before the last slide so the closing (QR) slide stays last
                 const last = slides[slides.length - 1];
@@ -396,10 +501,11 @@
                 const panel = slide.querySelector('.cyber-panel');
                 if (!panel) return;
                 const block = document.createElement('div');
+                const dark = (document.documentElement.dataset.template || 'dark') === 'dark';
                 block.className = 'tech-box mt-4';
                 block.innerHTML =
-                    '<h3 class="text-xl font-bold text-white mb-2">כותרת אזור</h3>' +
-                    '<p class="text-slate-300 text-sm">טקסט — לחצו כאן כדי לערוך.</p>';
+                    '<h3 class="text-xl font-bold mb-2 ' + (dark ? 'text-white' : 'text-slate-800') + '">כותרת אזור</h3>' +
+                    '<p class="text-sm ' + (dark ? 'text-slate-300' : 'text-slate-600') + '">טקסט — לחצו כאן כדי לערוך.</p>';
                 panel.appendChild(block);
                 saveState();
             };
@@ -464,6 +570,7 @@
             // ---- Init ----
             await loadContent();
             refresh();
+            renderRichContent();
 
             editToggle.addEventListener('click', () => {
                 editMode = !editMode;
