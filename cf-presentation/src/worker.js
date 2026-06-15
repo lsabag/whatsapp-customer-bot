@@ -1,17 +1,32 @@
-// Cloudflare Worker — מארח מצגות עריכה תחת slide.nextli.co.il/<deck>
-//   GET  /<deck>            → מגיש את המצגת (index.html)
-//   GET  /<deck>/api/content → מחזיר את התוכן השמור של אותה מצגת מ-KV
-//   POST /<deck>/api/content → שומר תוכן ל-KV (מוגן בסיסמה: x-edit-password)
-// כל מצגת מזוהה בנתיב, ולכן אפשר לארח כמה מצגות נפרדות באותו Worker.
+// Cloudflare Worker — בונה מצגות תחת slide.nextli.co.il
+//   /                       → דף בית (יצירת מצגת חדשה + רשימת קיימות)
+//   /api/decks              → רשימת המצגות השמורות (מ-KV)
+//   /<deck>                 → מגיש את שלד המצגת (index.html); תוכן נטען מ-KV
+//   GET  /<deck>/api/content → תוכן המצגת מ-KV (ריק = מצגת חדשה, מתחילה מתבנית)
+//   POST /<deck>/api/content → שמירת תוכן ל-KV (מוגן בסיסמה: x-edit-password)
+// מצגות עצמאיות (HTML מלא משלהן) — מוגשות מ-public/decks/<name>.html
+const CUSTOM_DECKS = ['ecommerce-bot'];
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    const parts = url.pathname.replace(/^\/+/, '').replace(/\/+$/, '').split('/');
-    const deck = parts[0] || '';
-    const rest = parts.slice(1).join('/');
+    const raw = url.pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+    const parts = raw.split('/');
+    const deck = decodeURIComponent(parts[0] || '');
+    const rest = parts.slice(1).map((p) => { try { return decodeURIComponent(p); } catch (e) { return p; } }).join('/');
 
-    // ----- API: /<deck>/api/content -----
-    if (rest === 'api/content' && deck) {
+    // ----- רשימת מצגות -----
+    if (deck === 'api' && rest === 'decks') {
+      const list = await env.PRES.list({ prefix: 'deck:' });
+      const kvDecks = list.keys.map((k) => k.name.replace(/^deck:/, ''));
+      const decks = [...new Set([...CUSTOM_DECKS, ...kvDecks])];
+      return new Response(JSON.stringify({ decks }), {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    }
+
+    // ----- תוכן מצגת ספציפית -----
+    if (rest === 'api/content' && deck && deck !== 'api') {
       const key = 'deck:' + deck;
       if (request.method === 'GET') {
         const content = await env.PRES.get(key);
@@ -32,19 +47,31 @@ export default {
       return new Response('method not allowed', { status: 405 });
     }
 
-    // ----- Serve the deck HTML for /<deck> -----
-    if (deck && rest === '') {
-      const assetUrl = new URL(request.url);
-      assetUrl.pathname = '/index.html';
-      return env.ASSETS.fetch(new Request(assetUrl, request));
-    }
-
-    // ----- Root → redirect to the main deck -----
+    // ----- שורש → דף בית -----
     if (!deck) {
-      return Response.redirect(url.origin + '/whatsapp-bot', 302);
+      const a = new URL(request.url);
+      a.pathname = '/home.html';
+      return env.ASSETS.fetch(new Request(a, request));
     }
 
-    // anything else → static assets (or 404)
+    // ----- בקשת קובץ סטטי ישיר (.html / .css / ...) -----
+    if (/\.[a-z0-9]+$/i.test(deck) && rest === '') {
+      return env.ASSETS.fetch(request);
+    }
+
+    // ----- עמוד מצגת: /<deck> -----
+    if (rest === '') {
+      // מצגת עצמאית (HTML מלא משלה) אם קיימת תחת public/decks/<deck>.html
+      const customUrl = new URL(request.url);
+      customUrl.pathname = '/decks/' + deck + '.html';
+      const custom = await env.ASSETS.fetch(new Request(customUrl, request));
+      if (custom.status === 200) return custom;
+      // אחרת — שלד המצגת הנערכת (תוכן מ-KV)
+      const a = new URL(request.url);
+      a.pathname = '/index.html';
+      return env.ASSETS.fetch(new Request(a, request));
+    }
+
     return env.ASSETS.fetch(request);
   },
 };

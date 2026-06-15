@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מצגות — Nextli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --neon-cyan:#00f3ff; --neon-purple:#bc13fe; --neon-emerald:#00ff9d; --dark-bg:#030712; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Varela Round','Heebo',sans-serif; background:var(--dark-bg); color:#e2e8f0; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; overflow-x:hidden; }
+        .orb { position:fixed; border-radius:50%; filter:blur(100px); z-index:0; opacity:0.4; }
+        .orb1 { width:40vw; height:40vw; background:radial-gradient(circle,var(--neon-purple) 0%,transparent 70%); top:-10%; right:-10%; }
+        .orb2 { width:35vw; height:35vw; background:radial-gradient(circle,var(--neon-cyan) 0%,transparent 70%); bottom:-10%; left:-10%; }
+        .panel { position:relative; z-index:10; width:100%; max-width:640px; background:rgba(10,15,30,0.5); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.06); border-top:1px solid rgba(0,243,255,0.3); border-bottom:1px solid rgba(188,19,254,0.3); border-radius:24px; padding:2.5rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.7); }
+        .glow { color:#fff; text-shadow:0 0 10px var(--neon-cyan),0 0 20px rgba(0,243,255,0.5); }
+        input { font-family:inherit; }
+        .deck-link { transition:all .2s; }
+        .deck-link:hover { border-color:var(--neon-cyan) !important; color:var(--neon-cyan); }
+    </style>
+</head>
+<body>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="panel">
+        <div class="text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase"><i class="fa-solid fa-layer-group ml-2"></i>Nextli // מצגות</div>
+        <h1 class="text-4xl md:text-5xl font-black mb-2 glow">בונה המצגות</h1>
+        <p class="text-slate-400 mb-8">צרו מצגת חדשה או המשיכו לערוך מצגת קיימת. כל מצגת נשמרת בענן עם כתובת משלה.</p>
+
+        <!-- Create new -->
+        <div class="mb-8">
+            <label class="block text-sm text-slate-300 mb-2 font-semibold">שם מצגת חדשה</label>
+            <div class="flex gap-2">
+                <input id="deckName" type="text" placeholder="למשל: my-talk" class="flex-1 bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--neon-cyan)]">
+                <button id="createBtn" class="bg-[var(--neon-cyan)] hover:bg-cyan-400 text-slate-900 font-bold px-6 rounded-xl transition-all whitespace-nowrap"><i class="fa-solid fa-plus ml-1"></i>צור / פתח</button>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">השם הופך לכתובת: slide.nextli.co.il/<span id="preview" class="text-[var(--neon-cyan)]">my-talk</span></p>
+        </div>
+
+        <!-- Existing decks -->
+        <div>
+            <div class="text-sm text-slate-300 mb-3 font-semibold">מצגות קיימות</div>
+            <div id="deckList" class="space-y-2 text-slate-400 text-sm">טוען…</div>
+        </div>
+    </div>
+
+    <script>
+        const slugify = (s) => s.trim().replace(/\s+/g, '-');
+        const nameInput = document.getElementById('deckName');
+        const preview = document.getElementById('preview');
+        const goToDeck = () => {
+            const slug = slugify(nameInput.value);
+            if (!slug) { nameInput.focus(); return; }
+            location.href = '/' + encodeURIComponent(slug);
+        };
+        nameInput.addEventListener('input', () => { preview.textContent = slugify(nameInput.value) || 'my-talk'; });
+        nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') goToDeck(); });
+        document.getElementById('createBtn').addEventListener('click', goToDeck);
+
+        // Load existing decks
+        (async () => {
+            const list = document.getElementById('deckList');
+            try {
+                const res = await fetch('/api/decks', { cache: 'no-store' });
+                const data = await res.json();
+                const decks = (data && data.decks) || [];
+                if (!decks.length) { list.innerHTML = '<div class="text-slate-500">אין עדיין מצגות שמורות — צרו אחת למעלה.</div>'; return; }
+                list.innerHTML = '';
+                decks.forEach(name => {
+                    const a = document.createElement('a');
+                    a.href = '/' + encodeURIComponent(name);
+                    a.className = 'deck-link block bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
+                    a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + name;
+                    list.appendChild(a);
+                });
+            } catch (e) {
+                list.innerHTML = '<div class="text-slate-500">לא ניתן לטעון רשימה כרגע.</div>';
+            }
+        })();
+    </script>
+</body>
+</html>
