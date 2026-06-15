@@ -886,5 +886,109 @@
             });
         });
     </script>
+    <!-- כלי עריכה מתקדמים: גודל, צבע, יישור, אייקונים, עמודות -->
+    <script>
+    (function () {
+        const toolbar = document.getElementById('editToolbar');
+        if (!toolbar) return;
+
+        const st = document.createElement('style');
+        st.textContent = '.edit-toolbar input[type=color]{width:30px;height:28px;border:none;background:none;cursor:pointer;padding:0;border-radius:6px;}'
+          + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
+          + '.icon-picker.open{display:flex;}'
+          + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
+          + '.icon-picker button:hover{background:rgba(255,255,255,0.2);}';
+        document.head.appendChild(st);
+
+        let lastRange = null;
+        document.addEventListener('selectionchange', function () {
+            if (!document.body.classList.contains('edit-mode')) return;
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const r = sel.getRangeAt(0);
+            let n = r.commonAncestorContainer;
+            n = n.nodeType === 1 ? n : n.parentElement;
+            if (n && n.closest && n.closest('.cyber-panel')) lastRange = r.cloneRange();
+        });
+        function restoreSel() {
+            if (!lastRange) return null;
+            let n = lastRange.commonAncestorContainer;
+            n = n.nodeType === 1 ? n : n.parentElement;
+            const panel = n && n.closest ? n.closest('.cyber-panel') : null;
+            if (panel) panel.focus();
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(lastRange);
+            return panel;
+        }
+        function fmt(cmd, val) {
+            restoreSel();
+            try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+            document.execCommand(cmd, false, val);
+        }
+        function tbBtn(html, title, fn) {
+            const b = document.createElement('button');
+            b.innerHTML = html;
+            b.title = title;
+            b.addEventListener('click', function (e) { e.preventDefault(); fn(); });
+            toolbar.appendChild(b);
+            return b;
+        }
+
+        let sizeLevel = 3;
+        tbBtn('A+', 'הגדל טקסט', function () { sizeLevel = Math.min(7, sizeLevel + 1); fmt('fontSize', sizeLevel); });
+        tbBtn('A-', 'הקטן טקסט', function () { sizeLevel = Math.max(1, sizeLevel - 1); fmt('fontSize', sizeLevel); });
+        tbBtn('<i class="fa-solid fa-align-right"></i>', 'יישור לימין', function () { fmt('justifyRight'); });
+        tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); });
+        tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); });
+
+        const color = document.createElement('input');
+        color.type = 'color'; color.title = 'צבע טקסט'; color.value = '#00f3ff';
+        color.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        color.addEventListener('input', function () { fmt('foreColor', color.value); });
+        toolbar.appendChild(color);
+
+        function splitCols(n) {
+            const slides = [].slice.call(document.querySelectorAll('.slide'));
+            const mid = window.innerHeight / 2;
+            const slide = slides.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || slides[0];
+            if (!slide) return;
+            const panel = slide.querySelector('.cyber-panel');
+            if (!panel) return;
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-' + n + ' gap-4 mt-4';
+            for (let i = 0; i < n; i++) {
+                const c = document.createElement('div');
+                c.className = 'tech-box';
+                c.innerHTML = '<h3 class="text-lg font-bold mb-2">כותרת</h3><p class="text-sm">טקסט — לחצו לעריכה.</p>';
+                grid.appendChild(c);
+            }
+            panel.appendChild(grid);
+        }
+        tbBtn('▦2', '2 עמודות', function () { splitCols(2); });
+        tbBtn('▦3', '3 עמודות', function () { splitCols(3); });
+        tbBtn('▦4', '4 עמודות', function () { splitCols(4); });
+
+        const ICONS = ['fa-star','fa-check','fa-circle-check','fa-bolt','fa-lightbulb','fa-rocket','fa-gear','fa-heart','fa-shield-halved','fa-database','fa-robot','fa-comment','fa-magnifying-glass','fa-wand-magic-sparkles','fa-arrow-left','fa-arrow-right'];
+        const picker = document.createElement('div');
+        picker.className = 'icon-picker';
+        ICONS.forEach(function (ic) {
+            const b = document.createElement('button');
+            b.innerHTML = '<i class="fa-solid ' + ic + '"></i>';
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function () {
+                restoreSel();
+                document.execCommand('insertHTML', false, '<i class="fa-solid ' + ic + '"></i> ');
+                picker.classList.remove('open');
+            });
+            picker.appendChild(b);
+        });
+        document.body.appendChild(picker);
+        tbBtn('<i class="fa-solid fa-icons"></i>', 'הוסף אייקון', function () { picker.classList.toggle('open'); });
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.icon-picker') && !(e.target.closest('button') && e.target.closest('button').title === 'הוסף אייקון')) picker.classList.remove('open');
+        });
+    })();
+    </script>
 </body>
 </html>
