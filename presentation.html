@@ -364,6 +364,9 @@
         }
         .term:hover::after, .term.show-tip::after { opacity: 1; visibility: visible; }
 
+        /* Per-slide glossary box — hidden on screen, shown only in the PDF/print */
+        .print-glossary { display: none; }
+
         /* ===== Print / Export to PDF ===== */
         @media print {
             @page { size: A4 landscape; margin: 0; }
@@ -386,6 +389,20 @@
             .slide:last-child { page-break-after: auto; break-after: auto; }
             .reveal-content { opacity: 1 !important; transform: none !important; }
             .cyber-panel { outline: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-glossary {
+                display: block;
+                margin-top: 1.5rem;
+                padding-top: 0.8rem;
+                border-top: 1px solid rgba(0, 243, 255, 0.35);
+                font-size: 0.72rem;
+                line-height: 1.5;
+                color: #cbd5e1;
+                text-align: right;
+            }
+            .print-glossary h4 { color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; }
+            .print-glossary ul { list-style: disc; padding-right: 1.2rem; }
+            .print-glossary li { margin-bottom: 0.15rem; }
+            .print-glossary strong { color: #fff; }
         }
 
     </style>
@@ -737,7 +754,7 @@
                         while (p && p !== root) {
                             const tag = p.tagName ? p.tagName.toLowerCase() : '';
                             if (tag === 'code' || tag === 'pre' || tag === 'svg' || tag === 'button' ||
-                                (p.classList && (p.classList.contains('term') || p.classList.contains('font-mono') || p.classList.contains('slide-controls')))) {
+                                (p.classList && (p.classList.contains('term') || p.classList.contains('font-mono') || p.classList.contains('slide-controls') || p.classList.contains('print-glossary')))) {
                                 return NodeFilter.FILTER_REJECT;
                             }
                             p = p.parentElement;
@@ -776,6 +793,7 @@
                 clone.querySelectorAll('.slide').forEach(s => s.classList.remove('in-view'));
                 clone.querySelectorAll('.slide-controls').forEach(b => b.remove()); // re-injected at runtime
                 clone.querySelectorAll('.term').forEach(s => s.replaceWith(document.createTextNode(s.textContent))); // re-applied at runtime
+                clone.querySelectorAll('.print-glossary').forEach(b => b.remove()); // rebuilt on export
                 try { localStorage.setItem(STORAGE_KEY, clone.innerHTML); } catch (err) {}
             };
 
@@ -912,6 +930,29 @@
                 if (t && !editMode) t.classList.toggle('show-tip');
             });
 
+            // Build a per-slide glossary box (shown only in print) from the slide's terms
+            const buildPrintGlossaries = () => {
+                getSlides().forEach(slide => {
+                    const old = slide.querySelector('.print-glossary');
+                    if (old) old.remove();
+                    const terms = Array.from(slide.querySelectorAll('.term'));
+                    if (!terms.length) return;
+                    const seen = new Set();
+                    const items = [];
+                    terms.forEach(t => {
+                        const key = t.getAttribute('data-term');
+                        if (seen.has(key)) return;
+                        seen.add(key);
+                        items.push('<li><strong>' + t.textContent + '</strong> — ' + (t.getAttribute('data-tip') || '') + '</li>');
+                    });
+                    if (!items.length) return;
+                    const box = document.createElement('div');
+                    box.className = 'print-glossary';
+                    box.innerHTML = '<h4>מילון מונחים בשקופית זו</h4><ul>' + items.join('') + '</ul>';
+                    (slide.querySelector('.cyber-panel') || slide).appendChild(box);
+                });
+            };
+
             // Export to PDF (via browser print). Exits edit mode first for a clean output.
             const exportBtn = document.getElementById('exportPdf');
             exportBtn.addEventListener('click', () => {
@@ -924,7 +965,8 @@
                     editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
                     editToggle.title = 'מצב עריכה';
                 }
-                setTimeout(() => window.print(), 100);
+                buildPrintGlossaries();
+                setTimeout(() => window.print(), 150);
             });
 
             // Wheel: one slide per gesture (prevents jumpy snapping)
