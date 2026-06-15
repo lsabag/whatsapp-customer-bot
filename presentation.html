@@ -105,7 +105,7 @@
             max-width: 1100px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 243, 255, 0.05);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         /* Cyber Accents */
@@ -330,6 +330,40 @@
         .slide-ctrl.del { background: rgba(255, 70, 70, 0.15); border-color: rgba(255, 90, 90, 0.5); color: #ff7b7b; }
         .slide-ctrl.del:hover { background: rgba(255, 70, 70, 0.3); }
 
+        /* Glossary terms — dotted underline + hover/tap tooltip */
+        .term {
+            border-bottom: 1px dotted var(--neon-cyan);
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+        .term::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 145%;
+            right: 50%;
+            transform: translateX(50%);
+            width: max-content;
+            max-width: 300px;
+            background: rgba(3, 7, 18, 0.97);
+            border: 1px solid var(--neon-cyan);
+            color: #e2e8f0;
+            font-size: 0.8rem;
+            font-weight: 400;
+            line-height: 1.55;
+            text-align: right;
+            padding: 0.7rem 0.9rem;
+            border-radius: 10px;
+            white-space: normal;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease;
+            z-index: 80;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+        }
+        .term:hover::after, .term.show-tip::after { opacity: 1; visibility: visible; }
+
         /* ===== Print / Export to PDF ===== */
         @media print {
             @page { size: A4 landscape; margin: 0; }
@@ -457,7 +491,9 @@
                 <div class="reveal-content delay-3 tech-box mt-6 text-sm text-slate-300 leading-relaxed">
                     <strong class="text-[var(--neon-cyan)]">הזרקת ידע מול RAG — מה ההבדל?</strong><br>
                     כאן עשינו <strong>הזרקת ידע (Context Injection)</strong>: כל המידע על העסק נכנס ישירות ל-prompt של המודל. פשוט, מהיר ומדויק כשכמות הידע קטנה-בינונית.<br>
-                    כשיש <strong>הרבה</strong> מידע (מאות עמודים) עדיף <strong>RAG</strong>: שליפה חכמה של רק הקטעים הרלוונטיים לכל שאלה — כדי לא להציף את ה-prompt ולחסוך בעלות טוקנים.
+                    כשיש <strong>הרבה</strong> מידע (מאות עמודים) עדיף <strong>RAG</strong>: שליפה חכמה של רק הקטעים הרלוונטיים לכל שאלה — כדי לא להציף את ה-prompt ולחסוך בעלות טוקנים.<br><br>
+                    <strong class="text-[var(--neon-emerald)]">איך בונים RAG בפשטות — 4 צעדים:</strong><br>
+                    1) חותכים את המסמכים לקטעים קצרים (chunks). 2) ממירים כל קטע ל-embedding (וקטור מספרי שמייצג משמעות) דרך מודל embeddings. 3) שומרים את הווקטורים ב-Vector DB. 4) בכל שאלה — ממירים גם אותה ל-embedding, שולפים את הקטעים הכי דומים, ומזריקים <em>רק אותם</em> ל-prompt.
                 </div>
             </div>
         </section>
@@ -625,6 +661,73 @@
 
             const getSlides = () => Array.from(document.querySelectorAll('.slide'));
 
+            // ===== Glossary: explain technical terms on hover/tap =====
+            // (longer / more specific terms first so they win over generic ones)
+            const GLOSSARY = [
+                { key: 'cloudapi', term: 'Cloud API', tip: 'ה-API הרשמי של וואטסאפ (Meta) לשליחה וקבלה של הודעות באופן חוקי ויציב.' },
+                { key: 'whatsappwebjs', term: 'whatsapp-web.js', tip: 'ספריית קוד לא-רשמית שמתחברת לוואטסאפ ווב על ידי הפעלת דפדפן נסתר (Puppeteer).' },
+                { key: 'multitenancy', term: 'Multi-tenancy', tip: 'ארכיטקטורה שבה מערכת אחת משרתת כמה לקוחות בנפרד, עם הפרדה מלאה ביניהם.' },
+                { key: 'humanloop', term: 'Human In Loop', tip: '"אדם בלולאה" — אדם שמפקח על התהליך האוטומטי ויכול להתערב בכל רגע.' },
+                { key: 'vectordb', term: 'Vector DB', tip: 'מסד נתונים וקטורי — שומר embeddings ומאפשר למצוא במהירות את הקטעים הדומים ביותר לשאלה.' },
+                { key: 'mvp', term: 'MVP', tip: 'Minimum Viable Product — גרסה ראשונית ומינימלית שמוכיחה שהרעיון עובד, לפני פיתוח מלא.' },
+                { key: 'nodejs', term: 'Node.js', tip: 'סביבת הרצה להרצת קוד JavaScript מחוץ לדפדפן — על השרת/מחשב.' },
+                { key: 'tunnel', term: 'מנהרה', tip: 'Tunnel — כלי שחושף שרת מקומי שרץ על המחשב שלך אל האינטרנט, כדי ששירות חיצוני יגיע אליו (כמו Ngrok / Cloudflare Tunnel). במקרה שלנו לא צריך אותו.' },
+                { key: 'prompt', term: 'prompt', tip: 'ההוראה/טקסט שנשלח למודל ה-AI, שעל בסיסו הוא מנסח את התשובה.' },
+                { key: 'ban', term: 'Ban', tip: 'חסימה — וואטסאפ חוסמת את המספר מלהשתמש בשירות.' },
+                { key: 'embedding', term: 'embedding', tip: 'ייצוג מספרי (וקטור) של טקסט שמקודד את המשמעות שלו — מאפשר להשוות דמיון בין טקסטים.' },
+                { key: 'production', term: 'פרודקשן', tip: 'סביבת הייצור — המערכת "האמיתית" שמשרתת לקוחות, להבדיל מסביבת פיתוח/בדיקות.' },
+                { key: 'twilio', term: 'Twilio', tip: 'חברה שמספקת גישה נוחה ל-APIs של תקשורת (כולל וואטסאפ הרשמי) דרך שירות מנוהל אחד.' },
+                { key: 'webhooks', term: 'webhooks', tip: 'מנגנון שבו שירות חיצוני "דוחף" אליך קריאת HTTP ברגע שמשהו קורה (למשל כשמתקבלת הודעה).' },
+                { key: 'serverless', term: 'serverless', tip: 'הרצת קוד בלי לנהל שרת — הספק מריץ את הקוד רק כשצריך ומחייב לפי שימוש בפועל.' },
+                { key: 'database', term: 'Database', tip: 'מסד נתונים — מערכת לשמירה מסודרת של מידע (כאן: היסטוריית השיחות והזיכרון).' },
+                { key: 'fallback', term: 'Fallback', tip: 'מנגנון גיבוי — מה קורה כשהבוט נתקע: העברה אוטומטית לנציג אנושי.' },
+                { key: 'optin', term: 'Opt-in', tip: 'הסכמה מפורשת ומראש של הלקוח לקבל הודעות אוטומטיות.' },
+                { key: 'sla', term: 'SLA', tip: 'Service Level Agreement — הסכם שמגדיר רמת שירות, זמינות ואחריות.' },
+                { key: 'retainer', term: 'Retainer', tip: 'תשלום חודשי קבוע עבור שירות מתמשך (תחזוקה, שרתים, תמיכה).' },
+                { key: 'hallucination', term: 'הלוצינציות', tip: 'Hallucinations — מצב שבו ה-AI ממציא מידע שגוי ומציג אותו בביטחון.' },
+                { key: 'muted', term: 'Muted', tip: 'מושתק — הבוט מפסיק לענות אוטומטית כשנציג אנושי נכנס לשיחה.' },
+                { key: 'vm', term: 'VM', tip: 'Virtual Machine — מחשב וירטואלי בענן שרץ תמיד, כמו מחשב מרוחק שתמיד דלוק.' },
+                { key: 'qa', term: 'QA', tip: 'Quality Assurance — בדיקות איכות שמוודאות שהמערכת עובדת נכון לפני עלייה לאוויר.' },
+                { key: 'api', term: 'API', tip: 'Application Programming Interface — "שקע" תקשורת שדרכו תוכנה מבקשת שירות מתוכנה אחרת.' },
+                { key: 'qr', term: 'QR', tip: 'קוד מרובע שסורקים עם מצלמת הטלפון כדי לפתוח קישור או לחבר מכשיר במהירות.' }
+            ];
+
+            const wrapTerm = (root, term, tip, key) => {
+                if (root.querySelector('.term[data-term="' + key + '"]')) return; // already wrapped in this slide
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode(node) {
+                        if (!node.nodeValue || node.nodeValue.indexOf(term) === -1) return NodeFilter.FILTER_REJECT;
+                        let p = node.parentElement;
+                        while (p && p !== root) {
+                            const tag = p.tagName ? p.tagName.toLowerCase() : '';
+                            if (tag === 'code' || tag === 'pre' || tag === 'svg' || tag === 'button' ||
+                                (p.classList && (p.classList.contains('term') || p.classList.contains('font-mono') || p.classList.contains('slide-controls')))) {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            p = p.parentElement;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                });
+                const node = walker.nextNode();
+                if (!node) return;
+                const idx = node.nodeValue.indexOf(term);
+                const after = node.splitText(idx);
+                after.nodeValue = after.nodeValue.slice(term.length);
+                const span = document.createElement('span');
+                span.className = 'term';
+                span.setAttribute('data-term', key);
+                span.setAttribute('data-tip', tip);
+                span.textContent = term;
+                node.parentNode.insertBefore(span, after);
+            };
+
+            const applyGlossary = () => {
+                getSlides().forEach(slide => {
+                    GLOSSARY.forEach(g => wrapTerm(slide, g.term, g.tip, g.key));
+                });
+            };
+
             // ---- Restore saved state (edits + added slides) ----
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
@@ -636,6 +739,7 @@
                 clone.querySelectorAll('.cyber-panel').forEach(p => p.removeAttribute('contenteditable'));
                 clone.querySelectorAll('.slide').forEach(s => s.classList.remove('in-view'));
                 clone.querySelectorAll('.slide-controls').forEach(b => b.remove()); // re-injected at runtime
+                clone.querySelectorAll('.term').forEach(s => s.replaceWith(document.createTextNode(s.textContent))); // re-applied at runtime
                 try { localStorage.setItem(STORAGE_KEY, clone.innerHTML); } catch (err) {}
             };
 
@@ -725,6 +829,7 @@
                 slides.forEach(s => { observer.observe(s); ensureSlideControls(s); });
                 buildNav();
                 setEditable(editMode);
+                applyGlossary();
             };
 
             const addSlide = () => {
@@ -763,6 +868,13 @@
             });
 
             addSlideBtn.addEventListener('click', addSlide);
+
+            // Tap/click a term to toggle its tooltip (for touch + live presenting). Hover works too.
+            document.addEventListener('click', (e) => {
+                const t = e.target.closest ? e.target.closest('.term') : null;
+                document.querySelectorAll('.term.show-tip').forEach(el => { if (el !== t) el.classList.remove('show-tip'); });
+                if (t && !editMode) t.classList.toggle('show-tip');
+            });
 
             // Export to PDF (via browser print). Exits edit mode first for a clean output.
             const exportBtn = document.getElementById('exportPdf');
