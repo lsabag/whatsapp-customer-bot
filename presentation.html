@@ -720,6 +720,7 @@
         <button data-act="glow-cyan">✦ זוהר ציאן</button>
         <button data-act="glow-emerald">✦ זוהר ירוק</button>
         <button data-act="unglow">⊘ הסר זוהר</button>
+        <button data-act="download" style="border-color: rgba(0,255,157,0.5); color: var(--neon-emerald);"><i class="fa-solid fa-download"></i> שמור קובץ</button>
     </div>
 
     <script>
@@ -974,6 +975,28 @@
                 }
             };
 
+            // Download the current presentation (with all your edits baked in) as a standalone HTML file
+            const downloadHtml = () => {
+                const docClone = document.documentElement.cloneNode(true);
+                // strip runtime-only artefacts so the file is a clean, authoritative source
+                docClone.querySelectorAll('.cyber-panel').forEach(p => p.removeAttribute('contenteditable'));
+                docClone.querySelectorAll('.slide').forEach(s => s.classList.remove('in-view'));
+                docClone.querySelectorAll('.slide-controls, .print-glossary').forEach(b => b.remove());
+                docClone.querySelectorAll('.term').forEach(t => t.replaceWith(document.createTextNode(t.textContent)));
+                const navClone = docClone.querySelector('#scrollNav');
+                if (navClone) navClone.innerHTML = '';
+                const html = '<!DOCTYPE html>\n' + docClone.outerHTML;
+                const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'presentation.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            };
+
             // ---- Init ----
             refresh();
 
@@ -1003,6 +1026,7 @@
                 else if (act === 'glow-cyan') applyGlow('glow-text-cyan');
                 else if (act === 'glow-emerald') applyGlow('glow-text-emerald');
                 else if (act === 'unglow') removeGlow();
+                else if (act === 'download') downloadHtml();
             });
 
             // Tap/click a term to toggle its tooltip (for touch + live presenting). Hover works too.
