@@ -260,27 +260,42 @@
         }
 
         /* Add-slide button (shown only in edit mode, next to the toggle) */
-        .add-slide {
+        /* Edit toolbar — shown only in edit mode (add slide/area, glow) */
+        .edit-toolbar {
             position: fixed;
             bottom: 1rem;
-            left: 6.2rem;
-            z-index: 60;
-            height: 34px;
-            padding: 0 0.9rem;
-            border-radius: 9999px;
-            background: rgba(0, 243, 255, 0.12);
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
-            font-family: 'Varela Round', 'Heebo', sans-serif;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 61;
             display: none;
             align-items: center;
             gap: 0.4rem;
+            padding: 0.45rem 0.6rem;
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 157, 0.4);
+            border-radius: 9999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            max-width: 92vw;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .add-slide:hover { background: rgba(0, 243, 255, 0.22); }
-        body.edit-mode .add-slide { display: inline-flex; }
+        body.edit-mode .edit-toolbar { display: flex; }
+        .edit-toolbar button {
+            font-family: 'Varela Round', 'Heebo', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+            padding: 0.35rem 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .edit-toolbar button:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .edit-toolbar button[data-act="glow-emerald"]:hover { border-color: var(--neon-emerald); color: var(--neon-emerald); }
 
         /* Export-to-PDF button (always visible, minimal) */
         .export-pdf {
@@ -508,7 +523,7 @@
         <!-- Slide 3: MVP Execution & Risks -->
         <section class="slide" id="slide-2">
             <div class="cyber-panel">
-                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 text-white">הקמה והרצה באוויר</h2>
+                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 glow-text-emerald">הקמה והרצה באוויר</h2>
 
                 <div class="grid md:grid-cols-2 gap-8 items-start">
                     <div class="reveal-content delay-1 space-y-3">
@@ -593,7 +608,7 @@
         <!-- Slide 5: Production Management & Biz -->
         <section class="slide" id="slide-4">
             <div class="cyber-panel">
-                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 text-white">ניהול, משפט והמוצר עצמו</h2>
+                <h2 class="reveal-content text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">ניהול, משפט והמוצר עצמו</h2>
 
                 <div class="grid md:grid-cols-2 gap-6 reveal-content delay-1">
                     <div class="tech-box">
@@ -699,14 +714,20 @@
     <!-- Edit Mode Toggle (fixed bottom) -->
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
-    <button class="add-slide" id="addSlide"><i class="fa-solid fa-plus"></i>שקופית</button>
+    <div class="edit-toolbar" id="editToolbar">
+        <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
+        <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
+        <button data-act="glow-cyan">✦ זוהר ציאן</button>
+        <button data-act="glow-emerald">✦ זוהר ירוק</button>
+        <button data-act="unglow">⊘ הסר זוהר</button>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const mainContainer = document.getElementById('mainContainer');
             const scrollNav = document.getElementById('scrollNav');
             const editToggle = document.getElementById('editToggle');
-            const addSlideBtn = document.getElementById('addSlide');
+            const editToolbar = document.getElementById('editToolbar');
             const STORAGE_KEY = 'presentation_state_v2';
 
             let currentIndex = 0;
@@ -903,6 +924,56 @@
                 setTimeout(() => section.scrollIntoView({ behavior: 'smooth' }), 50);
             };
 
+            // Add a content "area" (editable block) to the current slide
+            const addBlock = () => {
+                const slide = getSlides()[currentIndex];
+                if (!slide) return;
+                const panel = slide.querySelector('.cyber-panel');
+                if (!panel) return;
+                const block = document.createElement('div');
+                block.className = 'tech-box mt-4';
+                block.innerHTML =
+                    '<h3 class="text-xl font-bold text-white mb-2">כותרת אזור</h3>' +
+                    '<p class="text-slate-300 text-sm">טקסט — לחצו כאן כדי לערוך.</p>';
+                panel.appendChild(block);
+                saveState();
+            };
+
+            // Wrap the current text selection in a glow span
+            const applyGlow = (cls) => {
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+                const range = sel.getRangeAt(0);
+                const span = document.createElement('span');
+                span.className = cls;
+                try {
+                    range.surroundContents(span);
+                } catch (e) {
+                    span.appendChild(range.extractContents());
+                    range.insertNode(span);
+                }
+                sel.removeAllRanges();
+                saveState();
+            };
+
+            // Remove the nearest glow wrapper around the selection
+            const removeGlow = () => {
+                const sel = window.getSelection();
+                if (!sel || !sel.rangeCount) return;
+                let node = sel.anchorNode;
+                while (node && node !== document.body) {
+                    if (node.nodeType === 1 && node.classList &&
+                        (node.classList.contains('glow-text-cyan') || node.classList.contains('glow-text-emerald'))) {
+                        const parent = node.parentNode;
+                        while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                        parent.removeChild(node);
+                        saveState();
+                        return;
+                    }
+                    node = node.parentNode;
+                }
+            };
+
             // ---- Init ----
             refresh();
 
@@ -921,7 +992,18 @@
                 }
             });
 
-            addSlideBtn.addEventListener('click', addSlide);
+            // Keep text selection alive when clicking toolbar buttons (don't steal focus)
+            editToolbar.addEventListener('mousedown', (e) => { e.preventDefault(); });
+            editToolbar.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn) return;
+                const act = btn.getAttribute('data-act');
+                if (act === 'add-slide') addSlide();
+                else if (act === 'add-block') addBlock();
+                else if (act === 'glow-cyan') applyGlow('glow-text-cyan');
+                else if (act === 'glow-emerald') applyGlow('glow-text-emerald');
+                else if (act === 'unglow') removeGlow();
+            });
 
             // Tap/click a term to toggle its tooltip (for touch + live presenting). Hover works too.
             document.addEventListener('click', (e) => {
