@@ -36,6 +36,19 @@
                 <input id="deckName" type="text" placeholder="למשל: my-talk" class="flex-1 bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--neon-cyan)]">
                 <button id="createBtn" class="bg-[var(--neon-cyan)] hover:bg-cyan-400 text-slate-900 font-bold px-6 rounded-xl transition-all whitespace-nowrap"><i class="fa-solid fa-plus ml-1"></i>צור / פתח</button>
             </div>
+            <div class="mt-3">
+                <div class="text-xs text-slate-400 mb-2">עיצוב</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="tmpl-opt cursor-pointer rounded-xl border border-slate-700 bg-black/30 p-3 flex items-center gap-2 has-[:checked]:border-[var(--neon-cyan)] has-[:checked]:bg-cyan-900/20">
+                        <input type="radio" name="tmpl" value="dark" class="accent-[var(--neon-cyan)]" checked>
+                        <span class="text-slate-200 text-sm">🌑 כהה (ניאון)</span>
+                    </label>
+                    <label class="tmpl-opt cursor-pointer rounded-xl border border-slate-700 bg-black/30 p-3 flex items-center gap-2 has-[:checked]:border-[var(--neon-emerald)] has-[:checked]:bg-emerald-900/20">
+                        <input type="radio" name="tmpl" value="light" class="accent-[var(--neon-emerald)]">
+                        <span class="text-slate-200 text-sm">☀️ בהיר (glass)</span>
+                    </label>
+                </div>
+            </div>
             <p class="text-xs text-slate-500 mt-2">השם הופך לכתובת: slide.nextli.co.il/<span id="preview" class="text-[var(--neon-cyan)]">my-talk</span></p>
         </div>
 
@@ -53,7 +66,8 @@
         const goToDeck = () => {
             const slug = slugify(nameInput.value);
             if (!slug) { nameInput.focus(); return; }
-            location.href = '/' + encodeURIComponent(slug);
+            const tmpl = (document.querySelector('input[name="tmpl"]:checked') || {}).value || 'dark';
+            location.href = '/' + encodeURIComponent(slug) + '?t=' + tmpl;
         };
         nameInput.addEventListener('input', () => { preview.textContent = slugify(nameInput.value) || 'my-talk'; });
         nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') goToDeck(); });

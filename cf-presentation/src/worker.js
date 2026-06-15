@@ -42,6 +42,8 @@ export default {
         const body = await request.text();
         if (body.length > 2000000) return new Response('too large', { status: 413 });
         await env.PRES.put(key, body);
+        const tmpl = request.headers.get('x-template');
+        if (tmpl === 'light' || tmpl === 'dark') await env.PRES.put('tmpl:' + deck, tmpl);
         return new Response('saved', { status: 200 });
       }
       return new Response('method not allowed', { status: 405 });
@@ -66,9 +68,11 @@ export default {
       customUrl.pathname = '/decks/' + deck + '.html';
       const custom = await env.ASSETS.fetch(new Request(customUrl, request));
       if (custom.status === 200) return custom;
-      // אחרת — שלד המצגת הנערכת (תוכן מ-KV)
+      // אחרת — שלד מצגת נערכת, לפי תבנית (param ?t או הבחירה השמורה ב-KV)
+      let tmpl = url.searchParams.get('t');
+      if (tmpl !== 'light' && tmpl !== 'dark') tmpl = await env.PRES.get('tmpl:' + deck);
       const a = new URL(request.url);
-      a.pathname = '/index.html';
+      a.pathname = tmpl === 'light' ? '/index-light.html' : '/index.html';
       return env.ASSETS.fetch(new Request(a, request));
     }
 

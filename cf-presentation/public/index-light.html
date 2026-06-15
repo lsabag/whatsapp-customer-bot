@@ -1,423 +1,104 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl" data-template="dark">
+<html lang="he" dir="rtl" data-template="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מצגת</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --neon-cyan: #00f3ff;
-            --neon-purple: #bc13fe;
-            --neon-emerald: #00ff9d;
-            --dark-bg: #030712;
-            --glass-bg: rgba(10, 15, 30, 0.4);
+            --neon-cyan: #0284c7;
+            --neon-purple: #7c3aed;
+            --neon-emerald: #059669;
+            --dark-bg: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.9);
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Varela Round', 'Heebo', sans-serif;
-            background-color: var(--dark-bg);
-            color: #e2e8f0;
-            overflow: hidden; /* We handle scrolling in the container */
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(to bottom right, #fffbeb, #f0f9ff, #e0e7ff);
+            background-attachment: fixed;
+            color: #1e293b;
+            overflow: hidden;
         }
-
-        /* Hide standard scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-        }
-
-        /* The Scroll Snapping Container */
-        .scroll-container {
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y proximity;
-            scroll-behavior: smooth;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* Individual Full-Screen Slides */
-        .slide {
-            height: 100vh;
-            width: 100vw;
-            scroll-snap-align: start;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 2rem;
-        }
-
-        /* Animated Background Orbs */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            z-index: 1;
-            opacity: 0.4;
-            animation: float 20s infinite ease-in-out alternate;
-        }
-        .orb-1 {
-            width: 40vw; height: 40vw;
-            background: radial-gradient(circle, var(--neon-purple) 0%, transparent 70%);
-            top: -10%; right: -10%;
-        }
-        .orb-2 {
-            width: 35vw; height: 35vw;
-            background: radial-gradient(circle, var(--neon-cyan) 0%, transparent 70%);
-            bottom: -10%; left: -10%;
-            animation-delay: -5s;
-        }
-        .orb-3 {
-            width: 25vw; height: 25vw;
-            background: radial-gradient(circle, var(--neon-emerald) 0%, transparent 70%);
-            top: 40%; left: 40%;
-            animation-delay: -10s;
-            opacity: 0.2;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-50px, 30px) scale(1.1); }
-            100% { transform: translate(30px, -50px) scale(0.9); }
-        }
-
-        /* Glassmorphism Panel */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        .scroll-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y proximity; scroll-behavior: smooth; position: relative; z-index: 10; }
+        .slide { height: 100vh; width: 100vw; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; padding: 2rem; }
+        .orb { position: fixed; border-radius: 50%; filter: blur(110px); z-index: 1; opacity: 0.55; animation: float 20s infinite ease-in-out alternate; }
+        .orb-1 { width: 40vw; height: 40vw; background: radial-gradient(circle, #c7d2fe 0%, transparent 70%); top: -10%; right: -10%; }
+        .orb-2 { width: 35vw; height: 35vw; background: radial-gradient(circle, #bae6fd 0%, transparent 70%); bottom: -10%; left: -10%; animation-delay: -5s; }
+        .orb-3 { width: 25vw; height: 25vw; background: radial-gradient(circle, #fde68a 0%, transparent 70%); top: 40%; left: 40%; opacity: 0.35; animation-delay: -10s; }
+        @keyframes float { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,30px) scale(1.1); } 100% { transform: translate(30px,-50px) scale(0.9); } }
         .cyber-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 1px solid rgba(0, 243, 255, 0.3);
-            border-bottom: 1px solid rgba(188, 19, 254, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             border-radius: 24px;
             padding: 3rem;
             width: 100%;
             max-width: 1100px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 243, 255, 0.05);
+            box-shadow: 0 20px 45px -12px rgba(30, 41, 59, 0.15);
             position: relative;
             overflow: visible;
         }
-
-        /* Cyber Accents */
-        .cyber-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; right: 0;
-            width: 40px; height: 40px;
-            border-top: 3px solid var(--neon-cyan);
-            border-right: 3px solid var(--neon-cyan);
-            border-top-right-radius: 24px;
-        }
-        .cyber-panel::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 40px; height: 40px;
-            border-bottom: 3px solid var(--neon-purple);
-            border-left: 3px solid var(--neon-purple);
-            border-bottom-left-radius: 24px;
-        }
-
-        /* Text Glows */
-        .glow-text-cyan {
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 243, 255, 0.5);
-        }
-        .glow-text-emerald {
-            color: #fff;
-            text-shadow: 0 0 10px var(--neon-emerald), 0 0 20px rgba(0, 255, 157, 0.5);
-        }
-
-        /* Scroll Indicators (Right Side) */
-        .scroll-nav {
-            position: fixed;
-            top: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 1.5rem;
-            z-index: 50;
-            padding: 0.75rem 1.5rem;
-            background: rgba(10, 15, 30, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 9999px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-        .nav-dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.4s ease;
-            cursor: pointer;
-            position: relative;
-        }
-        .nav-dot.active {
-            background: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan);
-            transform: scale(1.5);
-        }
-        .nav-dot::after {
-            content: attr(data-label);
-            position: absolute;
-            top: 22px; /* label below the dot */
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .nav-dot:hover::after, .nav-dot.active::after {
-            opacity: 1;
-            color: var(--neon-cyan);
-        }
-
-        /* Content Reveal Animation */
-        .reveal-content {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s cubic-bezier(0.2, 1, 0.3, 1), transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
-        }
-        .slide.in-view .reveal-content {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .delay-1 { transition-delay: 0.2s; }
-        .delay-2 { transition-delay: 0.4s; }
-        .delay-3 { transition-delay: 0.6s; }
-
-        .tech-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: all 0.3s;
-        }
-        .tech-box:hover {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
-        }
-
-        /* Edit Mode Toggle Button (fixed at bottom, visible on every slide) */
-        .edit-toggle {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            z-index: 60;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.85rem;
-            cursor: pointer;
-            opacity: 1;
-            transition: all 0.3s;
-        }
-        .edit-toggle:hover {
-            color: var(--neon-cyan);
-            border-color: var(--neon-cyan);
-        }
-
-        /* Edit mode active state */
-        body.edit-mode .edit-toggle {
-            opacity: 1;
-            color: var(--neon-emerald);
-            border-color: var(--neon-emerald);
-            box-shadow: 0 0 12px rgba(0, 255, 157, 0.3);
-        }
-        body.edit-mode .cyber-panel {
-            outline: 1px dashed rgba(0, 255, 157, 0.35);
-            outline-offset: 6px;
-        }
-        body.edit-mode .reveal-content {
-            opacity: 1 !important;
-            transform: none !important;
-        }
-        [contenteditable="true"]:focus {
-            outline: 2px solid var(--neon-emerald);
-            outline-offset: 2px;
-            border-radius: 4px;
-        }
-
-        /* Add-slide button (shown only in edit mode, next to the toggle) */
-        /* Edit toolbar — shown only in edit mode (add slide/area, glow) */
-        .edit-toolbar {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 61;
-            display: none;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.45rem 0.6rem;
-            background: rgba(10, 15, 30, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 157, 0.4);
-            border-radius: 9999px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-            max-width: 92vw;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+        .cyber-panel::before, .cyber-panel::after { display: none; }
+        .glow-text-cyan { color: #4f46e5; }
+        .glow-text-emerald { color: #059669; }
+        .slide .text-white { color: #1e293b !important; }
+        .slide .text-slate-200 { color: #334155 !important; }
+        .slide .text-slate-300 { color: #475569 !important; }
+        .slide .text-slate-400 { color: #64748b !important; }
+        .slide .text-slate-500 { color: #94a3b8 !important; }
+        .scroll-nav { position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: row; align-items: center; gap: 1.5rem; z-index: 50; padding: 0.75rem 1.5rem; background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.1); }
+        .nav-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(30,41,59,0.2); transition: all 0.4s ease; cursor: pointer; position: relative; }
+        .nav-dot.active { background: #4f46e5; box-shadow: 0 0 12px rgba(79,70,229,0.5); transform: scale(1.5); }
+        .nav-dot::after { content: attr(data-label); position: absolute; top: 22px; left: 50%; transform: translateX(-50%); color: rgba(71,85,105,0.6); font-size: 0.75rem; white-space: nowrap; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .nav-dot:hover::after, .nav-dot.active::after { opacity: 1; color: #4f46e5; }
+        .reveal-content { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2,1,0.3,1), transform 0.8s cubic-bezier(0.2,1,0.3,1); }
+        .slide.in-view .reveal-content { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.2s; } .delay-2 { transition-delay: 0.4s; } .delay-3 { transition-delay: 0.6s; }
+        .tech-box { background: rgba(255,255,255,0.7); border: 1px solid rgba(30,41,59,0.08); border-radius: 14px; padding: 1.5rem; transition: all 0.3s; box-shadow: 0 6px 16px -8px rgba(30,41,59,0.12); }
+        .tech-box:hover { border-color: #4f46e5; box-shadow: 0 12px 24px -10px rgba(79,70,229,0.25); transform: translateY(-3px); }
+        .edit-toggle { position: fixed; bottom: 1rem; left: 1rem; z-index: 60; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.85); border: 1px solid rgba(30,41,59,0.2); color: rgba(30,41,59,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(30,41,59,0.1); }
+        .edit-toggle:hover { color: #4f46e5; border-color: #4f46e5; }
+        body.edit-mode .edit-toggle { color: #059669; border-color: #059669; box-shadow: 0 0 12px rgba(5,150,105,0.3); }
+        .export-pdf { position: fixed; bottom: 1rem; left: 3.6rem; z-index: 60; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.85); border: 1px solid rgba(30,41,59,0.2); color: rgba(30,41,59,0.6); font-size: 0.85rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 12px rgba(30,41,59,0.1); }
+        .export-pdf:hover { color: #7c3aed; border-color: #7c3aed; }
+        .edit-toolbar { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 61; display: none; align-items: center; gap: 0.4rem; padding: 0.45rem 0.6rem; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border: 1px solid rgba(5,150,105,0.4); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.15); max-width: 92vw; flex-wrap: wrap; justify-content: center; }
         body.edit-mode .edit-toolbar { display: flex; }
-        .edit-toolbar button {
-            font-family: 'Varela Round', 'Heebo', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #e2e8f0;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 9999px;
-            padding: 0.35rem 0.7rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .edit-toolbar button:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
-        .edit-toolbar button[data-act="glow-emerald"]:hover { border-color: var(--neon-emerald); color: var(--neon-emerald); }
-
-        /* Export-to-PDF button (always visible, minimal) */
-        .export-pdf {
-            position: fixed;
-            bottom: 1rem;
-            left: 3.6rem;
-            z-index: 60;
-            width: 34px;
-            height: 34px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .export-pdf:hover { color: var(--neon-purple); border-color: var(--neon-purple); }
-
-        /* Per-slide controls: move up / down / delete (shown only in edit mode) */
-        .slide-controls {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 40;
-            display: none;
-            gap: 0.4rem;
-        }
+        .edit-toolbar button { font-family: 'Rubik', sans-serif; font-size: 0.8rem; font-weight: 600; color: #1e293b; background: rgba(30,41,59,0.05); border: 1px solid rgba(30,41,59,0.12); border-radius: 9999px; padding: 0.35rem 0.7rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .edit-toolbar button:hover { border-color: #4f46e5; color: #4f46e5; }
+        .edit-toolbar button[data-act="glow-emerald"]:hover { border-color: #059669; color: #059669; }
+        .slide-controls { position: absolute; top: 1rem; right: 1rem; z-index: 40; display: none; gap: 0.4rem; }
         body.edit-mode .slide-controls { display: flex; }
-        .slide-ctrl {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: rgba(255, 255, 255, 0.85);
-        }
-        .slide-ctrl:hover { color: var(--neon-cyan); border-color: var(--neon-cyan); }
-        .slide-ctrl.del { background: rgba(255, 70, 70, 0.15); border-color: rgba(255, 90, 90, 0.5); color: #ff7b7b; }
-        .slide-ctrl.del:hover { background: rgba(255, 70, 70, 0.3); }
-
-        /* Glossary terms — dotted underline + hover/tap tooltip */
-        .term {
-            border-bottom: 1px dotted var(--neon-cyan);
-            cursor: help;
-            position: relative;
-            font-weight: 600;
-        }
-        .term::after {
-            content: attr(data-tip);
-            position: absolute;
-            bottom: 145%;
-            right: 50%;
-            transform: translateX(50%);
-            width: max-content;
-            max-width: 300px;
-            background: rgba(3, 7, 18, 0.97);
-            border: 1px solid var(--neon-cyan);
-            color: #e2e8f0;
-            font-size: 0.8rem;
-            font-weight: 400;
-            line-height: 1.55;
-            text-align: right;
-            padding: 0.7rem 0.9rem;
-            border-radius: 10px;
-            white-space: normal;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s ease;
-            z-index: 80;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            pointer-events: none;
-        }
+        .slide-ctrl { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; background: rgba(255,255,255,0.9); border: 1px solid rgba(30,41,59,0.2); color: #475569; box-shadow: 0 2px 8px rgba(30,41,59,0.1); }
+        .slide-ctrl:hover { color: #4f46e5; border-color: #4f46e5; }
+        .slide-ctrl.del { background: rgba(254,226,226,0.9); border-color: rgba(239,68,68,0.5); color: #dc2626; }
+        .slide-ctrl.del:hover { background: rgba(254,202,202,1); }
+        body.edit-mode .cyber-panel { outline: 1px dashed rgba(5,150,105,0.4); outline-offset: 6px; }
+        body.edit-mode .reveal-content { opacity: 1 !important; transform: none !important; }
+        [contenteditable="true"]:focus { outline: 2px solid #059669; outline-offset: 2px; border-radius: 4px; }
+        .term { border-bottom: 1px dotted #4f46e5; cursor: help; position: relative; font-weight: 600; }
+        .term::after { content: attr(data-tip); position: absolute; bottom: 145%; right: 50%; transform: translateX(50%); width: max-content; max-width: 300px; background: rgba(255,255,255,0.98); border: 1px solid #4f46e5; color: #1e293b; font-size: 0.8rem; font-weight: 400; line-height: 1.55; text-align: right; padding: 0.7rem 0.9rem; border-radius: 10px; white-space: normal; opacity: 0; visibility: hidden; transition: opacity 0.2s ease; z-index: 80; box-shadow: 0 10px 30px rgba(30,41,59,0.2); pointer-events: none; }
         .term:hover::after, .term.show-tip::after { opacity: 1; visibility: visible; }
-
-        /* Per-slide glossary box — hidden on screen, shown only in the PDF/print */
         .print-glossary { display: none; }
-
-        /* ===== Print / Export to PDF ===== */
         @media print {
             @page { size: A4 landscape; margin: 0; }
-            body {
-                overflow: visible !important;
-                background: var(--dark-bg) !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls { display: none !important; }
+            body { overflow: visible !important; background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .orb, .scroll-nav, .edit-toggle, .export-pdf, .edit-toolbar, .slide-controls { display: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
-            .slide {
-                height: auto !important;
-                min-height: 100vh;
-                page-break-after: always;
-                break-after: page;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
+            .slide { height: auto !important; min-height: 100vh; page-break-after: always; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .slide:last-child { page-break-after: auto; break-after: auto; }
             .reveal-content { opacity: 1 !important; transform: none !important; }
-            .cyber-panel { outline: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .print-glossary {
-                display: block;
-                margin-top: 1.5rem;
-                padding-top: 0.8rem;
-                border-top: 1px solid rgba(0, 243, 255, 0.35);
-                font-size: 0.72rem;
-                line-height: 1.5;
-                color: #cbd5e1;
-                text-align: right;
-            }
-            .print-glossary h4 { color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; }
+            .cyber-panel { outline: none !important; box-shadow: none; }
+            .print-glossary { display: block; margin-top: 1.5rem; padding-top: 0.8rem; border-top: 1px solid rgba(79,70,229,0.35); font-size: 0.72rem; line-height: 1.5; color: #475569; text-align: right; }
+            .print-glossary h4 { color: #4f46e5; font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; }
             .print-glossary ul { list-style: disc; padding-right: 1.2rem; }
             .print-glossary li { margin-bottom: 0.15rem; }
-            .print-glossary strong { color: #fff; }
+            .print-glossary strong { color: #0f172a; }
         }
 
     </style>
