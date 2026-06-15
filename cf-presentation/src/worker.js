@@ -19,7 +19,8 @@ export default {
     if (deck === 'api' && rest === 'decks') {
       const list = await env.PRES.list({ prefix: 'deck:' });
       const kvDecks = list.keys.map((k) => k.name.replace(/^deck:/, ''));
-      const decks = [...new Set([...CUSTOM_DECKS, ...kvDecks])];
+      const all = [...new Set([...CUSTOM_DECKS, ...kvDecks])];
+      const decks = all.map((name) => ({ name, custom: CUSTOM_DECKS.includes(name) }));
       return new Response(JSON.stringify({ decks }), {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
       });
@@ -45,6 +46,18 @@ export default {
         const tmpl = request.headers.get('x-template');
         if (tmpl === 'light' || tmpl === 'dark') await env.PRES.put('tmpl:' + deck, tmpl);
         return new Response('saved', { status: 200 });
+      }
+      if (request.method === 'DELETE') {
+        const pw = request.headers.get('x-edit-password') || '';
+        if (!env.EDIT_PASSWORD || pw !== env.EDIT_PASSWORD) {
+          return new Response('unauthorized', { status: 401 });
+        }
+        if (CUSTOM_DECKS.includes(deck)) {
+          return new Response('cannot delete a built-in deck', { status: 403 });
+        }
+        await env.PRES.delete(key);
+        await env.PRES.delete('tmpl:' + deck);
+        return new Response('deleted', { status: 200 });
       }
       return new Response('method not allowed', { status: 405 });
     }

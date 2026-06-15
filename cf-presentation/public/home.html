@@ -74,7 +74,7 @@
         document.getElementById('createBtn').addEventListener('click', goToDeck);
 
         // Load existing decks
-        (async () => {
+        async function loadDecks() {
             const list = document.getElementById('deckList');
             try {
                 const res = await fetch('/api/decks', { cache: 'no-store' });
@@ -82,17 +82,42 @@
                 const decks = (data && data.decks) || [];
                 if (!decks.length) { list.innerHTML = '<div class="text-slate-500">אין עדיין מצגות שמורות — צרו אחת למעלה.</div>'; return; }
                 list.innerHTML = '';
-                decks.forEach(name => {
+                decks.forEach(d => {
+                    const name = (typeof d === 'string') ? d : d.name;
+                    const custom = (typeof d === 'object') && d.custom;
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center gap-2';
                     const a = document.createElement('a');
                     a.href = '/' + encodeURIComponent(name);
-                    a.className = 'deck-link block bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
-                    a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + name;
-                    list.appendChild(a);
+                    a.className = 'deck-link flex-1 block bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
+                    a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '');
+                    row.appendChild(a);
+                    if (!custom) {
+                        const del = document.createElement('button');
+                        del.title = 'מחק מצגת';
+                        del.className = 'shrink-0 w-11 rounded-xl border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all';
+                        del.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                        del.addEventListener('click', () => deleteDeck(name));
+                        row.appendChild(del);
+                    }
+                    list.appendChild(row);
                 });
             } catch (e) {
                 list.innerHTML = '<div class="text-slate-500">לא ניתן לטעון רשימה כרגע.</div>';
             }
-        })();
+        }
+        async function deleteDeck(name) {
+            const pw = prompt('הקוד למחיקת המצגת "' + name + '":');
+            if (!pw) return;
+            try {
+                const res = await fetch('/' + encodeURIComponent(name) + '/api/content', { method: 'DELETE', headers: { 'x-edit-password': pw } });
+                if (res.status === 200) { loadDecks(); }
+                else if (res.status === 401) alert('קוד שגוי — המצגת לא נמחקה.');
+                else if (res.status === 403) alert('לא ניתן למחוק מצגת מובנית.');
+                else alert('המחיקה נכשלה.');
+            } catch (e) { alert('שגיאה במחיקה.'); }
+        }
+        loadDecks();
     </script>
 </body>
 </html>
