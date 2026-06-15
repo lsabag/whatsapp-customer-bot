@@ -297,6 +297,28 @@
         .edit-toolbar button:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
         .edit-toolbar button[data-act="glow-emerald"]:hover { border-color: var(--neon-emerald); color: var(--neon-emerald); }
 
+        /* Cancel button (floating, next to the save/confirm toggle — shown only in edit mode) */
+        .edit-cancel {
+            position: fixed;
+            bottom: 1rem;
+            left: 3.6rem;
+            z-index: 60;
+            width: 34px;
+            height: 34px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .edit-cancel:hover { color: #fff; background: rgba(239, 68, 68, 0.25); border-color: #f87171; }
+        body.edit-mode .edit-cancel { display: flex; }
+
         /* Export-to-PDF button (always visible, minimal) */
         .export-pdf {
             position: fixed;
@@ -317,6 +339,7 @@
             transition: all 0.3s;
         }
         .export-pdf:hover { color: var(--neon-purple); border-color: var(--neon-purple); }
+        body.edit-mode .export-pdf { display: none; }
 
         /* Per-slide controls: move up / down / delete (shown only in edit mode) */
         .slide-controls {
@@ -453,9 +476,9 @@
 
     <!-- Edit Mode Toggle (fixed bottom) -->
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
+    <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
     <div class="edit-toolbar" id="editToolbar">
-        <button data-act="cancel" style="border-color: rgba(239,68,68,0.5); color: #f87171;"><i class="fa-solid fa-xmark"></i> בטל</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
         <button data-act="glow-cyan">✦ זוהר ציאן</button>
@@ -469,6 +492,7 @@
             const mainContainer = document.getElementById('mainContainer');
             const scrollNav = document.getElementById('scrollNav');
             const editToggle = document.getElementById('editToggle');
+            const editCancel = document.getElementById('editCancel');
             const editToolbar = document.getElementById('editToolbar');
             const STORAGE_KEY = 'presentation_state_v2';
 
@@ -838,8 +862,8 @@
                 else if (act === 'glow-emerald') applyGlow('glow-text-emerald');
                 else if (act === 'unglow') removeGlow();
                 else if (act === 'download') downloadHtml();
-                else if (act === 'cancel') cancelEdit();
             });
+            editCancel.addEventListener('click', cancelEdit);
 
             // Tap/click a term to toggle its tooltip (for touch + live presenting). Hover works too.
             document.addEventListener('click', (e) => {
