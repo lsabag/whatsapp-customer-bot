@@ -27,7 +27,7 @@
             overflow: hidden;
         }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .scroll-container { height: 100vh; overflow-y: scroll; scroll-snap-type: y proximity; scroll-behavior: smooth; position: relative; z-index: 10; }
+        .scroll-container { height: 100vh; overflow-y: scroll; scroll-snap-type: none; position: relative; z-index: 10; }
         .slide { height: 100vh; width: 100vw; scroll-snap-align: start; display: flex; align-items: center; justify-content: center; position: relative; padding: 2rem; overflow-y: auto; }
         .orb { position: fixed; border-radius: 50%; filter: blur(110px); z-index: 1; opacity: 0.5; animation: float 20s infinite ease-in-out alternate; }
         .orb-1 { width: 40vw; height: 40vw; background: radial-gradient(circle, #c7d2fe 0%, transparent 70%); top: -10%; right: -10%; }
@@ -456,10 +456,26 @@
                 return t ? (t.length > 45 ? t.slice(0, 45) + '…' : t) : ('שקופית ' + (i + 1));
             };
 
+            // גלילה חלקה ומבוקרת (כמו ב-ecommerce-bot): האטה בהתחלה ובסוף, ~1 שניה
+            const smoothScrollTo = (targetTop, duration) => {
+                const start = mainContainer.scrollTop;
+                const dist = targetTop - start;
+                if (Math.abs(dist) < 2) return;
+                let startTime = null;
+                const ease = (t, b, c, d) => { t /= d / 2; if (t < 1) return c / 2 * t * t + b; t--; return -c / 2 * (t * (t - 2) - 1) + b; };
+                const step = (now) => {
+                    if (startTime === null) startTime = now;
+                    const elapsed = now - startTime;
+                    if (elapsed < duration) { mainContainer.scrollTop = ease(elapsed, start, dist, duration); requestAnimationFrame(step); }
+                    else { mainContainer.scrollTop = targetTop; }
+                };
+                requestAnimationFrame(step);
+            };
+
             const goTo = (i) => {
                 const slides = getSlides();
                 i = Math.max(0, Math.min(slides.length - 1, i));
-                if (slides[i]) slides[i].scrollIntoView({ behavior: 'smooth' });
+                if (slides[i]) smoothScrollTo(slides[i].offsetTop, 1000);
             };
 
             const setActiveDot = (i) => {
@@ -489,7 +505,7 @@
                 else slide.parentNode.insertBefore(slides[j], slide);
                 refresh();
                 saveState();
-                setTimeout(() => slide.scrollIntoView({ behavior: 'smooth' }), 50);
+                setTimeout(() => smoothScrollTo(slide.offsetTop, 800), 50);
             };
 
             const ensureSlideControls = (slide) => {
@@ -556,7 +572,7 @@
                 if (last) last.parentNode.insertBefore(section, last);
                 else mainContainer.appendChild(section);
                 refresh();
-                setTimeout(() => section.scrollIntoView({ behavior: 'smooth' }), 50);
+                setTimeout(() => smoothScrollTo(section.offsetTop, 800), 50);
             };
 
             // Add a content "area" (editable block) to the current slide
