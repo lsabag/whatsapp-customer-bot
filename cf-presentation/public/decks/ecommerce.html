@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אל תשנה, רק תענה.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- ספריית vis-network לגרף האינטראקטיבי -->
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        /* הסרנו את scroll-behavior: smooth מפה, כי אנחנו עושים גלילה מותאמת אישית וחיה יותר דרך JS */
+        
+        body {
+            font-family: "Gveret Levin", 'Rubik', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .nav-link {
+            font-family: 'Rubik', sans-serif;
+        }
+        
+        /* עיצוב בר גלילה */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* עיצוב כרטיסיות נקי */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* מחלקות עבור האנימציות בגלילה */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* אנימציה לקווים בגרף */
+        @keyframes flow {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+        .flow-line {
+            stroke-dasharray: 12;
+            animation: flow 1s linear infinite;
+        }
+
+        /* עיצוב התפריט הפעיל */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link.active {
+            color: #4f46e5;
+            font-weight: 700;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #4f46e5;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-sky-50 to-indigo-100 text-slate-800 m-0 p-0 selection:bg-amber-300 selection:text-slate-900">
+
+    <!-- תפריט ניווט עליון -->
+    <nav class="fixed top-0 left-0 right-0 bg-white/85 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm" id="navbar">
+        <div class="max-w-7xl mx-auto px-4">
+            <ul class="flex justify-start md:justify-center items-center gap-6 md:gap-8 h-16 overflow-x-auto whitespace-nowrap no-scrollbar text-sm md:text-base px-2">
+                <li><a href="#breathe" class="nav-link font-medium text-slate-600 hover:text-indigo-600">לנשום!</a></li>
+                <li><a href="#claude-code" class="nav-link font-medium text-slate-600 hover:text-indigo-600">Claude Code</a></li>
+                <li><a href="#hero" class="nav-link font-medium text-slate-600 hover:text-indigo-600">אל תשנה</a></li>
+                <li><a href="#problem" class="nav-link font-medium text-slate-600 hover:text-indigo-600">הבעיה</a></li>
+                <li><a href="#architecture" class="nav-link font-medium text-slate-600 hover:text-indigo-600">ארכיטקטורה</a></li>
+                <li><a href="#knowledge-graph" class="nav-link font-medium text-slate-600 hover:text-indigo-600">גרף ידע</a></li>
+                <li><a href="#steps" class="nav-link font-medium text-slate-600 hover:text-indigo-600">שלבי בנייה</a></li>
+                <li><a href="#prompts" class="nav-link font-medium text-slate-600 hover:text-indigo-600">פרומפטים</a></li>
+                <li><a href="#demo" class="nav-link font-medium text-slate-600 hover:text-indigo-600">הדמו החי</a></li>
+                <li><a href="#business" class="nav-link font-medium text-slate-600 hover:text-indigo-600">מודל עסקי</a></li>
+                <li><a href="#summary" class="nav-link font-medium text-slate-600 hover:text-indigo-600">סיכום</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- תוכן האתר -->
+    <main id="ecMain" class="w-full max-w-7xl mx-auto px-4 sm:px-8 pt-16">
+
+        <!-- אזור פתיחה: לנשום -->
+        <section id="breathe" class="min-h-[90vh] flex flex-col justify-center items-center py-20 relative">
+            <div class="reveal active flex flex-col items-center justify-center w-full text-center">
+                <h1 class="text-[15vw] sm:text-[11rem] lg:text-[15rem] font-black tracking-tight mb-4 leading-none text-emerald-400 drop-shadow-sm">
+                    לנשום!
+                </h1>
+                <p class="text-slate-700 text-lg md:text-xl font-medium md:whitespace-nowrap">
+                    כאשר שירותי אונליין נופלים, תנצלו את זה כדי לעשות דברים אחרים בעבודה
+                </p>
+            </div>
+            
+            <!-- רמז לגלול מטה -->
+            <div class="absolute bottom-12 left-0 right-0 flex justify-center reveal active">
+                <i data-lucide="chevron-down" class="w-10 h-10 animate-bounce text-slate-400"></i>
+            </div>
+        </section>
+
+        <!-- אזור 1: Claude Code -->
+        <section id="claude-code" class="min-h-screen flex flex-col justify-center items-center py-24 border-t border-slate-200/50 relative">
+            <div class="reveal flex flex-col items-center justify-center w-full">
+                
+                <!-- לוגו Claude Code בעיצוב נקי -->
+                <div class="bg-[#F2EFE9] p-8 md:p-10 rounded-full shadow-xl flex items-center justify-center mb-8 border border-[#E5E0D8] transition-transform duration-500 hover:scale-105">
+                    <svg viewBox="0 0 100 100" class="w-24 h-24 md:w-32 md:h-32">
+                        <g stroke="#CC785C" stroke-width="8" stroke-linecap="round">
+                            <line x1="50" y1="15" x2="50" y2="85"/>
+                            <line x1="20" y1="35" x2="80" y2="65"/>
+                            <line x1="20" y1="65" x2="80" y2="35"/>
+                        </g>
+                    </svg>
+                </div>
+                
+                <!-- כותרת ענקית -->
+                <h1 class="text-[5rem] sm:text-[7rem] md:text-[9rem] lg:text-[12rem] font-black tracking-tight text-slate-800 leading-none text-center" dir="ltr" style="font-family: Georgia, serif;">
+                    Claude <span class="text-[#CC785C]">Code</span>
+                </h1>
+                
+            </div>
+            
+            <!-- רמז לגלול מטה -->
+            <div class="absolute bottom-12 left-0 right-0 flex justify-center reveal active">
+                <i data-lucide="chevron-down" class="w-10 h-10 animate-bounce text-slate-400"></i>
+            </div>
+        </section>
+
+        <!-- אזור 0: עמוד הכותרת (אל תשנה) -->
+        <section id="hero" class="min-h-screen flex flex-col items-center justify-center text-center py-24 border-t border-slate-200/50">
+            <div class="glass-card p-12 sm:p-24 rounded-3xl reveal w-full overflow-hidden">
+                <h1 class="text-[5rem] sm:text-[8rem] lg:text-[12rem] font-black mb-6 tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-indigo-600">
+                    אל תשנה,<br>רק תענה.
+                </h1>
+                <div class="w-24 h-1.5 bg-amber-400 mx-auto rounded-full mb-6 shadow-sm"></div>
+                <p class="text-black text-sm md:text-base mx-auto font-medium opacity-80 md:whitespace-nowrap">
+                    זה משפט המפתח כשאני עובד עם קלוד קוד, כי הוא תמיד ירוץ לשנות ואני מחפש לפעמים רק להתייעץ
+                </p>
+            </div>
+        </section>
+
+        <!-- אזור 2: הבעיה -->
+        <section id="problem" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-center text-indigo-900">2. הבעיה</h2>
+                <p class="text-xl text-center mb-12 font-medium text-slate-700">כל בעל חנות איקומרס מתמודד עם אותן שלוש בעיות:</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full px-2">
+                <div class="glass-card p-8 rounded-2xl reveal text-center md:text-right">
+                    <div class="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mx-auto md:mx-0 mb-6 shadow-sm border border-red-100">
+                        <i data-lucide="messages-square" class="w-8 h-8 text-red-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">שירות לקוחות ידני</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">נציגים עונים על אותן שאלות שוב ושוב. "כמה עולה המשלוח?" "מה מדיניות ההחזרות?" "יש את זה במידה L?" - שאלות שחוזרות עשרות פעמים ביום, גוזלות זמן ועולות כסף.</p>
+                </div>
+                
+                <div class="glass-card p-8 rounded-2xl reveal text-center md:text-right" style="transition-delay: 150ms;">
+                    <div class="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto md:mx-0 mb-6 shadow-sm border border-orange-100">
+                        <i data-lucide="refresh-cw" class="w-8 h-8 text-orange-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">התוכן משתנה כל הזמן</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">מחירים מתעדכנים, מוצרים נכנסים ויוצאים, מבצעים מתחלפים. בוט רגיל שתכנתו אותו פעם אחת לא יודע את זה - הוא ממשיך לענות לפי מה שהיה נכון לפני חודשיים.</p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl reveal text-center md:text-right" style="transition-delay: 300ms;">
+                    <div class="w-16 h-16 rounded-2xl bg-yellow-50 flex items-center justify-center mx-auto md:mx-0 mb-6 shadow-sm border border-yellow-100">
+                        <i data-lucide="layout-template" class="w-8 h-8 text-yellow-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">כל לקוח על פלטפורמה אחרת</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">אחד על WooCommerce, אחד על Shopify, אחד על מערכת מותאמת אישית. אי אפשר לבנות פתרון אחד ולמכור אותו לכולם - או שכן?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 3: הפתרון - ארכיטקטורה -->
+        <section id="architecture" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-center text-indigo-900">3. הפתרון - ארכיטקטורה</h2>
+                <p class="text-xl text-center mb-12 text-slate-700">הפתרון שנבנה יחד מחולק לשכבות שעובדות יחד:</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+                <div class="glass-card p-6 rounded-2xl reveal flex flex-col gap-3">
+                    <div class="flex items-center gap-3"><div class="p-2 bg-sky-100 rounded-lg"><i data-lucide="database" class="w-6 h-6 text-sky-600"></i></div><h3 class="text-xl font-bold">מקורות מידע</h3></div>
+                    <p class="text-base text-slate-700 mb-1">הבוט שואב מידע משלושה מקורות:</p>
+                    <ul class="text-base text-slate-700 space-y-2 pr-2">
+                        <li class="flex items-start gap-2"><span class="text-sky-500 mt-0.5">•</span> <span>סריקה אוטומטית של האתר</span></li>
+                        <li class="flex items-start gap-2"><span class="text-sky-500 mt-0.5">•</span> <span>ייבוא שיחות וואטסאפ קיימות שמלמדות אותו איך לקוחות אמיתיים שואלים</span></li>
+                        <li class="flex items-start gap-2"><span class="text-sky-500 mt-0.5">•</span> <span>מסמך הנחיות שמגדיר איך הבוט אמור להתנהג</span></li>
+                    </ul>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal flex flex-col gap-3" style="transition-delay: 100ms;">
+                    <div class="flex items-center gap-3"><div class="p-2 bg-indigo-100 rounded-lg"><i data-lucide="network" class="w-6 h-6 text-indigo-600"></i></div><h3 class="text-xl font-bold">Knowledge Graph</h3></div>
+                    <div class="space-y-3">
+                        <p class="text-base text-slate-700 leading-relaxed">המוח האמיתי. RAG Engine רגיל זה כבר כנראה שייך לעבר.</p>
+                        <p class="text-base text-slate-700 leading-relaxed">במקום "לזרוק" טקסט לבוט, אנחנו ממפים קשרים: מוצר ↔ קטגוריה ↔ עונה ↔ מבצע, כי היום יותר ויותר עוברים להבנת הקשר עמוקה.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal flex flex-col gap-3" style="transition-delay: 200ms;">
+                    <div class="flex items-center gap-3"><div class="p-2 bg-emerald-100 rounded-lg"><i data-lucide="search" class="w-6 h-6 text-emerald-600"></i></div><h3 class="text-xl font-bold">Vector Search</h3></div>
+                    <p class="text-base text-slate-700">מנוע החיפוש החכם (ChromaDB) שעובד בשילוב עם הגרף. לא סתם מחפש מילות מפתח, אלא מחפש את המידע הקשור ביותר על בסיס משמעות.</p>
+                    <div class="mt-auto pt-3 border-t border-emerald-100">
+                        <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-slate-700 leading-relaxed">
+                            <span class="font-bold text-emerald-800 block mb-1">למה צריך אותו אם יש גרף?</span>
+                            הגרף הוא <strong>המפה</strong>, וה-Vector Search הוא <strong>ה-GPS</strong>: מבין את כוונת השאלה ומנחית אותנו בנקודה המדויקת בגרף שממנה נתחיל לטייל.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal flex flex-col gap-3 lg:col-span-1 md:col-span-2" style="transition-delay: 300ms;">
+                    <div class="flex items-center gap-3"><div class="p-2 bg-amber-100 rounded-lg"><i data-lucide="zap" class="w-6 h-6 text-amber-600"></i></div><h3 class="text-xl font-bold">API חי</h3></div>
+                    <p class="text-base text-slate-700">לשאלות אישיות כמו "איפה ההזמנה שלי?" הבוט מתחבר ישירות ל-WooCommerce ומושך נתונים בזמן אמת.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal flex flex-col gap-3 lg:col-span-2 md:col-span-2" style="transition-delay: 400ms;">
+                    <div class="flex items-center gap-3"><div class="p-2 bg-purple-100 rounded-lg"><i data-lucide="git-merge" class="w-6 h-6 text-purple-600"></i></div><h3 class="text-xl font-bold">Router חכם</h3></div>
+                    <p class="text-base text-slate-700">רכיב שמחליט אוטומטית לאן לפנות: שאלה כללית על מוצרים ומדיניות - RAG. שאלה אישית על הזמנה - API.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 4: Knowledge Graph -->
+        <section id="knowledge-graph" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 text-center text-indigo-900">4. Knowledge Graph - איך זה עובד?</h2>
+                <div class="text-center mb-10">
+                    <p class="text-xl font-medium bg-amber-100/80 inline-block px-6 py-2 rounded-full mx-auto text-amber-900">RAG Engine זה כבר כנראה שייך לעבר, והיום יותר ויותר הולכים ל-Knowledge Graph.</p>
+                </div>
+            </div>
+            
+            <!-- הסבר + המחשה ויזואלית -->
+            <div class="glass-card p-6 lg:p-8 rounded-3xl reveal mb-10 flex flex-col gap-6 items-center border-2 border-indigo-100 bg-white/60">
+                <div class="w-full space-y-4">
+                    <h3 class="text-2xl font-bold text-indigo-800 text-center">מיפוי קשרים במקום מילות מפתח</h3>
+                    <p class="text-lg text-slate-700 leading-relaxed text-center max-w-4xl mx-auto">
+                        במקום לסרוק טקסט ארוך בתקווה למצוא התאמה, גרף הידע ממפה את החנות כמו <strong>רשת חכמה של מושגים (Entities) וקשרים ביניהם</strong>.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 text-slate-700 mt-4 font-medium">
+                        <div class="bg-indigo-50/80 border border-indigo-100 px-6 py-3 rounded-xl flex items-center gap-3"><i data-lucide="box" class="w-5 h-5 text-indigo-500"></i> ישויות: מוצרים, קטגוריות, עונות, לקוחות.</div>
+                        <div class="bg-sky-50/80 border border-sky-100 px-6 py-3 rounded-xl flex items-center gap-3"><i data-lucide="git-commit" class="w-5 h-5 text-sky-500"></i> קשרים: "שייך ל-", "מתאים ל-", "מוזל ב-".</div>
+                    </div>
+                </div>
+                
+                <!-- הגרף קיבל רוחב מלא וגובה רב יותר -->
+                <div id="graph-wrapper" class="w-full bg-slate-50/80 rounded-2xl shadow-inner border border-slate-200 relative overflow-hidden h-[500px] lg:h-[650px]">
+                    <div id="interactive-graph" class="w-full h-full absolute inset-0 cursor-grab active:cursor-grabbing"></div>
+                    
+                    <!-- הודעת Ctrl + Scroll (מוסתרת כברירת מחדל) -->
+                    <div id="ctrl-zoom-msg" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-sm text-white opacity-0 pointer-events-none transition-opacity duration-300 z-20">
+                        <i data-lucide="zoom-in" class="w-12 h-12 mb-3 opacity-80"></i>
+                        <span class="font-bold text-xl sm:text-2xl">השתמש ב-Ctrl + גלילה כדי להתקרב</span>
+                    </div>
+                </div>
+                
+                <p class="text-lg text-slate-800 leading-relaxed mt-2 font-bold bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-center w-full">
+                    כך הבוט יכול להמליץ על "ג'קט ג'ינס" כשמבקשים בגד חורף במבצע, גם אם המילים "חורף" או "מבצע" לא כתובות בו בכלל!
+                </p>
+            </div>
+
+            <!-- השוואה לבוט רגיל -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 px-2">
+                <div class="glass-card p-8 rounded-3xl reveal text-right" style="transition-delay: 200ms;">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-3"><div class="p-2 bg-red-100 rounded-full"><i data-lucide="x" class="text-red-500 w-6 h-6"></i></div> RAG / בוט רגיל</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        לקוח שואל "מה מתאים לחורף?". הבוט מחפש את המילה "חורף" בכל המסמכים ומחזיר את מה שמצא. אם המילה לא מופיעה בתיאור הג'קט, <strong>הוא לא מוצא אותו</strong>, גם אם זה בדיוק מה שהלקוח צריך.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-3xl border border-emerald-200 bg-emerald-50/40 reveal text-right" style="transition-delay: 400ms;">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-3"><div class="p-2 bg-emerald-100 rounded-full"><i data-lucide="check" class="text-emerald-600 w-6 h-6"></i></div> Knowledge Graph</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        הבוט שלנו מטייל על "הקווים" בגרף. הוא מתחיל מ"חורף", רואה ש"ג'קטים" מחוברים אליו, ומושך את "ג'קט ג'ינס" יחד עם מבצע ה-30%. הכל תוך אלפיות שנייה ובהקשר מושלם.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 5: שלבי הבנייה -->
+        <section id="steps" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <h2 class="text-4xl md:text-5xl font-bold mb-12 text-center text-indigo-900 reveal">5. שלבי הבנייה</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-sky-200/50">1</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">אתר HTML</h3>
+                    <p class="text-base text-slate-700 relative z-10">בניתי חנות בגדים מלאה בעברית בקובץ HTML אחד. מוצרים עם תמונות, עמוד FAQ, מדיניות משלוחים, מבצעים. זה משמש גם כבסיס לדמו וגם כמקור לסריקה.</p>
+                </div>
+                
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal" style="transition-delay: 100ms;">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-indigo-200/50">2</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">Knowledge Graph</h3>
+                    <p class="text-base text-slate-700 relative z-10">ממפים את כל הקשרים בחנות: מוצר ↔ קטגוריה ↔ עונה ↔ מבצע. עוברים משיטת חיפוש ישנה של RAG למבנה ידע חכם שמבין הקשרים.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal" style="transition-delay: 200ms;">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-emerald-200/50">3</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">Vector Database</h3>
+                    <p class="text-base text-slate-700 relative z-10">הקמת ChromaDB לוקאלי. כאן אנחנו הופכים את הידע והקשרים שיצרנו לוקטורים (Embeddings) המאפשרים חיפוש סמנטי מהיר וזול.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal" style="transition-delay: 300ms;">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-amber-200/50">4</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">WooCommerce API</h3>
+                    <p class="text-base text-slate-700 relative z-10">מחבר את הבוט לנתוני הזמנות חיים. סטטוס, מעקב, פרטי לקוח - בזמן אמת.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal" style="transition-delay: 400ms;">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-purple-200/50">5</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">Router חכם</h3>
+                    <p class="text-base text-slate-700 relative z-10">הלב של המערכת. מנתח כל שאלה ומחליט: RAG לשאלות כלליות, API לשאלות אישיות, הסלמה לנציג אנושי כשהבוט לא יודע.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl relative pr-12 reveal" style="transition-delay: 500ms;">
+                    <div class="absolute right-4 top-6 text-5xl font-black text-rose-200/50">6</div>
+                    <h3 class="text-xl font-bold mb-2 z-10 relative">ממשק + דמו</h3>
+                    <p class="text-base text-slate-700 relative z-10">Streamlit מספק צ'אט מלא בעברית, RTL, עם היסטוריית שיחה וכרטיסי הזמנה. מוכן להצגה.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 6: פרומפטים (עבר לפה!) -->
+        <section id="prompts" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-center text-indigo-900">6. בונים בלייב ב-VS Code</h2>
+                <p class="text-xl text-center text-slate-700">מעתיקים את הפרומפטים ל-Claude Code ונותנים לקסם לקרות</p>
+            </div>
+
+            <div class="w-full max-w-4xl mx-auto space-y-16">
+                
+                <!-- פרומפט 1 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">1</span> 
+                        פרומפט 1 - בניית הבוט
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">מדביקים ל-Claude Code ב-VS Code. בונה את כל המערכת - RAG, router, API.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_1_backend.txt</span>
+                            <button onclick="copyToClipboard('prompt1')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt1" class="text-emerald-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">Build a customer service RAG chatbot for a Hebrew ecommerce store.Tech stack: Python, ChromaDB (local), OpenAI API (gpt-4o-mini)Data sources:1. RAG: ingest all .md files from /docs folder2. Live orders: load mock_orders.json when user asks about an orderDeliverables:- ingest.py  - chunks docs and stores in ChromaDB- router.py  - decides: RAG for general, API for personal questions- chat.py    - CLI chat interface- requirements.txtSystem prompt: "You are a customer service agent for Style Israel store.Answer only in Hebrew, be friendly and concise. If you don't know - say so."</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- פרומפט 2 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">2</span> 
+                        פרומפט 2 - ממשק Streamlit
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">מדביקים ל-Claude Code אחרי שהבוט עובד. מוסיף ממשק ווב בעברית.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_2_frontend.txt</span>
+                            <button onclick="copyToClipboard('prompt2')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt2" class="text-sky-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">Add a Streamlit web interface (app.py) for the chatbot:Requirements:- RTL Hebrew layout, right-to-left text direction- Chat window with full message history- User messages on the right (teal), bot on the left (dark)- Show loading spinner while waiting for response- When an order is found, display details in a formatted card- Clean modern design, white backgroundRun with: streamlit run app.py</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- פרומפט 3 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">3</span> 
+                        פרומפט 3 - System Prompt של הבוט
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">נמצא ב-config.json של כל לקוח. משנים את שם החנות והטון לפי הצורך.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_3_system.txt</span>
+                            <button onclick="copyToClipboard('prompt3')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt3" class="text-amber-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">You are a customer service agent for Style Israel clothing store.Rules:- Always answer in Hebrew, regardless of the language used- Be friendly, warm and concise - like a helpful human agent- Answer ONLY based on the provided documents and order data- If you don't know the answer, say so clearly and offer to  connect the customer with a human agent: "אעביר אותך לנציג"- For order questions: always confirm order number and name- Never invent information, prices or policiesTone: professional but warm, like a trusted local store</pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- אזור 7: הדמו החי (עכשיו מופיע אחרי הפרומפטים) -->
+        <section id="demo" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 text-center text-indigo-900">7. הדמו החי (התוצאה)</h2>
+                <div class="bg-sky-100/80 text-sky-800 p-4 rounded-xl text-center max-w-3xl mx-auto mb-12 text-lg font-medium shadow-sm border border-sky-200">
+                    אחרי שבנינו הכל - בואו נראה את זה עובד. פותחים שני חלונות: בשמאל חנות אמיתית, בימין הבוט שלנו.
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto px-2">
+                <div class="glass-card p-6 rounded-2xl reveal">
+                    <h4 class="font-bold text-xl mb-3 flex items-center gap-3"><div class="bg-sky-100 p-2 rounded-lg text-sky-600"><i data-lucide="shopping-bag" class="w-5 h-5"></i></div> תרחיש 1 - שאלה על מוצר</h4>
+                    <p class="text-slate-700 text-lg"><span class="font-bold text-slate-900">"כמה עולה ג'קט עור ויש אותו בחום?"</span> - הבוט עונה מיד עם מחיר מדויק וצבעים זמינים.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal" style="transition-delay: 150ms;">
+                    <h4 class="font-bold text-xl mb-3 flex items-center gap-3"><div class="bg-amber-100 p-2 rounded-lg text-amber-600"><i data-lucide="truck" class="w-5 h-5"></i></div> תרחיש 2 - סטטוס הזמנה חי</h4>
+                    <p class="text-slate-700 text-lg"><span class="font-bold text-slate-900">"מה הסטטוס של הזמנה 1050?"</span> - הבוט שולף את פרטי ההזמנה בזמן אמת.</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal" style="transition-delay: 300ms;">
+                    <h4 class="font-bold text-xl mb-3 flex items-center gap-3"><div class="bg-emerald-100 p-2 rounded-lg text-emerald-600"><i data-lucide="refresh-ccw" class="w-5 h-5"></i></div> תרחיש 3 - עדכון תוכן</h4>
+                    <p class="text-slate-700 text-lg">מעדכנים מחיר מוצר באתר תוך כדי ההצגה, מריצים סריקה מחדש - הבוט כבר יודע את המחיר החדש. <strong class="text-emerald-600 block mt-1">זה הרגע שגורם לאנשים לומר "וואו".</strong></p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl reveal" style="transition-delay: 450ms;">
+                    <h4 class="font-bold text-xl mb-3 flex items-center gap-3"><div class="bg-rose-100 p-2 rounded-lg text-rose-600"><i data-lucide="help-circle" class="w-5 h-5"></i></div> תרחיש 4 - מה הבוט לא יודע</h4>
+                    <p class="text-slate-700 text-lg"><span class="font-bold text-slate-900">"יש הנחה לחיילים?"</span> - הבוט אומר שאין לו מידע על כך ומציע להעביר לנציג אנושי. זה חשוב להראות - בוט שיודע מתי הוא לא יודע הוא בוט אמין.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 8: המודל העסקי -->
+        <section id="business" class="min-h-[90vh] flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8 text-center text-indigo-900">8. המודל העסקי</h2>
+                <div class="text-center mb-12">
+                    <p class="text-xl bg-emerald-100/80 text-emerald-900 inline-block px-8 py-3 rounded-full mx-auto font-bold shadow-sm border border-emerald-200">זה הדבר שהכי מעניין לקהל של אנשי עסקים:</p>
+                </div>
+            </div>
+
+            <div class="max-w-4xl mx-auto w-full px-2 space-y-6">
+                <div class="glass-card p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-start gap-4 md:gap-6 reveal">
+                    <div class="bg-blue-100 p-4 rounded-xl text-blue-600 flex-shrink-0"><i data-lucide="copy" class="w-8 h-8"></i></div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">פשטות בהקמה</h3>
+                        <p class="text-slate-700 text-lg leading-relaxed">לקוח חדש = העתקת תיקייה + מילוי config.json. זהו. כל שאר הקוד עובד אוטומטית.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-start gap-4 md:gap-6 reveal" style="transition-delay: 150ms;">
+                    <div class="bg-indigo-100 p-4 rounded-xl text-indigo-600 flex-shrink-0"><i data-lucide="server-off" class="w-8 h-8"></i></div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-2">עצמאות מלאה</h3>
+                        <p class="text-slate-700 text-lg leading-relaxed">כל לקוח מקבל תיקייה עצמאית עם ה-config שלו, מסמכי הידע שלו, ה-DB הלוקאלי שלו, ה-Graph שלו. אין תלות בין לקוחות, אין שרת מרכזי שיכול לקרוס.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div class="glass-card p-8 rounded-2xl border border-emerald-300 bg-emerald-50/50 reveal" style="transition-delay: 300ms;">
+                        <h4 class="text-xl font-bold text-emerald-700 mb-3">הפתרון שלנו</h4>
+                        <p class="text-4xl font-black mb-3 text-emerald-900">$10-30 <span class="text-lg font-normal text-slate-600">לחודש</span></p>
+                        <p class="text-slate-700 text-base">רק OpenAI API לפי שימוש. אין עלות DB, אין עלות שרת אם רץ לוקאלית.</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 rounded-2xl border border-slate-200 bg-slate-100/50 reveal" style="transition-delay: 450ms;">
+                        <h4 class="text-xl font-bold text-slate-600 mb-3">פתרונות חיצוניים (Intercom, Gorgias)</h4>
+                        <p class="text-4xl font-black mb-3 text-slate-800">$200-500 <span class="text-lg font-normal text-slate-500">לחודש</span></p>
+                        <p class="text-slate-600 text-base">אנגלית בלבד, לא מותאם לעברית ולשוק הישראלי.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- אזור 9: סיכום -->
+        <section id="summary" class="min-h-[70vh] flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <h2 class="text-4xl md:text-5xl font-bold mb-12 text-center text-indigo-900 reveal">9. סיכום</h2>
+            
+            <div class="glass-card p-8 md:p-14 rounded-3xl max-w-3xl mx-auto w-full reveal">
+                <h3 class="text-3xl font-bold mb-8 text-center text-slate-800">מה בנינו בפועל:</h3>
+                
+                <ul class="space-y-6 text-lg md:text-xl font-medium text-slate-700">
+                    <li class="flex items-center gap-4 reveal" style="transition-delay: 100ms;">
+                        <div class="bg-sky-100 p-2 rounded-full text-sky-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                        <span><strong>אתר חנות מלא בעברית</strong> - בסיס לסריקה ולדמו</span>
+                    </li>
+                    <li class="flex items-center gap-4 reveal" style="transition-delay: 200ms;">
+                        <div class="bg-sky-100 p-2 rounded-full text-sky-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                        <span><strong>Knowledge Graph</strong> - הבנת קשרים בין מוצרים, קטגוריות ומבצעים</span>
+                    </li>
+                    <li class="flex items-center gap-4 reveal" style="transition-delay: 300ms;">
+                        <div class="bg-sky-100 p-2 rounded-full text-sky-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                        <span><strong>RAG Engine לוקאלי</strong> - ללא עלויות DB חיצוני</span>
+                    </li>
+                    <li class="flex items-center gap-4 reveal" style="transition-delay: 400ms;">
+                        <div class="bg-sky-100 p-2 rounded-full text-sky-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                        <span><strong>חיבור ל-WooCommerce API</strong> - נתוני הזמנות בזמן אמת</span>
+                    </li>
+                    <li class="flex items-center gap-4 reveal" style="transition-delay: 500ms;">
+                        <div class="bg-sky-100 p-2 rounded-full text-sky-600"><i data-lucide="check" class="w-6 h-6"></i></div>
+                        <span><strong>Template מודולרי</strong> - לקוח חדש = תיקייה + config</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- אזור 9: פרומפטים -->
+        <section id="prompts" class="min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50">
+            <div class="reveal mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-center text-indigo-900">פרומפטים להצגה</h2>
+                <p class="text-xl text-center text-slate-700">הקוד שבונה הכל מאחורי הקלעים</p>
+            </div>
+
+            <div class="w-full max-w-4xl mx-auto space-y-16">
+                
+                <!-- פרומפט 1 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">9</span> 
+                        פרומפט 1 - בניית הבוט
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">מדביקים ל-Claude Code. בונה את כל המערכת - RAG, router, API.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_1_backend.txt</span>
+                            <button onclick="copyToClipboard('prompt1')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt1" class="text-emerald-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">Build a customer service RAG chatbot for a Hebrew ecommerce store.Tech stack: Python, ChromaDB (local), OpenAI API (gpt-4o-mini)Data sources:1. RAG: ingest all .md files from /docs folder2. Live orders: load mock_orders.json when user asks about an orderDeliverables:- ingest.py  - chunks docs and stores in ChromaDB- router.py  - decides: RAG for general, API for personal questions- chat.py    - CLI chat interface- requirements.txtSystem prompt: "You are a customer service agent for Style Israel store.Answer only in Hebrew, be friendly and concise. If you don't know - say so."</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- פרומפט 2 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">10</span> 
+                        פרומפט 2 - ממשק Streamlit
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">מדביקים ל-Claude Code אחרי שהבוט עובד. מוסיף ממשק ווב בעברית.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_2_frontend.txt</span>
+                            <button onclick="copyToClipboard('prompt2')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt2" class="text-sky-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">Add a Streamlit web interface (app.py) for the chatbot:Requirements:- RTL Hebrew layout, right-to-left text direction- Chat window with full message history- User messages on the right (teal), bot on the left (dark)- Show loading spinner while waiting for response- When an order is found, display details in a formatted card- Clean modern design, white backgroundRun with: streamlit run app.py</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- פרומפט 3 -->
+                <div class="reveal">
+                    <h3 class="text-2xl font-bold mb-3 text-indigo-900 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-800 w-10 h-10 flex items-center justify-center rounded-lg">11</span> 
+                        פרומפט 3 - System Prompt של הבוט
+                    </h3>
+                    <p class="mb-4 text-slate-700 text-lg pl-14">נמצא ב-config.json של כל לקוח. משנים את שם החנות והטון לפי הצורך.</p>
+                    <div class="bg-slate-900 rounded-2xl shadow-xl overflow-hidden text-left ml-0 md:ml-12" dir="ltr">
+                        <div class="flex justify-between items-center px-5 py-3 bg-slate-800/80 text-slate-300 text-sm border-b border-slate-700">
+                            <span class="font-mono">prompt_3_system.txt</span>
+                            <button onclick="copyToClipboard('prompt3')" class="hover:text-white transition flex items-center gap-2 bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded-lg">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-x-auto">
+<pre id="prompt3" class="text-amber-400 font-mono text-[15px] whitespace-pre-wrap leading-relaxed">You are a customer service agent for Style Israel clothing store.Rules:- Always answer in Hebrew, regardless of the language used- Be friendly, warm and concise - like a helpful human agent- Answer ONLY based on the provided documents and order data- If you don't know the answer, say so clearly and offer to  connect the customer with a human agent: "אעביר אותך לנציג"- For order questions: always confirm order number and name- Never invent information, prices or policiesTone: professional but warm, like a trusted local store</pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- התראת "הועתק" צפה -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-[100] flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i> הפרומפט הועתק בהצלחה!
+    </div>
+
+    <!-- סקריפטים לאנימציה ולתפריט -->
+    <script>
+        // אתחול אייקונים
+        lucide.createIcons();
+
+        // --- אנימציות של הופעה בגלילה (Intersection Observer) ---
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px 0px -10% 0px', 
+            threshold: 0.1 
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // --- גלילה חלקה מבוקרת (Custom Smooth Scroll) ---
+        function smoothScrollTo(targetPosition, duration) {
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            let startTime = null;
+
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                }
+            }
+
+            // פונקציית החלקה שתתחיל לאט, תאיץ ותאט בסוף - למראה אלגנטי
+            function easeInOutQuad(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
+            }
+
+            requestAnimationFrame(animation);
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    // חישוב המיקום תוך התחשבות בתפריט העליון
+                    const navHeight = document.getElementById('navbar').offsetHeight;
+                    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+                    
+                    // גלילה חלקה מותאמת אישית לזמן של שניה אחת (1000ms)
+                    smoothScrollTo(targetPosition, 1000); 
+                }
+            });
+        });
+
+        // --- ניהול תפריט עליון (Scrollspy) ---
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section'); // נשלף חי כדי לשרוד טעינת תוכן מחדש
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= (sectionTop - 250)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                    
+                    if(window.innerWidth < 768) {
+                        const navMenu = document.querySelector('nav ul');
+                        const linkOffset = link.offsetLeft;
+                        navMenu.scrollTo({
+                            left: linkOffset - (navMenu.clientWidth / 2) + (link.clientWidth / 2),
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // --- פונקציית העתקה ---
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('opacity-0');
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                }, 2500);
+            });
+        }
+
+        // --- אתחול הגרף האינטראקטיבי (Knowledge Graph) ---
+        function initKnowledgeGraph() {
+            const container = document.getElementById('interactive-graph');
+            if (!container) return;
+
+            const nodes = new vis.DataSet([
+                { id: 1, label: "עונת חורף", value: 35 },
+                { id: 2, label: "קולקציית חורף", value: 25 },
+                { id: 3, label: "סייל חורף 30%", value: 25 },
+                { id: 4, label: "ג'קטים", value: 20 },
+                { id: 5, label: "סוודרים", value: 20 },
+                { id: 6, label: "ג'קט ג'ינס", value: 15 },
+                { id: 7, label: "מעיל צמר", value: 15 },
+                { id: 8, label: "סוודר גולף", value: 15 },
+                { id: 9, label: "ירון (לקוח)", value: 18 },
+                { id: 10, label: "הזמנה 1050", value: 12 },
+                { id: 11, label: "צבע שחור", value: 10 },
+                { id: 12, label: "מידה L", value: 10 },
+                { id: 13, label: "אביזרים", value: 15 },
+                { id: 14, label: "כובע גרב", value: 10 },
+                { id: 15, label: "שרה (לקוחה)", value: 18 },
+                { id: 16, label: "מידה M", value: 10 }
+            ]);
+
+            const edges = new vis.DataSet([
+                { from: 2, to: 1, label: "מתאים ל" },
+                { from: 4, to: 2, label: "תת-קטגוריה" },
+                { from: 5, to: 2, label: "תת-קטגוריה" },
+                { from: 13, to: 2, label: "תת-קטגוריה" },
+                { from: 6, to: 4, label: "שייך ל" },
+                { from: 7, to: 4, label: "שייך ל" },
+                { from: 8, to: 5, label: "שייך ל" },
+                { from: 14, to: 13, label: "שייך ל" },
+                { from: 2, to: 3, label: "משתתף ב" },
+                { from: 6, to: 11, label: "זמין ב" },
+                { from: 7, to: 11, label: "זמין ב" },
+                { from: 6, to: 12, label: "זמין ב" },
+                { from: 8, to: 16, label: "זמין ב" },
+                { from: 9, to: 10, label: "ביצע" },
+                { from: 10, to: 6, label: "כוללת" },
+                { from: 15, to: 7, label: "צפתה ב" },
+                { from: 15, to: 14, label: "רכשה" }
+            ]);
+
+            const data = { nodes: nodes, edges: edges };
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    color: { 
+                        background: '#3b82f6', 
+                        border: '#2563eb',
+                        highlight: { background: '#60a5fa', border: '#1d4ed8' },
+                        hover: { background: '#60a5fa', border: '#1d4ed8' }
+                    },
+                    font: { face: '"Gveret Levin", Rubik, sans-serif', size: 14, color: '#0f172a', strokeWidth: 3, strokeColor: '#ffffff' }
+                },
+                edges: {
+                    color: { color: '#cbd5e1', highlight: '#94a3b8', hover: '#94a3b8' },
+                    smooth: false, // קווים ישרים כמו בתמונה
+                    arrows: { to: { enabled: true, scaleFactor: 0.4 } }, 
+                    font: { face: '"Gveret Levin", Rubik, sans-serif', size: 11, align: 'top', color: '#64748b', strokeWidth: 0 }
+                },
+                physics: {
+                    forceAtlas2Based: {
+                        gravitationalConstant: -50,
+                        centralGravity: 0.005,
+                        springLength: 200, // הגדלנו את המרווח בין הנקודות כדי שינצלו את השטח
+                        springConstant: 0.05
+                    },
+                    maxVelocity: 50,
+                    solver: 'forceAtlas2Based',
+                    timestep: 0.35,
+                    stabilization: { iterations: 150 }
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 200,
+                    zoomView: true,
+                    dragView: true
+                }
+            };
+
+            const network = new vis.Network(container, data, options);
+
+            // --- מנגנון דרישת מקש Ctrl לזום בגרף ---
+            const wrapper = document.getElementById('graph-wrapper');
+            const msg = document.getElementById('ctrl-zoom-msg');
+            let msgTimeout;
+
+            wrapper.addEventListener('wheel', function(event) {
+                // בודקים אם Ctrl (או Cmd) לחוץ
+                if (!event.ctrlKey && !event.metaKey) {
+                    // אם לא לחוץ - עוצרים את האירוע מלהגיע ל-vis-network
+                    event.stopPropagation();
+                    
+                    // מציגים את ההודעה היפה למשתמש
+                    if (msg) {
+                        msg.classList.remove('opacity-0');
+                        clearTimeout(msgTimeout);
+                        msgTimeout = setTimeout(() => {
+                            msg.classList.add('opacity-0');
+                        }, 1500);
+                    }
+                } else {
+                    // אם ה-Ctrl לחוץ, אנחנו מונעים מהדפדפן לעשות זום לכל העמוד כדי שהגרף יקבל את הזום
+                    event.preventDefault();
+                }
+            }, { capture: true, passive: false });
+        }
+
+        // קריאה לפונקציה מיד כשהקוד נטען
+        initKnowledgeGraph();
+    </script>
+
+    <!-- ===== שכבת עריכה (לא נוגעת בתפריט העליון) ===== -->
+    <style>
+        .ec-toggle, .ec-cancel { position: fixed; bottom: 1rem; z-index: 60; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid rgba(30,41,59,0.2); color: #475569; cursor: pointer; box-shadow: 0 4px 12px rgba(30,41,59,0.12); transition: all .25s; }
+        .ec-toggle { left: 1rem; }
+        .ec-cancel { left: 3.7rem; display: none; border-color: rgba(239,68,68,0.5); color: #dc2626; }
+        .ec-toggle:hover { color: #4f46e5; border-color: #4f46e5; }
+        body.ec-edit .ec-toggle { color: #059669; border-color: #059669; box-shadow: 0 0 12px rgba(5,150,105,0.3); }
+        body.ec-edit .ec-cancel { display: flex; }
+        .ec-toolbar { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 61; display: none; align-items: center; gap: 0.4rem; padding: 0.45rem 0.65rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(5,150,105,0.4); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.18); max-width: 92vw; flex-wrap: wrap; justify-content: center; }
+        body.ec-edit .ec-toolbar { display: flex; }
+        .ec-toolbar button { font-family: inherit; font-size: 0.8rem; font-weight: 600; color: #1e293b; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.18); border-radius: 9999px; padding: 0.35rem 0.6rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; transition: all .2s; }
+        .ec-toolbar button:hover { border-color: #4f46e5; color: #4f46e5; }
+        .ec-toolbar .size-input { width: 52px; text-align: center; font-weight: 700; color: #1e293b; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.3rem 0.2rem; font-family: inherit; }
+        .ec-toolbar input[type=color] { width: 30px; height: 28px; border: 1px solid rgba(30,41,59,0.2); background: none; cursor: pointer; padding: 0; border-radius: 6px; }
+        .ec-toolbar .color-swatch { width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid rgba(30,41,59,0.25); transition: transform .15s; }
+        .ec-toolbar .color-swatch:hover { transform: scale(1.15); border-color: #1e293b; }
+        .ec-toolbar .swatch-edit { font-size: 0.72rem; padding: 0.3rem 0.45rem; opacity: 0.85; }
+        body.ec-edit #ecMain [contenteditable="true"]:focus { outline: 2px solid #059669; outline-offset: 3px; border-radius: 6px; }
+        .ec-swed { position: fixed; bottom: 3.7rem; left: 50%; transform: translateX(-50%); z-index: 62; display: none; flex-direction: column; gap: 0.7rem; padding: 0.9rem 1rem; border-radius: 14px; background: rgba(255,255,255,0.98); border: 1px solid rgba(30,41,59,0.15); box-shadow: 0 12px 30px rgba(30,41,59,0.2); }
+        .ec-swed.open { display: flex; }
+        .ec-swed .se-title { color: #1e293b; font-size: 0.8rem; font-weight: 700; text-align: center; }
+        .ec-swed .se-row { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; max-width: 320px; }
+        .ec-swed .se-item { position: relative; }
+        .ec-swed input[type=color] { width: 38px; height: 38px; border: 1px solid rgba(30,41,59,0.2); background: none; cursor: pointer; padding: 0; border-radius: 8px; }
+        .ec-swed .se-remove { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%; background: #ef4444; color: #fff; border: none; font-size: 12px; line-height: 1; cursor: pointer; }
+        .ec-swed .se-actions { display: flex; gap: 0.6rem; justify-content: center; }
+        .ec-swed .se-actions button { font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #1e293b; background: rgba(0,0,0,0.05); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.3rem 0.8rem; cursor: pointer; }
+        .ec-pdf { position: fixed; bottom: 1rem; left: 6.4rem; z-index: 60; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid rgba(30,41,59,0.2); color: #475569; cursor: pointer; box-shadow: 0 4px 12px rgba(30,41,59,0.12); transition: all .25s; }
+        .ec-pdf:hover { color: #7c3aed; border-color: #7c3aed; }
+        .ec-iconpicker { position: fixed; bottom: 3.7rem; left: 50%; transform: translateX(-50%); z-index: 62; display: none; flex-wrap: wrap; gap: 0.3rem; max-width: 340px; padding: 0.6rem; border-radius: 14px; background: rgba(255,255,255,0.98); border: 1px solid rgba(30,41,59,0.15); box-shadow: 0 12px 30px rgba(30,41,59,0.2); }
+        .ec-iconpicker.open { display: flex; }
+        .ec-iconpicker button { width: 36px; height: 36px; border-radius: 8px; cursor: pointer; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.15); color: #334155; display: flex; align-items: center; justify-content: center; }
+        .ec-iconpicker button:hover { background: rgba(79,70,229,0.1); border-color: #4f46e5; color: #4f46e5; }
+        #ecMain section { position: relative; }
+        .ec-secctrl { position: absolute; top: 5rem; left: 1rem; z-index: 40; display: none; gap: 0.3rem; }
+        body.ec-edit .ec-secctrl { display: flex; }
+        .ec-secctrl button { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.95); border: 1px solid rgba(30,41,59,0.2); color: #475569; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(30,41,59,0.12); }
+        .ec-secctrl button:hover { color: #4f46e5; border-color: #4f46e5; }
+        @media print { .ec-toggle, .ec-cancel, .ec-toolbar, .ec-swed, .ec-pdf, .ec-iconpicker, .ec-secctrl { display: none !important; } }
+    </style>
+    <button class="ec-toggle" id="ecToggle" title="מצב עריכה"><i data-lucide="edit-3" style="width:18px;height:18px"></i></button>
+    <button class="ec-cancel" id="ecCancel" title="בטל שינויים"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+    <button class="ec-pdf" id="ecPdf" title="ייצוא ל-PDF"><i data-lucide="file-down" style="width:18px;height:18px"></i></button>
+    <div class="ec-toolbar" id="ecToolbar"></div>
+    <script>
+    (function () {
+        const ecMain = document.getElementById('ecMain');
+        const toolbar = document.getElementById('ecToolbar');
+        const toggle = document.getElementById('ecToggle');
+        const cancel = document.getElementById('ecCancel');
+        const pdf = document.getElementById('ecPdf');
+        const navbar = document.getElementById('navbar');
+        if (!ecMain || !toolbar) return;
+        // במצב עריכה — לא מנווטים בלחיצה על פריט תפריט, כדי שאפשר יהיה לערוך את הטקסט
+        if (navbar) navbar.addEventListener('click', function (e) { if (document.body.classList.contains('ec-edit')) { e.preventDefault(); e.stopPropagation(); } }, true);
+        // שמירה/טעינה של טקסט התפריט (נשמר יחד עם המצגת דרך אלמנט נסתר בתוך main)
+        function syncNavToConfig() {
+            if (!navbar) return;
+            const map = {};
+            navbar.querySelectorAll('.nav-link').forEach(function (a) { const href = a.getAttribute('href') || ''; if (href) map[href] = a.textContent.trim(); });
+            let el = document.getElementById('deck-nav');
+            if (!el) { el = document.createElement('div'); el.id = 'deck-nav'; el.hidden = true; ecMain.insertBefore(el, ecMain.firstChild); }
+            el.setAttribute('data-nav', JSON.stringify(map));
+        }
+        function applyNavFromConfig() {
+            const el = document.getElementById('deck-nav'); if (!el || !navbar) return;
+            let map; try { map = JSON.parse(el.getAttribute('data-nav') || '{}'); } catch (e) { return; }
+            navbar.querySelectorAll('.nav-link').forEach(function (a) { const href = a.getAttribute('href') || ''; if (map[href] != null) a.textContent = map[href]; });
+        }
+        const API = location.pathname.replace(/\/+$/, '') + '/api/content';
+        const KEY = 'ec_deck_' + location.pathname;
+        const DEFAULT_SWATCHES = ['#10b981', '#0ea5e9', '#4f46e5', '#f59e0b', '#0f172a', '#64748b'];
+        let editMode = false, editPassword = null, lastRange = null, sizeInputRef = null;
+        try { editPassword = sessionStorage.getItem('deck_pw'); } catch (e) {}
+
+        // ---- selection helpers ----
+        document.addEventListener('selectionchange', function () {
+            if (!document.body.classList.contains('ec-edit')) return;
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+            const r = sel.getRangeAt(0);
+            let n = r.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement;
+            if (n && n.closest && n.closest('#ecMain')) {
+                lastRange = r.cloneRange();
+                if (sizeInputRef && document.activeElement !== sizeInputRef) {
+                    const px = parseFloat(getComputedStyle(n).fontSize);
+                    if (px) sizeInputRef.value = Math.round(px);
+                }
+            }
+        });
+        function restoreSel() {
+            if (!lastRange) return null;
+            let n = lastRange.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement;
+            const host = n && n.closest ? n.closest('#ecMain') : null;
+            if (host) host.focus();
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(lastRange);
+            return host;
+        }
+        function fmt(cmd, val) { restoreSel(); try { document.execCommand('styleWithCSS', false, true); } catch (e) {} document.execCommand(cmd, false, val); }
+        function tbBtn(html, title, fn, parent) {
+            const b = document.createElement('button'); b.innerHTML = html; b.title = title;
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function (e) { e.preventDefault(); fn(); });
+            (parent || toolbar).appendChild(b); return b;
+        }
+
+        // ---- font size ----
+        function applyFontPx(px) {
+            restoreSel();
+            try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
+            document.execCommand('fontSize', false, '7');
+            document.querySelectorAll('font[size="7"]').forEach(function (f) { f.removeAttribute('size'); f.style.fontSize = px + 'px'; });
+        }
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'number'; sizeInput.min = '8'; sizeInput.max = '200'; sizeInput.value = '24';
+        sizeInput.className = 'size-input'; sizeInput.title = 'גודל גופן (px)';
+        sizeInput.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        sizeInput.addEventListener('change', function () { const px = parseInt(sizeInput.value, 10); if (px) applyFontPx(px); });
+        sizeInputRef = sizeInput; toolbar.appendChild(sizeInput);
+
+        // ---- bold / italic ----
+        const fmtGroup = document.createElement('span'); fmtGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(fmtGroup);
+        tbBtn('<i data-lucide="bold" style="width:15px;height:15px"></i>', 'מודגש', function () { fmt('bold'); }, fmtGroup);
+        tbBtn('<i data-lucide="italic" style="width:15px;height:15px"></i>', 'נטוי', function () { fmt('italic'); }, fmtGroup);
+
+        // ---- align ----
+        const alignGroup = document.createElement('span'); alignGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(alignGroup);
+        tbBtn('<i data-lucide="align-right" style="width:15px;height:15px"></i>', 'יישור לימין', function () { fmt('justifyRight'); }, alignGroup);
+        tbBtn('<i data-lucide="align-center" style="width:15px;height:15px"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
+        tbBtn('<i data-lucide="align-left" style="width:15px;height:15px"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
+
+        // ---- color + swatches ----
+        const color = document.createElement('input');
+        color.type = 'color'; color.title = 'צבע מותאם אישית'; color.value = '#4f46e5';
+        color.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        color.addEventListener('input', function () { fmt('foreColor', color.value); });
+        function readSwatches() {
+            const el = document.getElementById('deck-swatches');
+            if (el && el.dataset.colors) { const a = el.dataset.colors.split(',').map(function (s) { return s.trim(); }).filter(Boolean); if (a.length) return a; }
+            return DEFAULT_SWATCHES.slice();
+        }
+        function writeSwatches(arr) {
+            let el = document.getElementById('deck-swatches');
+            if (!el) { el = document.createElement('div'); el.id = 'deck-swatches'; el.hidden = true; ecMain.insertBefore(el, ecMain.firstChild); }
+            el.dataset.colors = arr.join(',');
+        }
+        function normalizeHex(c) { c = (c || '').trim(); if (/^#[0-9a-fA-F]{3}$/.test(c)) return ('#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]).toLowerCase(); if (/^#[0-9a-fA-F]{6}$/.test(c)) return c.toLowerCase(); return '#ffffff'; }
+        const swatchGroup = document.createElement('span'); swatchGroup.style.cssText = 'display:inline-flex;gap:0.25rem;flex-wrap:nowrap;align-items:center;';
+        function renderSwatches() {
+            swatchGroup.innerHTML = '';
+            readSwatches().forEach(function (c) {
+                const sw = document.createElement('button'); sw.className = 'color-swatch'; sw.title = c; sw.style.background = c;
+                sw.addEventListener('mousedown', function (e) { e.preventDefault(); });
+                sw.addEventListener('click', function (e) { e.preventDefault(); fmt('foreColor', c); color.value = normalizeHex(c); });
+                swatchGroup.appendChild(sw);
+            });
+            const ed = document.createElement('button'); ed.className = 'swatch-edit'; ed.title = 'ערוך/קבע לוח צבעים'; ed.innerHTML = '<i data-lucide="sliders-horizontal" style="width:14px;height:14px"></i>';
+            ed.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            ed.addEventListener('click', function (e) { e.preventDefault(); renderEditor(); swed.classList.toggle('open'); if (window.lucide) lucide.createIcons(); });
+            swatchGroup.appendChild(ed);
+            if (window.lucide) lucide.createIcons();
+        }
+        const swed = document.createElement('div'); swed.className = 'ec-swed';
+        swed.innerHTML = '<div class="se-title">לוח הצבעים של המצגת</div><div class="se-row"></div><div class="se-actions"><button class="se-add">+ צבע</button><button class="se-reset">ברירת מחדל</button><button class="se-done">סיום</button></div>';
+        document.body.appendChild(swed);
+        const seRow = swed.querySelector('.se-row');
+        function renderEditor() {
+            seRow.innerHTML = '';
+            readSwatches().forEach(function (c, idx) {
+                const item = document.createElement('div'); item.className = 'se-item';
+                const inp = document.createElement('input'); inp.type = 'color'; inp.value = normalizeHex(c);
+                inp.addEventListener('input', function () { const a = readSwatches(); a[idx] = inp.value; writeSwatches(a); renderSwatches(); });
+                const rm = document.createElement('button'); rm.className = 'se-remove'; rm.innerHTML = '&times;';
+                rm.addEventListener('click', function (e) { e.preventDefault(); const a = readSwatches(); a.splice(idx, 1); if (!a.length) a.push('#ffffff'); writeSwatches(a); renderSwatches(); renderEditor(); });
+                item.appendChild(inp); item.appendChild(rm); seRow.appendChild(item);
+            });
+        }
+        swed.querySelector('.se-add').addEventListener('click', function (e) { e.preventDefault(); const a = readSwatches(); if (a.length >= 8) return; a.push(DEFAULT_SWATCHES[0]); writeSwatches(a); renderSwatches(); renderEditor(); });
+        swed.querySelector('.se-reset').addEventListener('click', function (e) { e.preventDefault(); writeSwatches(DEFAULT_SWATCHES.slice()); renderSwatches(); renderEditor(); });
+        swed.querySelector('.se-done').addEventListener('click', function (e) { e.preventDefault(); swed.classList.remove('open'); });
+        document.addEventListener('click', function (e) {
+            if (!swed.classList.contains('open')) return;
+            if (e.target.closest('.ec-swed')) return;
+            if (e.target.closest('button') && e.target.closest('button').classList.contains('swatch-edit')) return;
+            swed.classList.remove('open');
+        });
+        toolbar.appendChild(swatchGroup); toolbar.appendChild(color);
+
+        // ---- image upload / paste ----
+        function downscaleImage(dataUrl, cb) {
+            const img = new Image();
+            img.onload = function () {
+                const MAX = 1200; const w = img.naturalWidth, h = img.naturalHeight;
+                if (Math.max(w, h) <= MAX && dataUrl.length < 700000) { cb(dataUrl); return; }
+                const s = Math.min(1, MAX / Math.max(w, h)); const cw = Math.round(w * s), ch = Math.round(h * s);
+                const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; cv.getContext('2d').drawImage(img, 0, 0, cw, ch);
+                const png = /^data:image\/png/i.test(dataUrl);
+                try { cb(cv.toDataURL(png ? 'image/png' : 'image/jpeg', 0.85)); } catch (e) { cb(dataUrl); }
+            };
+            img.onerror = function () { cb(dataUrl); }; img.src = dataUrl;
+        }
+        function fileToImage(file, cb) { if (!file || file.type.indexOf('image') !== 0) return; const r = new FileReader(); r.onload = function () { downscaleImage(r.result, cb); }; r.readAsDataURL(file); }
+        function insertImage(dataUrl) {
+            const html = '<img src="' + dataUrl + '" alt="" style="max-width:100%;height:auto;border-radius:10px;display:inline-block;">';
+            const host = restoreSel();
+            if (host) { document.execCommand('insertHTML', false, html); return; }
+            const secs = [].slice.call(ecMain.querySelectorAll('section')); const mid = window.innerHeight / 2;
+            const sec = secs.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || secs[0];
+            if (sec) { const d = document.createElement('div'); d.className = 'text-center my-6'; d.innerHTML = html; sec.appendChild(d); }
+        }
+        const fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function () { const f = fileInput.files && fileInput.files[0]; if (f) fileToImage(f, insertImage); fileInput.value = ''; });
+        document.body.appendChild(fileInput);
+        tbBtn('<i data-lucide="image" style="width:15px;height:15px"></i>', 'העלאת תמונה / לוגו', function () { fileInput.click(); });
+        document.addEventListener('paste', function (e) {
+            if (!document.body.classList.contains('ec-edit')) return;
+            const items = (e.clipboardData && e.clipboardData.items) || [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type && items[i].type.indexOf('image') === 0) { const f = items[i].getAsFile(); if (f) { e.preventDefault(); fileToImage(f, insertImage); return; } }
+            }
+        });
+
+        // ---- מקטע/אזור/עמודות/אייקונים/הורדה (התאמה ליכולות של whatsapp-bot) ----
+        function currentSection() {
+            const secs = [].slice.call(ecMain.querySelectorAll('section'));
+            const mid = window.innerHeight / 2;
+            return secs.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || secs[0];
+        }
+        function addArea() {
+            const sec = currentSection(); if (!sec) return;
+            const d = document.createElement('div');
+            d.className = 'bg-white/70 rounded-2xl shadow-md border border-slate-200 p-6 my-4 reveal active';
+            d.innerHTML = '<h3 class="text-xl font-bold mb-2 text-slate-800">כותרת</h3><p class="text-slate-600 leading-relaxed">טקסט חדש - לחצו לעריכה.</p>';
+            sec.appendChild(d);
+        }
+        function addSection() {
+            const sec = currentSection();
+            const s = document.createElement('section');
+            s.className = 'min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50';
+            s.innerHTML = '<div class="reveal active"><h2 class="text-4xl md:text-5xl font-black mb-6 text-slate-800">מקטע חדש</h2><p class="text-lg text-slate-600 leading-relaxed">תוכן חדש - לחצו לעריכה.</p></div>';
+            if (sec && sec.nextSibling) sec.parentNode.insertBefore(s, sec.nextSibling); else ecMain.appendChild(s);
+            ensureSectionControls();
+            s.scrollIntoView({ behavior: 'smooth' });
+        }
+        function splitCols(n) {
+            const sec = currentSection(); if (!sec) return;
+            const grid = document.createElement('div');
+            grid.className = 'grid md:grid-cols-' + n + ' gap-4 my-4 reveal active';
+            for (let i = 0; i < n; i++) {
+                const c = document.createElement('div');
+                c.className = 'bg-white/70 rounded-2xl shadow-md border border-slate-200 p-5';
+                c.innerHTML = '<h3 class="text-lg font-bold mb-2 text-slate-800">כותרת</h3><p class="text-slate-600 text-sm">טקסט - לחצו לעריכה.</p>';
+                grid.appendChild(c);
+            }
+            sec.appendChild(grid);
+        }
+        tbBtn('<i data-lucide="plus" style="width:15px;height:15px"></i> מקטע', 'הוסף מקטע', addSection);
+        tbBtn('<i data-lucide="square-plus" style="width:15px;height:15px"></i> אזור', 'הוסף אזור', addArea);
+        const colGroup = document.createElement('span'); colGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(colGroup);
+        tbBtn('▦2', '2 עמודות', function () { splitCols(2); }, colGroup);
+        tbBtn('▦3', '3 עמודות', function () { splitCols(3); }, colGroup);
+        tbBtn('▦4', '4 עמודות', function () { splitCols(4); }, colGroup);
+
+        // אייקונים (lucide)
+        const ICONS = ['star', 'check', 'check-circle', 'zap', 'lightbulb', 'rocket', 'settings', 'heart', 'shield', 'database', 'bot', 'message-circle', 'search', 'sparkles', 'arrow-left', 'arrow-right'];
+        const picker = document.createElement('div'); picker.className = 'ec-iconpicker';
+        ICONS.forEach(function (ic) {
+            const b = document.createElement('button'); b.innerHTML = '<i data-lucide="' + ic + '" style="width:20px;height:20px"></i>';
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function () { restoreSel(); document.execCommand('insertHTML', false, '<i data-lucide="' + ic + '" class="inline-block align-middle" style="width:1.1em;height:1.1em"></i> '); if (window.lucide) lucide.createIcons(); });
+            picker.appendChild(b);
+        });
+        document.body.appendChild(picker);
+        tbBtn('<i data-lucide="smile-plus" style="width:15px;height:15px"></i>', 'הוסף אייקון', function () { picker.classList.toggle('open'); if (window.lucide) lucide.createIcons(); });
+        document.addEventListener('click', function (e) {
+            if (!picker.classList.contains('open')) return;
+            if (e.target.closest('.ec-iconpicker')) return;
+            if (e.target.closest('button') && e.target.closest('button').title === 'הוסף אייקון') return;
+            picker.classList.remove('open');
+        });
+
+        // בקרות מקטע — הזזה למעלה/למטה/מחיקה
+        function ensureSectionControls() {
+            ecMain.querySelectorAll('section').forEach(function (sec) {
+                if (sec.querySelector(':scope > .ec-secctrl')) return;
+                const ctrl = document.createElement('div'); ctrl.className = 'ec-secctrl'; ctrl.setAttribute('contenteditable', 'false');
+                const mk = function (icon, title, fn) {
+                    const b = document.createElement('button'); b.innerHTML = '<i data-lucide="' + icon + '" style="width:14px;height:14px"></i>'; b.title = title;
+                    b.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); fn(); });
+                    return b;
+                };
+                ctrl.appendChild(mk('arrow-up', 'הזז למעלה', function () { if (sec.previousElementSibling) sec.parentNode.insertBefore(sec, sec.previousElementSibling); }));
+                ctrl.appendChild(mk('arrow-down', 'הזז למטה', function () { if (sec.nextElementSibling) sec.parentNode.insertBefore(sec.nextElementSibling, sec); }));
+                ctrl.appendChild(mk('trash-2', 'מחק מקטע', function () { if (confirm('למחוק את המקטע?')) sec.remove(); }));
+                sec.appendChild(ctrl);
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // הורדה כקובץ HTML עצמאי
+        function downloadHtml() {
+            const docClone = document.documentElement.cloneNode(true);
+            docClone.querySelectorAll('#ecMain').forEach(function (m) { m.removeAttribute('contenteditable'); });
+            docClone.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+            docClone.querySelectorAll('.ec-secctrl').forEach(function (el) { el.remove(); });
+            const g = docClone.querySelector('#interactive-graph'); if (g) g.innerHTML = '';
+            const html = '<!DOCTYPE html>\n' + docClone.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ecommerce-bot.html'; a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        }
+        tbBtn('<i data-lucide="download" style="width:15px;height:15px"></i> שמור קובץ', 'הורד כקובץ HTML', downloadHtml);
+
+        // ---- content I/O ----
+        function cleanMain() {
+            syncNavToConfig();
+            const clone = ecMain.cloneNode(true);
+            clone.removeAttribute('contenteditable');
+            clone.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+            clone.querySelectorAll('.ec-secctrl').forEach(function (el) { el.remove(); });
+            const g = clone.querySelector('#interactive-graph'); if (g) g.innerHTML = '';
+            return clone.innerHTML;
+        }
+        function reInit() {
+            try { ecMain.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('active'); }); } catch (e) {}
+            try { applyNavFromConfig(); } catch (e) {}
+            try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+            try { const g = document.getElementById('interactive-graph'); if (g) { g.innerHTML = ''; if (typeof initKnowledgeGraph === 'function') initKnowledgeGraph(); } } catch (e) {}
+        }
+        function saveState() { try { localStorage.setItem(KEY, cleanMain()); } catch (e) {} }
+        async function loadContent() {
+            try {
+                const res = await fetch(API, { cache: 'no-store' });
+                if (res.ok) { const t = await res.text(); if (t && t.trim().length > 20) { ecMain.innerHTML = t; reInit(); return; } }
+            } catch (e) {
+                try { const s = localStorage.getItem(KEY); if (s) { ecMain.innerHTML = s; reInit(); } } catch (e2) {}
+            }
+        }
+        async function saveToServer() {
+            if (!editPassword) { editPassword = (prompt('הזינו את קוד העריכה כדי לשמור:') || ''); try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {} }
+            if (!editPassword) { alert('⚠️ לא הוזן קוד — השינויים לא נשמרו בענן.'); return 'no-password'; }
+            try {
+                const res = await fetch(API, { method: 'POST', headers: { 'content-type': 'text/plain; charset=utf-8', 'x-edit-password': editPassword }, body: cleanMain() });
+                if (res.status === 401) { try { sessionStorage.removeItem('deck_pw'); } catch (e) {} editPassword = null; alert('❌ קוד העריכה שגוי — השינויים לא נשמרו בענן. נסו שוב.'); return 'unauthorized'; }
+                if (res.status === 413) { alert('❌ התוכן כבד מדי לשמירה — כנראה תמונה גדולה מדי.'); return 'error'; }
+                if (!res.ok) { alert('❌ השמירה נכשלה (שגיאת שרת ' + res.status + ').'); return 'error'; }
+                return 'ok';
+            } catch (e) { return 'no-server'; }
+        }
+        function setEditable(on) {
+            ecMain.setAttribute('contenteditable', on ? 'true' : 'false');
+            if (navbar) navbar.querySelectorAll('.nav-link').forEach(function (a) { a.setAttribute('contenteditable', on ? 'true' : 'false'); a.spellcheck = false; });
+        }
+
+        toggle.addEventListener('click', async function () {
+            if (!editMode) { editMode = true; document.body.classList.add('ec-edit'); setEditable(true); renderSwatches(); ensureSectionControls(); toggle.innerHTML = '<i data-lucide="check" style="width:18px;height:18px"></i>'; toggle.title = 'שמור וסיים'; if (window.lucide) lucide.createIcons(); return; }
+            saveState();
+            const r = await saveToServer();
+            if (r === 'no-password' || r === 'unauthorized' || r === 'error') return;
+            editMode = false; document.body.classList.remove('ec-edit'); setEditable(false);
+            toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons();
+        });
+        cancel.addEventListener('click', async function () {
+            if (!confirm('לבטל את השינויים שלא נשמרו ולחזור לגרסה השמורה?')) return;
+            let restored = false;
+            try { const res = await fetch(API, { cache: 'no-store' }); if (res.ok) { const t = await res.text(); if (t && t.trim().length > 20) { ecMain.innerHTML = t; reInit(); restored = true; } } } catch (e) {}
+            if (!restored) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
+            editMode = false; document.body.classList.remove('ec-edit'); setEditable(false);
+            toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons();
+        });
+
+        pdf.addEventListener('click', function () {
+            if (editMode) { editMode = false; document.body.classList.remove('ec-edit'); setEditable(false); toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons(); }
+            setTimeout(function () { window.print(); }, 200);
+        });
+
+        loadContent();
+        if (window.lucide) lucide.createIcons();
+    })();
+    </script>
+</body>
+</html>

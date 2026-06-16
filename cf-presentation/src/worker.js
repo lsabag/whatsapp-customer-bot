@@ -5,11 +5,11 @@
 //   GET  /<deck>/api/content → תוכן המצגת מ-KV (ריק = מצגת חדשה, מתחילה מתבנית)
 //   POST /<deck>/api/content → שמירת תוכן ל-KV (מוגן בסיסמה: x-edit-password)
 // מצגות עצמאיות (HTML מלא משלהן) — מוגשות מ-public/decks/<name>.html
-const CUSTOM_DECKS = [];
+const CUSTOM_DECKS = ['ecommerce'];
 // מצגות מוגנות שאי אפשר למחוק/לשנות שם (מסומנות "מובנית")
-const PROTECTED_DECKS = ['whatsapp-bot'];
+const PROTECTED_DECKS = ['whatsapp-bot', 'ecommerce'];
 // תבנית קבועה למצגות עצמאיות (HTML משלהן) — לתצוגת תווית כהה/בהיר בדף הבית
-const STANDALONE_TEMPLATES = {};
+const STANDALONE_TEMPLATES = { 'ecommerce': 'light' };
 
 export default {
   async fetch(request, env) {
