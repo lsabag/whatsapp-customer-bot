@@ -396,6 +396,10 @@
                         alert('❌ קוד העריכה שגוי — השינויים לא נשמרו בענן. נסו שוב.');
                         return 'unauthorized';
                     }
+                    if (res.status === 413) {
+                        alert('❌ התוכן כבד מדי לשמירה — כנראה תמונה גדולה מדי. נסו תמונה קטנה יותר או הסירו תמונה.');
+                        return 'error';
+                    }
                     if (!res.ok) {
                         alert('❌ השמירה נכשלה (שגיאת שרת ' + res.status + '). נסו שוב.');
                         return 'error';
@@ -616,6 +620,7 @@
             await loadContent();
             refresh();
             renderRichContent();
+            document.dispatchEvent(new CustomEvent('deck-loaded'));
 
             editToggle.addEventListener('click', async () => {
                 if (!editMode) {
@@ -740,6 +745,7 @@
           + '.edit-toolbar .size-input:focus{outline:none;border-color:#4f46e5;}'
           + '.edit-toolbar .color-swatch{width:20px;height:20px;border-radius:50%;padding:0;cursor:pointer;border:2px solid rgba(30,41,59,0.25);transition:transform .15s,border-color .15s;}'
           + '.edit-toolbar .color-swatch:hover{transform:scale(1.15);border-color:#1e293b;}'
+          + '.edit-toolbar .swatch-edit{font-size:0.72rem;padding:0.3rem 0.5rem;opacity:0.85;}'
           + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
           + '.icon-picker.open{display:flex;}'
           + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
@@ -821,26 +827,112 @@
         tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
         tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
 
-        // לוח צבעים קבוע של המצגת — לחיצה אחת לצבע עקבי
-        const PRESET_COLORS = ['#4f46e5', '#059669', '#7c3aed', '#dc2626', '#1e293b', '#64748b'];
-        const swatchGroup = document.createElement('span');
-        swatchGroup.style.cssText = 'display:inline-flex;gap:0.25rem;flex-wrap:nowrap;align-items:center;';
-        PRESET_COLORS.forEach(function (c) {
-            const sw = document.createElement('button');
-            sw.className = 'color-swatch';
-            sw.title = 'צבע ' + c;
-            sw.style.background = c;
-            sw.addEventListener('mousedown', function (e) { e.preventDefault(); });
-            sw.addEventListener('click', function (e) { e.preventDefault(); fmt('foreColor', c); color.value = c; });
-            swatchGroup.appendChild(sw);
-        });
-        toolbar.appendChild(swatchGroup);
+        // לוח צבעים של המצגת — ניתן לעריכה, נשמר פר-מצגת בתוך התוכן (#deck-swatches)
+        const DEFAULT_SWATCHES = ['#4f46e5', '#059669', '#7c3aed', '#dc2626', '#1e293b', '#64748b'];
 
         const color = document.createElement('input');
         color.type = 'color'; color.title = 'צבע מותאם אישית'; color.value = '#4f46e5';
         color.addEventListener('mousedown', function (e) { e.stopPropagation(); });
         color.addEventListener('input', function () { fmt('foreColor', color.value); });
+
+        function readSwatches() {
+            const el = document.getElementById('deck-swatches');
+            if (el && el.dataset.colors) {
+                const arr = el.dataset.colors.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+                if (arr.length) return arr;
+            }
+            return DEFAULT_SWATCHES.slice();
+        }
+        function writeSwatches(arr) {
+            const main = document.getElementById('mainContainer');
+            if (!main) return;
+            let el = document.getElementById('deck-swatches');
+            if (!el) { el = document.createElement('div'); el.id = 'deck-swatches'; el.hidden = true; main.insertBefore(el, main.firstChild); }
+            el.dataset.colors = arr.join(',');
+        }
+        const swatchGroup = document.createElement('span');
+        swatchGroup.style.cssText = 'display:inline-flex;gap:0.25rem;flex-wrap:nowrap;align-items:center;';
+        function renderSwatches() {
+            swatchGroup.innerHTML = '';
+            readSwatches().forEach(function (c) {
+                const sw = document.createElement('button');
+                sw.className = 'color-swatch'; sw.title = 'צבע ' + c; sw.style.background = c;
+                sw.addEventListener('mousedown', function (e) { e.preventDefault(); });
+                sw.addEventListener('click', function (e) { e.preventDefault(); fmt('foreColor', c); color.value = c; });
+                swatchGroup.appendChild(sw);
+            });
+            const edit = document.createElement('button');
+            edit.className = 'swatch-edit'; edit.title = 'ערוך/קבע את לוח הצבעים של המצגת';
+            edit.innerHTML = '<i class="fa-solid fa-sliders"></i>';
+            edit.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            edit.addEventListener('click', function (e) {
+                e.preventDefault();
+                const inp = prompt('קבעו את צבעי המצגת — עד 8 קודי hex מופרדים בפסיק (למשל #4f46e5, #1e293b):', readSwatches().join(', '));
+                if (inp === null) return;
+                const arr = inp.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s); }).slice(0, 8);
+                if (!arr.length) { alert('לא זוהו צבעים תקינים. השתמשו בקוד hex כמו #4f46e5.'); return; }
+                writeSwatches(arr); renderSwatches();
+            });
+            swatchGroup.appendChild(edit);
+        }
+        toolbar.appendChild(swatchGroup);
         toolbar.appendChild(color);
+        renderSwatches();
+        document.addEventListener('deck-loaded', renderSwatches);
+
+        // ===== תמונות / לוגו — העלאה מהמחשב או הדבקה (Ctrl+V) =====
+        function downscaleImage(dataUrl, cb) {
+            const img = new Image();
+            img.onload = function () {
+                const MAX = 1200;
+                const w = img.naturalWidth, h = img.naturalHeight;
+                if (Math.max(w, h) <= MAX && dataUrl.length < 700000) { cb(dataUrl); return; }
+                const scale = Math.min(1, MAX / Math.max(w, h));
+                const cw = Math.round(w * scale), ch = Math.round(h * scale);
+                const canvas = document.createElement('canvas'); canvas.width = cw; canvas.height = ch;
+                canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+                const isPng = /^data:image\/png/i.test(dataUrl);
+                try { cb(canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', 0.85)); } catch (e) { cb(dataUrl); }
+            };
+            img.onerror = function () { cb(dataUrl); };
+            img.src = dataUrl;
+        }
+        function fileToImage(file, cb) {
+            if (!file || file.type.indexOf('image') !== 0) return;
+            const reader = new FileReader();
+            reader.onload = function () { downscaleImage(reader.result, cb); };
+            reader.readAsDataURL(file);
+        }
+        function insertImage(dataUrl) {
+            const html = '<img src="' + dataUrl + '" alt="" style="max-width:100%;height:auto;border-radius:8px;display:inline-block;">';
+            const panel = restoreSel();
+            if (panel) { document.execCommand('insertHTML', false, html); return; }
+            const slides = [].slice.call(document.querySelectorAll('.slide'));
+            const mid = window.innerHeight / 2;
+            const slide = slides.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || slides[0];
+            const p = slide && slide.querySelector('.cyber-panel');
+            if (p) { const d = document.createElement('div'); d.className = 'text-center mt-4'; d.innerHTML = html; p.appendChild(d); }
+        }
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function () {
+            const f = fileInput.files && fileInput.files[0];
+            if (f) fileToImage(f, insertImage);
+            fileInput.value = '';
+        });
+        document.body.appendChild(fileInput);
+        tbBtn('<i class="fa-solid fa-image"></i>', 'העלאת תמונה / לוגו', function () { fileInput.click(); });
+
+        document.addEventListener('paste', function (e) {
+            if (!document.body.classList.contains('edit-mode')) return;
+            const items = (e.clipboardData && e.clipboardData.items) || [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type && items[i].type.indexOf('image') === 0) {
+                    const file = items[i].getAsFile();
+                    if (file) { e.preventDefault(); fileToImage(file, insertImage); return; }
+                }
+            }
+        });
 
         function splitCols(n) {
             const slides = [].slice.call(document.querySelectorAll('.slide'));
