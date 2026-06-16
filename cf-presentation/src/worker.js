@@ -5,11 +5,11 @@
 //   GET  /<deck>/api/content → תוכן המצגת מ-KV (ריק = מצגת חדשה, מתחילה מתבנית)
 //   POST /<deck>/api/content → שמירת תוכן ל-KV (מוגן בסיסמה: x-edit-password)
 // מצגות עצמאיות (HTML מלא משלהן) — מוגשות מ-public/decks/<name>.html
-const CUSTOM_DECKS = ['ecommerce-bot'];
-// מצגות מוגנות שאי אפשר למחוק (מסומנות "מובנית")
-const PROTECTED_DECKS = ['ecommerce-bot', 'whatsapp-bot'];
+const CUSTOM_DECKS = [];
+// מצגות מוגנות שאי אפשר למחוק/לשנות שם (מסומנות "מובנית")
+const PROTECTED_DECKS = ['whatsapp-bot'];
 // תבנית קבועה למצגות עצמאיות (HTML משלהן) — לתצוגת תווית כהה/בהיר בדף הבית
-const STANDALONE_TEMPLATES = { 'ecommerce-bot': 'light' };
+const STANDALONE_TEMPLATES = {};
 
 export default {
   async fetch(request, env) {
@@ -33,6 +33,26 @@ export default {
       return new Response(JSON.stringify({ decks }), {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
       });
+    }
+
+    // ----- שינוי שם מצגת -----
+    if (rest === 'api/rename' && deck && deck !== 'api' && request.method === 'POST') {
+      const pw = request.headers.get('x-edit-password') || '';
+      if (!env.EDIT_PASSWORD || pw !== env.EDIT_PASSWORD) return new Response('unauthorized', { status: 401 });
+      if (PROTECTED_DECKS.includes(deck)) return new Response('cannot rename a protected deck', { status: 403 });
+      let to = (request.headers.get('x-new-name') || '').trim().replace(/^\/+|\/+$/g, '').replace(/\s+/g, '-');
+      if (!to || to === 'api' || to.indexOf('/') !== -1) return new Response('bad name', { status: 400 });
+      if (to === deck) return new Response('renamed', { status: 200 });
+      const taken = (await env.PRES.get('deck:' + to)) !== null || CUSTOM_DECKS.includes(to) || PROTECTED_DECKS.includes(to);
+      if (taken) return new Response('name taken', { status: 409 });
+      const content = await env.PRES.get('deck:' + deck);
+      if (content === null) return new Response('not found', { status: 404 });
+      await env.PRES.put('deck:' + to, content);
+      const tmpl = await env.PRES.get('tmpl:' + deck);
+      if (tmpl) await env.PRES.put('tmpl:' + to, tmpl);
+      await env.PRES.delete('deck:' + deck);
+      await env.PRES.delete('tmpl:' + deck);
+      return new Response('renamed', { status: 200 });
     }
 
     // ----- תוכן מצגת ספציפית -----

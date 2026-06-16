@@ -97,6 +97,13 @@
                     a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + badge + '<span class="flex-1">' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '') + '</span>';
                     row.appendChild(a);
                     if (!custom) {
+                        const ren = document.createElement('button');
+                        ren.title = 'שנה שם מצגת';
+                        ren.className = 'shrink-0 w-11 rounded-xl border border-slate-600 bg-slate-700/30 text-slate-300 hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all';
+                        ren.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                        ren.addEventListener('click', () => renameDeck(name));
+                        row.appendChild(ren);
+
                         const del = document.createElement('button');
                         del.title = 'מחק מצגת';
                         del.className = 'shrink-0 w-11 rounded-xl border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all';
@@ -109,6 +116,24 @@
             } catch (e) {
                 list.innerHTML = '<div class="text-slate-500">לא ניתן לטעון רשימה כרגע.</div>';
             }
+        }
+        async function renameDeck(name) {
+            let to = prompt('שם חדש למצגת "' + name + '":', name);
+            if (to === null) return;
+            to = to.trim().replace(/\s+/g, '-');
+            if (!to || to === name) return;
+            const pw = prompt('הקוד לשינוי שם המצגת:');
+            if (!pw) return;
+            try {
+                const res = await fetch('/' + encodeURIComponent(name) + '/api/rename', { method: 'POST', headers: { 'x-edit-password': pw, 'x-new-name': to } });
+                if (res.status === 200) { loadDecks(); }
+                else if (res.status === 401) alert('קוד שגוי — השם לא שונה.');
+                else if (res.status === 403) alert('לא ניתן לשנות שם של מצגת מובנית.');
+                else if (res.status === 409) alert('השם "' + to + '" כבר תפוס.');
+                else if (res.status === 400) alert('שם לא תקין.');
+                else if (res.status === 404) alert('המצגת לא נמצאה.');
+                else alert('שינוי השם נכשל.');
+            } catch (e) { alert('שגיאה בשינוי השם.'); }
         }
         async function deleteDeck(name) {
             const pw = prompt('הקוד למחיקת המצגת "' + name + '":');
