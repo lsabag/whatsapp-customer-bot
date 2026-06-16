@@ -373,13 +373,17 @@
                 } catch (e) {}
             };
 
-            // Persist to server (KV) once when finishing an edit. Silent no-op if no server.
+            // Persist to server (KV) once when finishing an edit.
+            // Returns: 'ok' | 'no-password' | 'unauthorized' | 'error' | 'no-server'
             const saveToServer = async () => {
                 if (!editPassword) {
-                    editPassword = (typeof prompt === 'function' ? prompt('סיסמת עריכה (לשמירה בענן):') : '') || '';
+                    editPassword = (typeof prompt === 'function' ? prompt('הזינו את קוד העריכה כדי לשמור:') : '') || '';
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
                 }
-                if (!editPassword) return;
+                if (!editPassword) {
+                    alert('⚠️ לא הוזן קוד — השינויים לא נשמרו בענן. הזינו את קוד העריכה כדי לשמור.');
+                    return 'no-password';
+                }
                 try {
                     const res = await fetch(API_CONTENT, {
                         method: 'POST',
@@ -389,9 +393,18 @@
                     if (res.status === 401) {
                         try { sessionStorage.removeItem('deck_pw'); } catch (e) {}
                         editPassword = null;
-                        alert('סיסמת עריכה שגויה — השינוי נשמר מקומית בלבד.');
+                        alert('❌ קוד העריכה שגוי — השינויים לא נשמרו בענן. נסו שוב.');
+                        return 'unauthorized';
                     }
-                } catch (e) { /* no server endpoint — saved locally only */ }
+                    if (!res.ok) {
+                        alert('❌ השמירה נכשלה (שגיאת שרת ' + res.status + '). נסו שוב.');
+                        return 'error';
+                    }
+                    return 'ok';
+                } catch (e) {
+                    /* no server endpoint (e.g. GitHub Pages mirror) — saved locally only */
+                    return 'no-server';
+                }
             };
 
             // ביטול שינויים — שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
@@ -604,20 +617,30 @@
             refresh();
             renderRichContent();
 
-            editToggle.addEventListener('click', () => {
-                editMode = !editMode;
-                document.body.classList.toggle('edit-mode', editMode);
-                setEditable(editMode);
-                if (editMode) {
+            editToggle.addEventListener('click', async () => {
+                if (!editMode) {
+                    // נכנסים למצב עריכה
+                    editMode = true;
+                    document.body.classList.add('edit-mode');
+                    setEditable(true);
                     editToggle.innerHTML = '<i class="fa-solid fa-check"></i>';
                     editToggle.title = 'שמור וסיים';
-                } else {
-                    saveState();
-                    saveToServer();
-                    buildNav(); // refresh labels in case headings changed
-                    editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
-                    editToggle.title = 'מצב עריכה';
+                    return;
                 }
+                // מסיימים עריכה — מנסים לשמור לפני שיוצאים
+                saveState();
+                const result = await saveToServer();
+                if (result === 'no-password' || result === 'unauthorized' || result === 'error') {
+                    // השמירה נכשלה — נשארים במצב עריכה כדי לא לאבד את השינויים
+                    return;
+                }
+                // הצלחה (או שמירה מקומית כשאין שרת) — יוצאים ממצב עריכה
+                editMode = false;
+                document.body.classList.remove('edit-mode');
+                setEditable(false);
+                buildNav(); // refresh labels in case headings changed
+                editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                editToggle.title = 'מצב עריכה';
             });
 
             // Keep text selection alive when clicking toolbar buttons (don't steal focus)
