@@ -870,10 +870,22 @@
         .ec-swed .se-remove { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%; background: #ef4444; color: #fff; border: none; font-size: 12px; line-height: 1; cursor: pointer; }
         .ec-swed .se-actions { display: flex; gap: 0.6rem; justify-content: center; }
         .ec-swed .se-actions button { font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #1e293b; background: rgba(0,0,0,0.05); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.3rem 0.8rem; cursor: pointer; }
-        @media print { .ec-toggle, .ec-cancel, .ec-toolbar, .ec-swed { display: none !important; } }
+        .ec-pdf { position: fixed; bottom: 1rem; left: 6.4rem; z-index: 60; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid rgba(30,41,59,0.2); color: #475569; cursor: pointer; box-shadow: 0 4px 12px rgba(30,41,59,0.12); transition: all .25s; }
+        .ec-pdf:hover { color: #7c3aed; border-color: #7c3aed; }
+        .ec-iconpicker { position: fixed; bottom: 3.7rem; left: 50%; transform: translateX(-50%); z-index: 62; display: none; flex-wrap: wrap; gap: 0.3rem; max-width: 340px; padding: 0.6rem; border-radius: 14px; background: rgba(255,255,255,0.98); border: 1px solid rgba(30,41,59,0.15); box-shadow: 0 12px 30px rgba(30,41,59,0.2); }
+        .ec-iconpicker.open { display: flex; }
+        .ec-iconpicker button { width: 36px; height: 36px; border-radius: 8px; cursor: pointer; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.15); color: #334155; display: flex; align-items: center; justify-content: center; }
+        .ec-iconpicker button:hover { background: rgba(79,70,229,0.1); border-color: #4f46e5; color: #4f46e5; }
+        #ecMain section { position: relative; }
+        .ec-secctrl { position: absolute; top: 5rem; left: 1rem; z-index: 40; display: none; gap: 0.3rem; }
+        body.ec-edit .ec-secctrl { display: flex; }
+        .ec-secctrl button { width: 30px; height: 30px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.95); border: 1px solid rgba(30,41,59,0.2); color: #475569; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(30,41,59,0.12); }
+        .ec-secctrl button:hover { color: #4f46e5; border-color: #4f46e5; }
+        @media print { .ec-toggle, .ec-cancel, .ec-toolbar, .ec-swed, .ec-pdf, .ec-iconpicker, .ec-secctrl { display: none !important; } }
     </style>
     <button class="ec-toggle" id="ecToggle" title="מצב עריכה"><i data-lucide="edit-3" style="width:18px;height:18px"></i></button>
     <button class="ec-cancel" id="ecCancel" title="בטל שינויים"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+    <button class="ec-pdf" id="ecPdf" title="ייצוא ל-PDF"><i data-lucide="file-down" style="width:18px;height:18px"></i></button>
     <div class="ec-toolbar" id="ecToolbar"></div>
     <script>
     (function () {
@@ -881,7 +893,25 @@
         const toolbar = document.getElementById('ecToolbar');
         const toggle = document.getElementById('ecToggle');
         const cancel = document.getElementById('ecCancel');
+        const pdf = document.getElementById('ecPdf');
+        const navbar = document.getElementById('navbar');
         if (!ecMain || !toolbar) return;
+        // במצב עריכה — לא מנווטים בלחיצה על פריט תפריט, כדי שאפשר יהיה לערוך את הטקסט
+        if (navbar) navbar.addEventListener('click', function (e) { if (document.body.classList.contains('ec-edit')) { e.preventDefault(); e.stopPropagation(); } }, true);
+        // שמירה/טעינה של טקסט התפריט (נשמר יחד עם המצגת דרך אלמנט נסתר בתוך main)
+        function syncNavToConfig() {
+            if (!navbar) return;
+            const map = {};
+            navbar.querySelectorAll('.nav-link').forEach(function (a) { const href = a.getAttribute('href') || ''; if (href) map[href] = a.textContent.trim(); });
+            let el = document.getElementById('deck-nav');
+            if (!el) { el = document.createElement('div'); el.id = 'deck-nav'; el.hidden = true; ecMain.insertBefore(el, ecMain.firstChild); }
+            el.setAttribute('data-nav', JSON.stringify(map));
+        }
+        function applyNavFromConfig() {
+            const el = document.getElementById('deck-nav'); if (!el || !navbar) return;
+            let map; try { map = JSON.parse(el.getAttribute('data-nav') || '{}'); } catch (e) { return; }
+            navbar.querySelectorAll('.nav-link').forEach(function (a) { const href = a.getAttribute('href') || ''; if (map[href] != null) a.textContent = map[href]; });
+        }
         const API = location.pathname.replace(/\/+$/, '') + '/api/content';
         const KEY = 'ec_deck_' + location.pathname;
         const DEFAULT_SWATCHES = ['#10b981', '#0ea5e9', '#4f46e5', '#f59e0b', '#0f172a', '#64748b'];
@@ -1035,16 +1065,110 @@
             }
         });
 
+        // ---- מקטע/אזור/עמודות/אייקונים/הורדה (התאמה ליכולות של whatsapp-bot) ----
+        function currentSection() {
+            const secs = [].slice.call(ecMain.querySelectorAll('section'));
+            const mid = window.innerHeight / 2;
+            return secs.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || secs[0];
+        }
+        function addArea() {
+            const sec = currentSection(); if (!sec) return;
+            const d = document.createElement('div');
+            d.className = 'bg-white/70 rounded-2xl shadow-md border border-slate-200 p-6 my-4 reveal active';
+            d.innerHTML = '<h3 class="text-xl font-bold mb-2 text-slate-800">כותרת</h3><p class="text-slate-600 leading-relaxed">טקסט חדש - לחצו לעריכה.</p>';
+            sec.appendChild(d);
+        }
+        function addSection() {
+            const sec = currentSection();
+            const s = document.createElement('section');
+            s.className = 'min-h-screen flex flex-col justify-center py-24 border-t border-slate-200/50';
+            s.innerHTML = '<div class="reveal active"><h2 class="text-4xl md:text-5xl font-black mb-6 text-slate-800">מקטע חדש</h2><p class="text-lg text-slate-600 leading-relaxed">תוכן חדש - לחצו לעריכה.</p></div>';
+            if (sec && sec.nextSibling) sec.parentNode.insertBefore(s, sec.nextSibling); else ecMain.appendChild(s);
+            ensureSectionControls();
+            s.scrollIntoView({ behavior: 'smooth' });
+        }
+        function splitCols(n) {
+            const sec = currentSection(); if (!sec) return;
+            const grid = document.createElement('div');
+            grid.className = 'grid md:grid-cols-' + n + ' gap-4 my-4 reveal active';
+            for (let i = 0; i < n; i++) {
+                const c = document.createElement('div');
+                c.className = 'bg-white/70 rounded-2xl shadow-md border border-slate-200 p-5';
+                c.innerHTML = '<h3 class="text-lg font-bold mb-2 text-slate-800">כותרת</h3><p class="text-slate-600 text-sm">טקסט - לחצו לעריכה.</p>';
+                grid.appendChild(c);
+            }
+            sec.appendChild(grid);
+        }
+        tbBtn('<i data-lucide="plus" style="width:15px;height:15px"></i> מקטע', 'הוסף מקטע', addSection);
+        tbBtn('<i data-lucide="square-plus" style="width:15px;height:15px"></i> אזור', 'הוסף אזור', addArea);
+        const colGroup = document.createElement('span'); colGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(colGroup);
+        tbBtn('▦2', '2 עמודות', function () { splitCols(2); }, colGroup);
+        tbBtn('▦3', '3 עמודות', function () { splitCols(3); }, colGroup);
+        tbBtn('▦4', '4 עמודות', function () { splitCols(4); }, colGroup);
+
+        // אייקונים (lucide)
+        const ICONS = ['star', 'check', 'check-circle', 'zap', 'lightbulb', 'rocket', 'settings', 'heart', 'shield', 'database', 'bot', 'message-circle', 'search', 'sparkles', 'arrow-left', 'arrow-right'];
+        const picker = document.createElement('div'); picker.className = 'ec-iconpicker';
+        ICONS.forEach(function (ic) {
+            const b = document.createElement('button'); b.innerHTML = '<i data-lucide="' + ic + '" style="width:20px;height:20px"></i>';
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function () { restoreSel(); document.execCommand('insertHTML', false, '<i data-lucide="' + ic + '" class="inline-block align-middle" style="width:1.1em;height:1.1em"></i> '); if (window.lucide) lucide.createIcons(); });
+            picker.appendChild(b);
+        });
+        document.body.appendChild(picker);
+        tbBtn('<i data-lucide="smile-plus" style="width:15px;height:15px"></i>', 'הוסף אייקון', function () { picker.classList.toggle('open'); if (window.lucide) lucide.createIcons(); });
+        document.addEventListener('click', function (e) {
+            if (!picker.classList.contains('open')) return;
+            if (e.target.closest('.ec-iconpicker')) return;
+            if (e.target.closest('button') && e.target.closest('button').title === 'הוסף אייקון') return;
+            picker.classList.remove('open');
+        });
+
+        // בקרות מקטע — הזזה למעלה/למטה/מחיקה
+        function ensureSectionControls() {
+            ecMain.querySelectorAll('section').forEach(function (sec) {
+                if (sec.querySelector(':scope > .ec-secctrl')) return;
+                const ctrl = document.createElement('div'); ctrl.className = 'ec-secctrl'; ctrl.setAttribute('contenteditable', 'false');
+                const mk = function (icon, title, fn) {
+                    const b = document.createElement('button'); b.innerHTML = '<i data-lucide="' + icon + '" style="width:14px;height:14px"></i>'; b.title = title;
+                    b.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); fn(); });
+                    return b;
+                };
+                ctrl.appendChild(mk('arrow-up', 'הזז למעלה', function () { if (sec.previousElementSibling) sec.parentNode.insertBefore(sec, sec.previousElementSibling); }));
+                ctrl.appendChild(mk('arrow-down', 'הזז למטה', function () { if (sec.nextElementSibling) sec.parentNode.insertBefore(sec.nextElementSibling, sec); }));
+                ctrl.appendChild(mk('trash-2', 'מחק מקטע', function () { if (confirm('למחוק את המקטע?')) sec.remove(); }));
+                sec.appendChild(ctrl);
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        // הורדה כקובץ HTML עצמאי
+        function downloadHtml() {
+            const docClone = document.documentElement.cloneNode(true);
+            docClone.querySelectorAll('#ecMain').forEach(function (m) { m.removeAttribute('contenteditable'); });
+            docClone.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+            docClone.querySelectorAll('.ec-secctrl').forEach(function (el) { el.remove(); });
+            const g = docClone.querySelector('#interactive-graph'); if (g) g.innerHTML = '';
+            const html = '<!DOCTYPE html>\n' + docClone.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ecommerce-bot.html'; a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+        }
+        tbBtn('<i data-lucide="download" style="width:15px;height:15px"></i> שמור קובץ', 'הורד כקובץ HTML', downloadHtml);
+
         // ---- content I/O ----
         function cleanMain() {
+            syncNavToConfig();
             const clone = ecMain.cloneNode(true);
             clone.removeAttribute('contenteditable');
             clone.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+            clone.querySelectorAll('.ec-secctrl').forEach(function (el) { el.remove(); });
             const g = clone.querySelector('#interactive-graph'); if (g) g.innerHTML = '';
             return clone.innerHTML;
         }
         function reInit() {
             try { ecMain.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('active'); }); } catch (e) {}
+            try { applyNavFromConfig(); } catch (e) {}
             try { if (window.lucide) lucide.createIcons(); } catch (e) {}
             try { const g = document.getElementById('interactive-graph'); if (g) { g.innerHTML = ''; if (typeof initKnowledgeGraph === 'function') initKnowledgeGraph(); } } catch (e) {}
         }
@@ -1068,10 +1192,13 @@
                 return 'ok';
             } catch (e) { return 'no-server'; }
         }
-        function setEditable(on) { ecMain.setAttribute('contenteditable', on ? 'true' : 'false'); }
+        function setEditable(on) {
+            ecMain.setAttribute('contenteditable', on ? 'true' : 'false');
+            if (navbar) navbar.querySelectorAll('.nav-link').forEach(function (a) { a.setAttribute('contenteditable', on ? 'true' : 'false'); a.spellcheck = false; });
+        }
 
         toggle.addEventListener('click', async function () {
-            if (!editMode) { editMode = true; document.body.classList.add('ec-edit'); setEditable(true); renderSwatches(); toggle.innerHTML = '<i data-lucide="check" style="width:18px;height:18px"></i>'; toggle.title = 'שמור וסיים'; if (window.lucide) lucide.createIcons(); return; }
+            if (!editMode) { editMode = true; document.body.classList.add('ec-edit'); setEditable(true); renderSwatches(); ensureSectionControls(); toggle.innerHTML = '<i data-lucide="check" style="width:18px;height:18px"></i>'; toggle.title = 'שמור וסיים'; if (window.lucide) lucide.createIcons(); return; }
             saveState();
             const r = await saveToServer();
             if (r === 'no-password' || r === 'unauthorized' || r === 'error') return;
@@ -1085,6 +1212,11 @@
             if (!restored) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
             editMode = false; document.body.classList.remove('ec-edit'); setEditable(false);
             toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons();
+        });
+
+        pdf.addEventListener('click', function () {
+            if (editMode) { editMode = false; document.body.classList.remove('ec-edit'); setEditable(false); toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons(); }
+            setTimeout(function () { window.print(); }, 200);
         });
 
         loadContent();
