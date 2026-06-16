@@ -120,7 +120,7 @@
     </nav>
 
     <!-- תוכן האתר -->
-    <main class="w-full max-w-7xl mx-auto px-4 sm:px-8 pt-16">
+    <main id="ecMain" class="w-full max-w-7xl mx-auto px-4 sm:px-8 pt-16">
 
         <!-- אזור פתיחה: לנשום -->
         <section id="breathe" class="min-h-[90vh] flex flex-col justify-center items-center py-20 relative">
@@ -688,12 +688,11 @@
         });
 
         // --- ניהול תפריט עליון (Scrollspy) ---
-        const sections = document.querySelectorAll('section');
         const navLinks = document.querySelectorAll('.nav-link');
 
         window.addEventListener('scroll', () => {
             let current = '';
-            
+            const sections = document.querySelectorAll('section'); // נשלף חי כדי לשרוד טעינת תוכן מחדש
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
                 if (window.pageYOffset >= (sectionTop - 250)) {
@@ -842,6 +841,255 @@
 
         // קריאה לפונקציה מיד כשהקוד נטען
         initKnowledgeGraph();
+    </script>
+
+    <!-- ===== שכבת עריכה (לא נוגעת בתפריט העליון) ===== -->
+    <style>
+        .ec-toggle, .ec-cancel { position: fixed; bottom: 1rem; z-index: 60; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(255,255,255,0.9); border: 1px solid rgba(30,41,59,0.2); color: #475569; cursor: pointer; box-shadow: 0 4px 12px rgba(30,41,59,0.12); transition: all .25s; }
+        .ec-toggle { left: 1rem; }
+        .ec-cancel { left: 3.7rem; display: none; border-color: rgba(239,68,68,0.5); color: #dc2626; }
+        .ec-toggle:hover { color: #4f46e5; border-color: #4f46e5; }
+        body.ec-edit .ec-toggle { color: #059669; border-color: #059669; box-shadow: 0 0 12px rgba(5,150,105,0.3); }
+        body.ec-edit .ec-cancel { display: flex; }
+        .ec-toolbar { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 61; display: none; align-items: center; gap: 0.4rem; padding: 0.45rem 0.65rem; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(5,150,105,0.4); border-radius: 9999px; box-shadow: 0 8px 24px rgba(30,41,59,0.18); max-width: 92vw; flex-wrap: wrap; justify-content: center; }
+        body.ec-edit .ec-toolbar { display: flex; }
+        .ec-toolbar button { font-family: inherit; font-size: 0.8rem; font-weight: 600; color: #1e293b; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.18); border-radius: 9999px; padding: 0.35rem 0.6rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.25rem; transition: all .2s; }
+        .ec-toolbar button:hover { border-color: #4f46e5; color: #4f46e5; }
+        .ec-toolbar .size-input { width: 52px; text-align: center; font-weight: 700; color: #1e293b; background: rgba(0,0,0,0.04); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.3rem 0.2rem; font-family: inherit; }
+        .ec-toolbar input[type=color] { width: 30px; height: 28px; border: 1px solid rgba(30,41,59,0.2); background: none; cursor: pointer; padding: 0; border-radius: 6px; }
+        .ec-toolbar .color-swatch { width: 20px; height: 20px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid rgba(30,41,59,0.25); transition: transform .15s; }
+        .ec-toolbar .color-swatch:hover { transform: scale(1.15); border-color: #1e293b; }
+        .ec-toolbar .swatch-edit { font-size: 0.72rem; padding: 0.3rem 0.45rem; opacity: 0.85; }
+        body.ec-edit #ecMain [contenteditable="true"]:focus { outline: 2px solid #059669; outline-offset: 3px; border-radius: 6px; }
+        .ec-swed { position: fixed; bottom: 3.7rem; left: 50%; transform: translateX(-50%); z-index: 62; display: none; flex-direction: column; gap: 0.7rem; padding: 0.9rem 1rem; border-radius: 14px; background: rgba(255,255,255,0.98); border: 1px solid rgba(30,41,59,0.15); box-shadow: 0 12px 30px rgba(30,41,59,0.2); }
+        .ec-swed.open { display: flex; }
+        .ec-swed .se-title { color: #1e293b; font-size: 0.8rem; font-weight: 700; text-align: center; }
+        .ec-swed .se-row { display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; max-width: 320px; }
+        .ec-swed .se-item { position: relative; }
+        .ec-swed input[type=color] { width: 38px; height: 38px; border: 1px solid rgba(30,41,59,0.2); background: none; cursor: pointer; padding: 0; border-radius: 8px; }
+        .ec-swed .se-remove { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%; background: #ef4444; color: #fff; border: none; font-size: 12px; line-height: 1; cursor: pointer; }
+        .ec-swed .se-actions { display: flex; gap: 0.6rem; justify-content: center; }
+        .ec-swed .se-actions button { font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #1e293b; background: rgba(0,0,0,0.05); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.3rem 0.8rem; cursor: pointer; }
+        @media print { .ec-toggle, .ec-cancel, .ec-toolbar, .ec-swed { display: none !important; } }
+    </style>
+    <button class="ec-toggle" id="ecToggle" title="מצב עריכה"><i data-lucide="edit-3" style="width:18px;height:18px"></i></button>
+    <button class="ec-cancel" id="ecCancel" title="בטל שינויים"><i data-lucide="x" style="width:18px;height:18px"></i></button>
+    <div class="ec-toolbar" id="ecToolbar"></div>
+    <script>
+    (function () {
+        const ecMain = document.getElementById('ecMain');
+        const toolbar = document.getElementById('ecToolbar');
+        const toggle = document.getElementById('ecToggle');
+        const cancel = document.getElementById('ecCancel');
+        if (!ecMain || !toolbar) return;
+        const API = location.pathname.replace(/\/+$/, '') + '/api/content';
+        const KEY = 'ec_deck_' + location.pathname;
+        const DEFAULT_SWATCHES = ['#10b981', '#0ea5e9', '#4f46e5', '#f59e0b', '#0f172a', '#64748b'];
+        let editMode = false, editPassword = null, lastRange = null, sizeInputRef = null;
+        try { editPassword = sessionStorage.getItem('deck_pw'); } catch (e) {}
+
+        // ---- selection helpers ----
+        document.addEventListener('selectionchange', function () {
+            if (!document.body.classList.contains('ec-edit')) return;
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount) return;
+            const r = sel.getRangeAt(0);
+            let n = r.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement;
+            if (n && n.closest && n.closest('#ecMain')) {
+                lastRange = r.cloneRange();
+                if (sizeInputRef && document.activeElement !== sizeInputRef) {
+                    const px = parseFloat(getComputedStyle(n).fontSize);
+                    if (px) sizeInputRef.value = Math.round(px);
+                }
+            }
+        });
+        function restoreSel() {
+            if (!lastRange) return null;
+            let n = lastRange.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement;
+            const host = n && n.closest ? n.closest('#ecMain') : null;
+            if (host) host.focus();
+            const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(lastRange);
+            return host;
+        }
+        function fmt(cmd, val) { restoreSel(); try { document.execCommand('styleWithCSS', false, true); } catch (e) {} document.execCommand(cmd, false, val); }
+        function tbBtn(html, title, fn, parent) {
+            const b = document.createElement('button'); b.innerHTML = html; b.title = title;
+            b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            b.addEventListener('click', function (e) { e.preventDefault(); fn(); });
+            (parent || toolbar).appendChild(b); return b;
+        }
+
+        // ---- font size ----
+        function applyFontPx(px) {
+            restoreSel();
+            try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
+            document.execCommand('fontSize', false, '7');
+            document.querySelectorAll('font[size="7"]').forEach(function (f) { f.removeAttribute('size'); f.style.fontSize = px + 'px'; });
+        }
+        const sizeInput = document.createElement('input');
+        sizeInput.type = 'number'; sizeInput.min = '8'; sizeInput.max = '200'; sizeInput.value = '24';
+        sizeInput.className = 'size-input'; sizeInput.title = 'גודל גופן (px)';
+        sizeInput.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        sizeInput.addEventListener('change', function () { const px = parseInt(sizeInput.value, 10); if (px) applyFontPx(px); });
+        sizeInputRef = sizeInput; toolbar.appendChild(sizeInput);
+
+        // ---- bold / italic ----
+        const fmtGroup = document.createElement('span'); fmtGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(fmtGroup);
+        tbBtn('<i data-lucide="bold" style="width:15px;height:15px"></i>', 'מודגש', function () { fmt('bold'); }, fmtGroup);
+        tbBtn('<i data-lucide="italic" style="width:15px;height:15px"></i>', 'נטוי', function () { fmt('italic'); }, fmtGroup);
+
+        // ---- align ----
+        const alignGroup = document.createElement('span'); alignGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;'; toolbar.appendChild(alignGroup);
+        tbBtn('<i data-lucide="align-right" style="width:15px;height:15px"></i>', 'יישור לימין', function () { fmt('justifyRight'); }, alignGroup);
+        tbBtn('<i data-lucide="align-center" style="width:15px;height:15px"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
+        tbBtn('<i data-lucide="align-left" style="width:15px;height:15px"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
+
+        // ---- color + swatches ----
+        const color = document.createElement('input');
+        color.type = 'color'; color.title = 'צבע מותאם אישית'; color.value = '#4f46e5';
+        color.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        color.addEventListener('input', function () { fmt('foreColor', color.value); });
+        function readSwatches() {
+            const el = document.getElementById('deck-swatches');
+            if (el && el.dataset.colors) { const a = el.dataset.colors.split(',').map(function (s) { return s.trim(); }).filter(Boolean); if (a.length) return a; }
+            return DEFAULT_SWATCHES.slice();
+        }
+        function writeSwatches(arr) {
+            let el = document.getElementById('deck-swatches');
+            if (!el) { el = document.createElement('div'); el.id = 'deck-swatches'; el.hidden = true; ecMain.insertBefore(el, ecMain.firstChild); }
+            el.dataset.colors = arr.join(',');
+        }
+        function normalizeHex(c) { c = (c || '').trim(); if (/^#[0-9a-fA-F]{3}$/.test(c)) return ('#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]).toLowerCase(); if (/^#[0-9a-fA-F]{6}$/.test(c)) return c.toLowerCase(); return '#ffffff'; }
+        const swatchGroup = document.createElement('span'); swatchGroup.style.cssText = 'display:inline-flex;gap:0.25rem;flex-wrap:nowrap;align-items:center;';
+        function renderSwatches() {
+            swatchGroup.innerHTML = '';
+            readSwatches().forEach(function (c) {
+                const sw = document.createElement('button'); sw.className = 'color-swatch'; sw.title = c; sw.style.background = c;
+                sw.addEventListener('mousedown', function (e) { e.preventDefault(); });
+                sw.addEventListener('click', function (e) { e.preventDefault(); fmt('foreColor', c); color.value = normalizeHex(c); });
+                swatchGroup.appendChild(sw);
+            });
+            const ed = document.createElement('button'); ed.className = 'swatch-edit'; ed.title = 'ערוך/קבע לוח צבעים'; ed.innerHTML = '<i data-lucide="sliders-horizontal" style="width:14px;height:14px"></i>';
+            ed.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            ed.addEventListener('click', function (e) { e.preventDefault(); renderEditor(); swed.classList.toggle('open'); if (window.lucide) lucide.createIcons(); });
+            swatchGroup.appendChild(ed);
+            if (window.lucide) lucide.createIcons();
+        }
+        const swed = document.createElement('div'); swed.className = 'ec-swed';
+        swed.innerHTML = '<div class="se-title">לוח הצבעים של המצגת</div><div class="se-row"></div><div class="se-actions"><button class="se-add">+ צבע</button><button class="se-reset">ברירת מחדל</button><button class="se-done">סיום</button></div>';
+        document.body.appendChild(swed);
+        const seRow = swed.querySelector('.se-row');
+        function renderEditor() {
+            seRow.innerHTML = '';
+            readSwatches().forEach(function (c, idx) {
+                const item = document.createElement('div'); item.className = 'se-item';
+                const inp = document.createElement('input'); inp.type = 'color'; inp.value = normalizeHex(c);
+                inp.addEventListener('input', function () { const a = readSwatches(); a[idx] = inp.value; writeSwatches(a); renderSwatches(); });
+                const rm = document.createElement('button'); rm.className = 'se-remove'; rm.innerHTML = '&times;';
+                rm.addEventListener('click', function (e) { e.preventDefault(); const a = readSwatches(); a.splice(idx, 1); if (!a.length) a.push('#ffffff'); writeSwatches(a); renderSwatches(); renderEditor(); });
+                item.appendChild(inp); item.appendChild(rm); seRow.appendChild(item);
+            });
+        }
+        swed.querySelector('.se-add').addEventListener('click', function (e) { e.preventDefault(); const a = readSwatches(); if (a.length >= 8) return; a.push(DEFAULT_SWATCHES[0]); writeSwatches(a); renderSwatches(); renderEditor(); });
+        swed.querySelector('.se-reset').addEventListener('click', function (e) { e.preventDefault(); writeSwatches(DEFAULT_SWATCHES.slice()); renderSwatches(); renderEditor(); });
+        swed.querySelector('.se-done').addEventListener('click', function (e) { e.preventDefault(); swed.classList.remove('open'); });
+        document.addEventListener('click', function (e) {
+            if (!swed.classList.contains('open')) return;
+            if (e.target.closest('.ec-swed')) return;
+            if (e.target.closest('button') && e.target.closest('button').classList.contains('swatch-edit')) return;
+            swed.classList.remove('open');
+        });
+        toolbar.appendChild(swatchGroup); toolbar.appendChild(color);
+
+        // ---- image upload / paste ----
+        function downscaleImage(dataUrl, cb) {
+            const img = new Image();
+            img.onload = function () {
+                const MAX = 1200; const w = img.naturalWidth, h = img.naturalHeight;
+                if (Math.max(w, h) <= MAX && dataUrl.length < 700000) { cb(dataUrl); return; }
+                const s = Math.min(1, MAX / Math.max(w, h)); const cw = Math.round(w * s), ch = Math.round(h * s);
+                const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch; cv.getContext('2d').drawImage(img, 0, 0, cw, ch);
+                const png = /^data:image\/png/i.test(dataUrl);
+                try { cb(cv.toDataURL(png ? 'image/png' : 'image/jpeg', 0.85)); } catch (e) { cb(dataUrl); }
+            };
+            img.onerror = function () { cb(dataUrl); }; img.src = dataUrl;
+        }
+        function fileToImage(file, cb) { if (!file || file.type.indexOf('image') !== 0) return; const r = new FileReader(); r.onload = function () { downscaleImage(r.result, cb); }; r.readAsDataURL(file); }
+        function insertImage(dataUrl) {
+            const html = '<img src="' + dataUrl + '" alt="" style="max-width:100%;height:auto;border-radius:10px;display:inline-block;">';
+            const host = restoreSel();
+            if (host) { document.execCommand('insertHTML', false, html); return; }
+            const secs = [].slice.call(ecMain.querySelectorAll('section')); const mid = window.innerHeight / 2;
+            const sec = secs.find(function (s) { const r = s.getBoundingClientRect(); return r.top <= mid && r.bottom >= mid; }) || secs[0];
+            if (sec) { const d = document.createElement('div'); d.className = 'text-center my-6'; d.innerHTML = html; sec.appendChild(d); }
+        }
+        const fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+        fileInput.addEventListener('change', function () { const f = fileInput.files && fileInput.files[0]; if (f) fileToImage(f, insertImage); fileInput.value = ''; });
+        document.body.appendChild(fileInput);
+        tbBtn('<i data-lucide="image" style="width:15px;height:15px"></i>', 'העלאת תמונה / לוגו', function () { fileInput.click(); });
+        document.addEventListener('paste', function (e) {
+            if (!document.body.classList.contains('ec-edit')) return;
+            const items = (e.clipboardData && e.clipboardData.items) || [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type && items[i].type.indexOf('image') === 0) { const f = items[i].getAsFile(); if (f) { e.preventDefault(); fileToImage(f, insertImage); return; } }
+            }
+        });
+
+        // ---- content I/O ----
+        function cleanMain() {
+            const clone = ecMain.cloneNode(true);
+            clone.removeAttribute('contenteditable');
+            clone.querySelectorAll('[contenteditable]').forEach(function (el) { el.removeAttribute('contenteditable'); });
+            const g = clone.querySelector('#interactive-graph'); if (g) g.innerHTML = '';
+            return clone.innerHTML;
+        }
+        function reInit() {
+            try { ecMain.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('active'); }); } catch (e) {}
+            try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+            try { const g = document.getElementById('interactive-graph'); if (g) { g.innerHTML = ''; if (typeof initKnowledgeGraph === 'function') initKnowledgeGraph(); } } catch (e) {}
+        }
+        function saveState() { try { localStorage.setItem(KEY, cleanMain()); } catch (e) {} }
+        async function loadContent() {
+            try {
+                const res = await fetch(API, { cache: 'no-store' });
+                if (res.ok) { const t = await res.text(); if (t && t.trim().length > 20) { ecMain.innerHTML = t; reInit(); return; } }
+            } catch (e) {
+                try { const s = localStorage.getItem(KEY); if (s) { ecMain.innerHTML = s; reInit(); } } catch (e2) {}
+            }
+        }
+        async function saveToServer() {
+            if (!editPassword) { editPassword = (prompt('הזינו את קוד העריכה כדי לשמור:') || ''); try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {} }
+            if (!editPassword) { alert('⚠️ לא הוזן קוד — השינויים לא נשמרו בענן.'); return 'no-password'; }
+            try {
+                const res = await fetch(API, { method: 'POST', headers: { 'content-type': 'text/plain; charset=utf-8', 'x-edit-password': editPassword }, body: cleanMain() });
+                if (res.status === 401) { try { sessionStorage.removeItem('deck_pw'); } catch (e) {} editPassword = null; alert('❌ קוד העריכה שגוי — השינויים לא נשמרו בענן. נסו שוב.'); return 'unauthorized'; }
+                if (res.status === 413) { alert('❌ התוכן כבד מדי לשמירה — כנראה תמונה גדולה מדי.'); return 'error'; }
+                if (!res.ok) { alert('❌ השמירה נכשלה (שגיאת שרת ' + res.status + ').'); return 'error'; }
+                return 'ok';
+            } catch (e) { return 'no-server'; }
+        }
+        function setEditable(on) { ecMain.setAttribute('contenteditable', on ? 'true' : 'false'); }
+
+        toggle.addEventListener('click', async function () {
+            if (!editMode) { editMode = true; document.body.classList.add('ec-edit'); setEditable(true); renderSwatches(); toggle.innerHTML = '<i data-lucide="check" style="width:18px;height:18px"></i>'; toggle.title = 'שמור וסיים'; if (window.lucide) lucide.createIcons(); return; }
+            saveState();
+            const r = await saveToServer();
+            if (r === 'no-password' || r === 'unauthorized' || r === 'error') return;
+            editMode = false; document.body.classList.remove('ec-edit'); setEditable(false);
+            toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons();
+        });
+        cancel.addEventListener('click', async function () {
+            if (!confirm('לבטל את השינויים שלא נשמרו ולחזור לגרסה השמורה?')) return;
+            let restored = false;
+            try { const res = await fetch(API, { cache: 'no-store' }); if (res.ok) { const t = await res.text(); if (t && t.trim().length > 20) { ecMain.innerHTML = t; reInit(); restored = true; } } } catch (e) {}
+            if (!restored) { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); return; }
+            editMode = false; document.body.classList.remove('ec-edit'); setEditable(false);
+            toggle.innerHTML = '<i data-lucide="edit-3" style="width:18px;height:18px"></i>'; toggle.title = 'מצב עריכה'; if (window.lucide) lucide.createIcons();
+        });
+
+        loadContent();
+        if (window.lucide) lucide.createIcons();
+    })();
     </script>
 </body>
 </html>
