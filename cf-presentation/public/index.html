@@ -956,14 +956,8 @@
                 setTimeout(() => window.print(), 150);
             });
 
-            // Wheel: one slide per gesture (prevents jumpy snapping)
-            mainContainer.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                if (isScrolling || Math.abs(e.deltaY) < 8) return;
-                isScrolling = true;
-                goTo(currentIndex + (e.deltaY > 0 ? 1 : -1));
-                setTimeout(() => { isScrolling = false; }, 850);
-            }, { passive: false });
+            // גלילה טבעית וחלקה (כמו ב-ecommerce-bot) — בלי חטיפת גלגלת.
+            // ה-CSS כבר עושה snap עדין (proximity) + scroll-behavior: smooth.
 
             // Keyboard navigation (disabled while editing so you can type freely)
             window.addEventListener('keydown', (e) => {
