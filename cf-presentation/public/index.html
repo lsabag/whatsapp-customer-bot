@@ -968,6 +968,8 @@
         st.textContent = '.edit-toolbar input[type=color]{width:30px;height:28px;border:none;background:none;cursor:pointer;padding:0;border-radius:6px;}'
           + '.edit-toolbar .size-input{width:52px;text-align:center;font-family:inherit;font-size:0.8rem;font-weight:700;color:#e2e8f0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:9999px;padding:0.3rem 0.2rem;}'
           + '.edit-toolbar .size-input:focus{outline:none;border-color:var(--neon-cyan);}'
+          + '.edit-toolbar .color-swatch{width:20px;height:20px;border-radius:50%;padding:0;cursor:pointer;border:2px solid rgba(255,255,255,0.3);transition:transform .15s,border-color .15s;}'
+          + '.edit-toolbar .color-swatch:hover{transform:scale(1.15);border-color:#fff;}'
           + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
           + '.icon-picker.open{display:flex;}'
           + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
@@ -1034,6 +1036,13 @@
         sizeInputRef = sizeInput;
         toolbar.appendChild(sizeInput);
 
+        // הדגשה ונטוי — מקובצים יחד
+        const fmtGroup = document.createElement('span');
+        fmtGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;';
+        toolbar.appendChild(fmtGroup);
+        tbBtn('<i class="fa-solid fa-bold"></i>', 'מודגש (בולד)', function () { fmt('bold'); }, fmtGroup);
+        tbBtn('<i class="fa-solid fa-italic"></i>', 'נטוי (italic)', function () { fmt('italic'); }, fmtGroup);
+
         // כפתורי יישור — מקובצים יחד כך שלא יישברו לשורה נפרדת
         const alignGroup = document.createElement('span');
         alignGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;';
@@ -1042,8 +1051,23 @@
         tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
         tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
 
+        // לוח צבעים קבוע של המצגת — לחיצה אחת לצבע עקבי
+        const PRESET_COLORS = ['#00f3ff', '#bc13fe', '#00ff9d', '#ffffff', '#e2e8f0', '#94a3b8'];
+        const swatchGroup = document.createElement('span');
+        swatchGroup.style.cssText = 'display:inline-flex;gap:0.25rem;flex-wrap:nowrap;align-items:center;';
+        PRESET_COLORS.forEach(function (c) {
+            const sw = document.createElement('button');
+            sw.className = 'color-swatch';
+            sw.title = 'צבע ' + c;
+            sw.style.background = c;
+            sw.addEventListener('mousedown', function (e) { e.preventDefault(); });
+            sw.addEventListener('click', function (e) { e.preventDefault(); fmt('foreColor', c); color.value = c; });
+            swatchGroup.appendChild(sw);
+        });
+        toolbar.appendChild(swatchGroup);
+
         const color = document.createElement('input');
-        color.type = 'color'; color.title = 'צבע טקסט'; color.value = '#00f3ff';
+        color.type = 'color'; color.title = 'צבע מותאם אישית'; color.value = '#00f3ff';
         color.addEventListener('mousedown', function (e) { e.stopPropagation(); });
         color.addEventListener('input', function () { fmt('foreColor', color.value); });
         toolbar.appendChild(color);
