@@ -85,12 +85,16 @@
                 decks.forEach(d => {
                     const name = (typeof d === 'string') ? d : d.name;
                     const custom = (typeof d === 'object') && d.custom;
+                    const tmpl = (typeof d === 'object') && d.template;
+                    const badge = tmpl === 'light'
+                        ? '<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30 mr-2">☀️ בהיר</span>'
+                        : '<span class="text-xs px-2 py-0.5 rounded-full bg-cyan-400/10 text-[var(--neon-cyan)] border border-cyan-400/30 mr-2">🌑 כהה</span>';
                     const row = document.createElement('div');
                     row.className = 'flex items-center gap-2';
                     const a = document.createElement('a');
                     a.href = '/' + encodeURIComponent(name);
-                    a.className = 'deck-link flex-1 block bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
-                    a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '');
+                    a.className = 'deck-link flex-1 flex items-center bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
+                    a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + badge + '<span class="flex-1">' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '') + '</span>';
                     row.appendChild(a);
                     if (!custom) {
                         const del = document.createElement('button');

@@ -8,6 +8,8 @@
 const CUSTOM_DECKS = ['ecommerce-bot'];
 // מצגות מוגנות שאי אפשר למחוק (מסומנות "מובנית")
 const PROTECTED_DECKS = ['ecommerce-bot', 'whatsapp-bot'];
+// תבנית קבועה למצגות עצמאיות (HTML משלהן) — לתצוגת תווית כהה/בהיר בדף הבית
+const STANDALONE_TEMPLATES = { 'ecommerce-bot': 'light' };
 
 export default {
   async fetch(request, env) {
@@ -22,7 +24,12 @@ export default {
       const list = await env.PRES.list({ prefix: 'deck:' });
       const kvDecks = list.keys.map((k) => k.name.replace(/^deck:/, ''));
       const all = [...new Set([...CUSTOM_DECKS, ...kvDecks])];
-      const decks = all.map((name) => ({ name, custom: PROTECTED_DECKS.includes(name) }));
+      const decks = await Promise.all(all.map(async (name) => {
+        let template = STANDALONE_TEMPLATES[name];
+        if (!template) template = await env.PRES.get('tmpl:' + name);
+        if (template !== 'light' && template !== 'dark') template = 'dark';
+        return { name, custom: PROTECTED_DECKS.includes(name), template };
+      }));
       return new Response(JSON.stringify({ decks }), {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
       });

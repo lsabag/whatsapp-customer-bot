@@ -484,6 +484,7 @@
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
+        <button data-act="theme"><i class="fa-solid fa-circle-half-stroke"></i> החלף עיצוב</button>
         <button data-act="download" style="border-color: rgba(0,255,157,0.5); color: var(--neon-emerald);"><i class="fa-solid fa-download"></i> שמור קובץ</button>
     </div>
 
@@ -642,6 +643,24 @@
                     /* no server endpoint (e.g. GitHub Pages mirror) — saved locally only */
                     return 'no-server';
                 }
+            };
+
+            // החלפת עיצוב כהה⇄בהיר — שומר את התוכן ומגיש אותו בתבנית השנייה (אותו תוכן בדיוק)
+            const switchTheme = async () => {
+                const cur = (document.documentElement.dataset.template === 'light') ? 'light' : 'dark';
+                const target = cur === 'light' ? 'dark' : 'light';
+                if (!confirm('להחליף את עיצוב המצגת ל' + (target === 'light' ? 'בהיר' : 'כהה') + '? התוכן יישמר ויוצג בעיצוב החדש.')) return;
+                if (!editPassword) {
+                    editPassword = (typeof prompt === 'function' ? prompt('הזינו את קוד העריכה כדי לשמור ולהחליף עיצוב:') : '') || '';
+                    try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
+                }
+                if (!editPassword) { alert('⚠️ לא הוזן קוד — העיצוב לא הוחלף.'); return; }
+                try {
+                    const res = await fetch(API_CONTENT, { method: 'POST', headers: { 'content-type': 'text/plain; charset=utf-8', 'x-edit-password': editPassword, 'x-template': target }, body: cleanDeckHtml() });
+                    if (res.status === 401) { try { sessionStorage.removeItem('deck_pw'); } catch (e) {} editPassword = null; alert('❌ קוד העריכה שגוי — העיצוב לא הוחלף.'); return; }
+                    if (!res.ok) { alert('❌ החלפת העיצוב נכשלה (שגיאת שרת ' + res.status + ').'); return; }
+                    location.href = location.pathname + '?t=' + target;
+                } catch (e) { alert('❌ לא ניתן להחליף עיצוב כרגע (אין חיבור לשרת).'); }
             };
 
             // ביטול שינויים — שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
@@ -886,6 +905,7 @@
                 const act = btn.getAttribute('data-act');
                 if (act === 'add-slide') addSlide();
                 else if (act === 'add-block') addBlock();
+                else if (act === 'theme') switchTheme();
                 else if (act === 'download') downloadHtml();
             });
             editCancel.addEventListener('click', cancelEdit);
