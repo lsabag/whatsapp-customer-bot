@@ -137,6 +137,9 @@
             color: #fff;
             text-shadow: 0 0 10px var(--neon-emerald), 0 0 20px rgba(0, 255, 157, 0.5);
         }
+        .glow-text {
+            text-shadow: 0 0 8px var(--glow-color, #00f3ff), 0 0 18px var(--glow-color, #00f3ff);
+        }
 
         /* Scroll Indicators (Right Side) */
         .scroll-nav {
@@ -481,9 +484,6 @@
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
-        <button data-act="glow-cyan">✦ זוהר ציאן</button>
-        <button data-act="glow-emerald">✦ זוהר ירוק</button>
-        <button data-act="unglow">⊘ הסר זוהר</button>
         <button data-act="download" style="border-color: rgba(0,255,157,0.5); color: var(--neon-emerald);"><i class="fa-solid fa-download"></i> שמור קובץ</button>
     </div>
 
@@ -886,9 +886,6 @@
                 const act = btn.getAttribute('data-act');
                 if (act === 'add-slide') addSlide();
                 else if (act === 'add-block') addBlock();
-                else if (act === 'glow-cyan') applyGlow('glow-text-cyan');
-                else if (act === 'glow-emerald') applyGlow('glow-text-emerald');
-                else if (act === 'unglow') removeGlow();
                 else if (act === 'download') downloadHtml();
             });
             editCancel.addEventListener('click', cancelEdit);
@@ -986,6 +983,7 @@
           + '.swatch-editor .se-actions{display:flex;gap:0.6rem;justify-content:center;}'
           + '.swatch-editor .se-actions button{font-family:inherit;font-size:0.78rem;font-weight:600;color:#e2e8f0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:9999px;padding:0.3rem 0.8rem;cursor:pointer;}'
           + '.swatch-editor .se-actions button:hover{border-color:#fff;}'
+          + '.edit-toolbar .glow-btn.glow-active{border-color:var(--neon-emerald);color:var(--neon-emerald);box-shadow:0 0 8px rgba(0,255,157,0.3);}'
           + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
           + '.icon-picker.open{display:flex;}'
           + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
@@ -1007,6 +1005,7 @@
                     const px = parseFloat(getComputedStyle(n).fontSize);
                     if (px && document.activeElement !== sizeInputRef) sizeInputRef.value = Math.round(px);
                 }
+                if (typeof updateGlowState === 'function') updateGlowState();
             }
         });
         function restoreSel() {
@@ -1205,6 +1204,84 @@
                 }
             }
         });
+
+        // ===== זוהר חכם — מזהה זוהר קיים, מתחלף בין החלה/ביטול, עם צבע לבחירה =====
+        const GLOW_CLASSES = ['glow-text', 'glow-text-cyan', 'glow-text-emerald'];
+        function findGlow(node) {
+            while (node && node !== document.body) {
+                if (node.nodeType === 1 && node.classList && GLOW_CLASSES.some(function (c) { return node.classList.contains(c); })) return node;
+                node = node.parentNode;
+            }
+            return null;
+        }
+        function glowColorOf(el) {
+            if (el.classList.contains('glow-text-cyan')) return '#00f3ff';
+            if (el.classList.contains('glow-text-emerald')) return '#00ff9d';
+            const c = (el.style.getPropertyValue('--glow-color') || '').trim();
+            return normalizeHex(c || '#00f3ff');
+        }
+        function stripGlowFrom(node) {
+            node.classList.remove('glow-text', 'glow-text-cyan', 'glow-text-emerald');
+            if (node.classList.length === 0) node.removeAttribute('class');
+            node.style.removeProperty('--glow-color');
+            if (node.getAttribute('style') === '') node.removeAttribute('style');
+            // אם זה span עטיפה שלנו בלי שום תפקיד אחר — נפרק אותו
+            if (node.tagName === 'SPAN' && !node.attributes.length) {
+                const parent = node.parentNode;
+                while (node.firstChild) parent.insertBefore(node.firstChild, node);
+                parent.removeChild(node);
+            }
+        }
+        function wrapGlow(color) {
+            const sel = window.getSelection();
+            if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+            const range = sel.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'glow-text';
+            span.style.setProperty('--glow-color', color);
+            try { range.surroundContents(span); }
+            catch (e) { span.appendChild(range.extractContents()); range.insertNode(span); }
+            sel.removeAllRanges();
+        }
+        const glowGroup = document.createElement('span');
+        glowGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;align-items:center;';
+        const glowBtn = document.createElement('button');
+        glowBtn.className = 'glow-btn'; glowBtn.innerHTML = '✦ זוהר'; glowBtn.title = 'הוסף/הסר זוהר על הטקסט המסומן';
+        glowBtn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        glowBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            restoreSel();
+            const sel = window.getSelection();
+            const node = sel && sel.rangeCount ? findGlow(sel.anchorNode) : null;
+            if (node) stripGlowFrom(node);
+            else wrapGlow(glowColor.value);
+            updateGlowState();
+        });
+        const glowColor = document.createElement('input');
+        glowColor.type = 'color'; glowColor.title = 'צבע הזוהר'; glowColor.value = '#00f3ff';
+        glowColor.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+        glowColor.addEventListener('input', function () {
+            restoreSel();
+            const sel = window.getSelection();
+            const node = sel && sel.rangeCount ? findGlow(sel.anchorNode) : null;
+            if (node) {
+                node.classList.remove('glow-text-cyan', 'glow-text-emerald');
+                node.classList.add('glow-text');
+                node.style.setProperty('--glow-color', glowColor.value);
+            } else {
+                wrapGlow(glowColor.value);
+            }
+            updateGlowState();
+        });
+        glowGroup.appendChild(glowBtn);
+        glowGroup.appendChild(glowColor);
+        toolbar.appendChild(glowGroup);
+        function updateGlowState() {
+            let g = null;
+            if (lastRange) { let n = lastRange.commonAncestorContainer; n = n.nodeType === 1 ? n : n.parentElement; g = findGlow(n); }
+            if (g) { glowBtn.classList.add('glow-active'); glowBtn.innerHTML = '✦ בטל זוהר'; glowColor.value = glowColorOf(g); }
+            else { glowBtn.classList.remove('glow-active'); glowBtn.innerHTML = '✦ זוהר'; }
+        }
 
         function splitCols(n) {
             const slides = [].slice.call(document.querySelectorAll('.slide'));
