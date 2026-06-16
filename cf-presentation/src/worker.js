@@ -28,7 +28,7 @@ export default {
         let template = STANDALONE_TEMPLATES[name];
         if (!template) template = await env.PRES.get('tmpl:' + name);
         if (template !== 'light' && template !== 'dark') template = 'dark';
-        return { name, custom: PROTECTED_DECKS.includes(name), template };
+        return { name, custom: PROTECTED_DECKS.includes(name), standalone: CUSTOM_DECKS.includes(name), template };
       }));
       return new Response(JSON.stringify({ decks }), {
         headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
@@ -39,7 +39,8 @@ export default {
     if (rest === 'api/rename' && deck && deck !== 'api' && request.method === 'POST') {
       const pw = request.headers.get('x-edit-password') || '';
       if (!env.EDIT_PASSWORD || pw !== env.EDIT_PASSWORD) return new Response('unauthorized', { status: 401 });
-      if (PROTECTED_DECKS.includes(deck)) return new Response('cannot rename a protected deck', { status: 403 });
+      // מצגות עצמאיות (קובץ HTML משלהן) לא ניתנות לשינוי שם בזמן ריצה
+      if (CUSTOM_DECKS.includes(deck)) return new Response('cannot rename a standalone deck', { status: 403 });
       let to = (request.headers.get('x-new-name') || '').trim().replace(/^\/+|\/+$/g, '').replace(/\s+/g, '-');
       if (!to || to === 'api' || to.indexOf('/') !== -1) return new Response('bad name', { status: 400 });
       if (to === deck) return new Response('renamed', { status: 200 });

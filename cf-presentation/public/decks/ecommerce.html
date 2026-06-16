@@ -841,6 +841,29 @@
 
         // קריאה לפונקציה מיד כשהקוד נטען
         initKnowledgeGraph();
+
+        // --- גלילת גלגלת סקשן-אחר-סקשן (כמו ב-whatsapp-bot), חלקה ומבוקרת ---
+        (function () {
+            let secScrolling = false;
+            window.addEventListener('wheel', function (e) {
+                if (document.body.classList.contains('ec-edit')) return; // במצב עריכה — גלילה חופשית
+                if (secScrolling || Math.abs(e.deltaY) < 8) return;
+                const secs = [].slice.call(document.querySelectorAll('main section'));
+                if (!secs.length) return;
+                const navH = (document.getElementById('navbar') || { offsetHeight: 0 }).offsetHeight;
+                const tops = secs.map(function (s) { return s.getBoundingClientRect().top + window.pageYOffset - navH; });
+                const y = window.pageYOffset;
+                let idx = 0;
+                for (let i = 0; i < tops.length; i++) { if (y >= tops[i] - 5) idx = i; }
+                const dir = e.deltaY > 0 ? 1 : -1;
+                const target = Math.max(0, Math.min(secs.length - 1, idx + dir));
+                if (target === idx) return; // כבר בקצה — גלילה טבעית
+                e.preventDefault();
+                secScrolling = true;
+                smoothScrollTo(Math.max(0, tops[target]), 1000);
+                setTimeout(function () { secScrolling = false; }, 1000);
+            }, { passive: false });
+        })();
     </script>
 
     <!-- ===== שכבת עריכה (לא נוגעת בתפריט העליון) ===== -->

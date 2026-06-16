@@ -85,6 +85,7 @@
                 decks.forEach(d => {
                     const name = (typeof d === 'string') ? d : d.name;
                     const custom = (typeof d === 'object') && d.custom;
+                    const standalone = (typeof d === 'object') && d.standalone;
                     const tmpl = (typeof d === 'object') && d.template;
                     const badge = tmpl === 'light'
                         ? '<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30 mr-2">☀️ בהיר</span>'
@@ -96,14 +97,17 @@
                     a.className = 'deck-link flex-1 flex items-center bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
                     a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + badge + '<span class="flex-1">' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '') + '</span>';
                     row.appendChild(a);
-                    if (!custom) {
+                    // שינוי שם — לכל מצגת מבוססת-תוכן (גם מובנית/מוגנת); לא למצגות עצמאיות
+                    if (!standalone) {
                         const ren = document.createElement('button');
                         ren.title = 'שנה שם מצגת';
                         ren.className = 'shrink-0 w-11 rounded-xl border border-slate-600 bg-slate-700/30 text-slate-300 hover:border-[var(--neon-cyan)] hover:text-[var(--neon-cyan)] transition-all';
                         ren.innerHTML = '<i class="fa-solid fa-pen"></i>';
                         ren.addEventListener('click', () => renameDeck(name));
                         row.appendChild(ren);
-
+                    }
+                    // מחיקה — רק למצגות שאינן מוגנות
+                    if (!custom) {
                         const del = document.createElement('button');
                         del.title = 'מחק מצגת';
                         del.className = 'shrink-0 w-11 rounded-xl border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all';
@@ -128,7 +132,7 @@
                 const res = await fetch('/' + encodeURIComponent(name) + '/api/rename', { method: 'POST', headers: { 'x-edit-password': pw, 'x-new-name': to } });
                 if (res.status === 200) { loadDecks(); }
                 else if (res.status === 401) alert('קוד שגוי — השם לא שונה.');
-                else if (res.status === 403) alert('לא ניתן לשנות שם של מצגת מובנית.');
+                else if (res.status === 403) alert('מצגת עם עיצוב עצמאי לא ניתנת לשינוי שם.');
                 else if (res.status === 409) alert('השם "' + to + '" כבר תפוס.');
                 else if (res.status === 400) alert('שם לא תקין.');
                 else if (res.status === 404) alert('המצגת לא נמצאה.');
