@@ -976,6 +976,16 @@
           + '.edit-toolbar .color-swatch{width:20px;height:20px;border-radius:50%;padding:0;cursor:pointer;border:2px solid rgba(255,255,255,0.3);transition:transform .15s,border-color .15s;}'
           + '.edit-toolbar .color-swatch:hover{transform:scale(1.15);border-color:#fff;}'
           + '.edit-toolbar .swatch-edit{font-size:0.72rem;padding:0.3rem 0.5rem;opacity:0.85;}'
+          + '.swatch-editor{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-direction:column;gap:0.7rem;padding:0.9rem 1rem;border-radius:14px;background:rgba(20,24,40,0.97);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.45);}'
+          + '.swatch-editor.open{display:flex;}'
+          + '.swatch-editor .se-title{color:#e2e8f0;font-size:0.8rem;font-weight:700;text-align:center;}'
+          + '.swatch-editor .se-row{display:flex;gap:0.7rem;flex-wrap:wrap;justify-content:center;max-width:320px;}'
+          + '.swatch-editor .se-item{position:relative;}'
+          + '.swatch-editor input[type=color]{width:38px;height:38px;border:1px solid rgba(255,255,255,0.2);background:none;cursor:pointer;padding:0;border-radius:8px;}'
+          + '.swatch-editor .se-remove{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:50%;background:#ef4444;color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;}'
+          + '.swatch-editor .se-actions{display:flex;gap:0.6rem;justify-content:center;}'
+          + '.swatch-editor .se-actions button{font-family:inherit;font-size:0.78rem;font-weight:600;color:#e2e8f0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:9999px;padding:0.3rem 0.8rem;cursor:pointer;}'
+          + '.swatch-editor .se-actions button:hover{border-color:#fff;}'
           + '.icon-picker{position:fixed;bottom:3.6rem;left:50%;transform:translateX(-50%);z-index:62;display:none;flex-wrap:wrap;gap:0.3rem;max-width:340px;padding:0.6rem;border-radius:14px;background:rgba(20,24,40,0.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);box-shadow:0 12px 30px rgba(0,0,0,0.4);}'
           + '.icon-picker.open{display:flex;}'
           + '.icon-picker button{width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;}'
@@ -1095,16 +1105,47 @@
             edit.className = 'swatch-edit'; edit.title = 'ערוך/קבע את לוח הצבעים של המצגת';
             edit.innerHTML = '<i class="fa-solid fa-sliders"></i>';
             edit.addEventListener('mousedown', function (e) { e.preventDefault(); });
-            edit.addEventListener('click', function (e) {
-                e.preventDefault();
-                const inp = prompt('קבעו את צבעי המצגת — עד 8 קודי hex מופרדים בפסיק (למשל #00f3ff, #ffffff):', readSwatches().join(', '));
-                if (inp === null) return;
-                const arr = inp.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(s); }).slice(0, 8);
-                if (!arr.length) { alert('לא זוהו צבעים תקינים. השתמשו בקוד hex כמו #00f3ff.'); return; }
-                writeSwatches(arr); renderSwatches();
-            });
+            edit.addEventListener('click', function (e) { e.preventDefault(); renderEditor(); swEditor.classList.toggle('open'); });
             swatchGroup.appendChild(edit);
         }
+
+        // עורך ויזואלי ללוח הצבעים — בוחרים צבע בעין, בלי קודי hex
+        function normalizeHex(c) {
+            c = (c || '').trim();
+            if (/^#[0-9a-fA-F]{3}$/.test(c)) return ('#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]).toLowerCase();
+            if (/^#[0-9a-fA-F]{6}$/.test(c)) return c.toLowerCase();
+            return '#ffffff';
+        }
+        const swEditor = document.createElement('div');
+        swEditor.className = 'swatch-editor';
+        swEditor.innerHTML = '<div class="se-title">לוח הצבעים של המצגת</div><div class="se-row"></div><div class="se-actions"><button class="se-add"><i class="fa-solid fa-plus"></i> צבע</button><button class="se-done">סיום</button></div>';
+        document.body.appendChild(swEditor);
+        const seRow = swEditor.querySelector('.se-row');
+        function renderEditor() {
+            seRow.innerHTML = '';
+            readSwatches().forEach(function (c, idx) {
+                const item = document.createElement('div'); item.className = 'se-item';
+                const inp = document.createElement('input'); inp.type = 'color'; inp.value = normalizeHex(c); inp.title = 'בחרו צבע';
+                inp.addEventListener('input', function () { const arr = readSwatches(); arr[idx] = inp.value; writeSwatches(arr); renderSwatches(); });
+                const rm = document.createElement('button'); rm.className = 'se-remove'; rm.innerHTML = '&times;'; rm.title = 'הסר צבע';
+                rm.addEventListener('click', function (e) { e.preventDefault(); const arr = readSwatches(); arr.splice(idx, 1); if (!arr.length) arr.push('#ffffff'); writeSwatches(arr); renderSwatches(); renderEditor(); });
+                item.appendChild(inp); item.appendChild(rm); seRow.appendChild(item);
+            });
+        }
+        swEditor.querySelector('.se-add').addEventListener('click', function (e) {
+            e.preventDefault();
+            const arr = readSwatches();
+            if (arr.length >= 8) return;
+            arr.push(DEFAULT_SWATCHES[0] || '#ffffff'); writeSwatches(arr); renderSwatches(); renderEditor();
+        });
+        swEditor.querySelector('.se-done').addEventListener('click', function (e) { e.preventDefault(); swEditor.classList.remove('open'); });
+        document.addEventListener('click', function (e) {
+            if (!swEditor.classList.contains('open')) return;
+            if (e.target.closest('.swatch-editor')) return;
+            if (e.target.closest('button') && e.target.closest('button').classList.contains('swatch-edit')) return;
+            swEditor.classList.remove('open');
+        });
+
         toolbar.appendChild(swatchGroup);
         toolbar.appendChild(color);
         renderSwatches();
