@@ -739,8 +739,15 @@
                 setTimeout(() => window.print(), 150);
             });
 
-            // גלילה טבעית וחלקה (כמו ב-ecommerce-bot) — בלי חטיפת גלגלת.
-            // ה-CSS כבר עושה snap עדין (proximity) + scroll-behavior: smooth.
+            // גלילה עם הגלגלת — סקשן אחד בכל תנועה, באנימציה רכה ומבוקרת (~1ש', האטה בהתחלה ובסוף)
+            mainContainer.addEventListener('wheel', (e) => {
+                if (editMode) return; // במצב עריכה — גלילה חופשית
+                e.preventDefault();
+                if (isScrolling || Math.abs(e.deltaY) < 8) return;
+                isScrolling = true;
+                goTo(currentIndex + (e.deltaY > 0 ? 1 : -1));
+                setTimeout(() => { isScrolling = false; }, 1000);
+            }, { passive: false });
 
             // Keyboard navigation (disabled while editing so you can type freely)
             window.addEventListener('keydown', (e) => {
