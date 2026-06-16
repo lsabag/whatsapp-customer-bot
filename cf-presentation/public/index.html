@@ -1118,7 +1118,7 @@
         }
         const swEditor = document.createElement('div');
         swEditor.className = 'swatch-editor';
-        swEditor.innerHTML = '<div class="se-title">לוח הצבעים של המצגת</div><div class="se-row"></div><div class="se-actions"><button class="se-add"><i class="fa-solid fa-plus"></i> צבע</button><button class="se-done">סיום</button></div>';
+        swEditor.innerHTML = '<div class="se-title">לוח הצבעים של המצגת</div><div class="se-row"></div><div class="se-actions"><button class="se-add"><i class="fa-solid fa-plus"></i> צבע</button><button class="se-reset"><i class="fa-solid fa-rotate-left"></i> ברירת מחדל</button><button class="se-done">סיום</button></div>';
         document.body.appendChild(swEditor);
         const seRow = swEditor.querySelector('.se-row');
         function renderEditor() {
@@ -1138,6 +1138,7 @@
             if (arr.length >= 8) return;
             arr.push(DEFAULT_SWATCHES[0] || '#ffffff'); writeSwatches(arr); renderSwatches(); renderEditor();
         });
+        swEditor.querySelector('.se-reset').addEventListener('click', function (e) { e.preventDefault(); writeSwatches(DEFAULT_SWATCHES.slice()); renderSwatches(); renderEditor(); });
         swEditor.querySelector('.se-done').addEventListener('click', function (e) { e.preventDefault(); swEditor.classList.remove('open'); });
         document.addEventListener('click', function (e) {
             if (!swEditor.classList.contains('open')) return;
