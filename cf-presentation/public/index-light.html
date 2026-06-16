@@ -57,12 +57,12 @@
         .flow-line { stroke-dasharray: 12; }
         .glow-text-cyan { color: #4f46e5; }
         .glow-text-emerald { color: #059669; }
-        .scroll-nav { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: safe center; gap: 0.2rem; z-index: 50; padding: 0.5rem 1rem; background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 12px rgba(30,41,59,0.06); overflow-x: auto; }
+        .scroll-nav { position: fixed; top: 0; left: 0; right: 0; display: flex; flex-direction: row; align-items: center; justify-content: safe center; gap: 2rem; z-index: 50; height: 4rem; padding: 0 1rem; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(30,41,59,0.05); overflow-x: auto; }
         .scroll-nav::-webkit-scrollbar { display: none; }
-        .nav-link { cursor: pointer; white-space: nowrap; color: #475569; font-size: 0.85rem; font-weight: 600; padding: 0.3rem 0.7rem; border-radius: 8px; transition: color 0.2s; flex-shrink: 0; position: relative; }
+        .nav-link { cursor: pointer; white-space: nowrap; color: #475569; font-size: 1rem; font-weight: 500; transition: color 0.3s; flex-shrink: 0; position: relative; }
         .nav-link:hover { color: #4f46e5; }
-        .nav-link.active { color: #4f46e5; }
-        .nav-link.active::after { content: ''; position: absolute; bottom: -1px; left: 0.7rem; right: 0.7rem; height: 2px; background: #4f46e5; border-radius: 2px; }
+        .nav-link.active { color: #4f46e5; font-weight: 700; }
+        .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: #4f46e5; border-radius: 2px; }
         .reveal-content { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2,1,0.3,1), transform 0.8s cubic-bezier(0.2,1,0.3,1); }
         .slide.in-view .reveal-content { opacity: 1; transform: translateY(0); }
         .delay-1 { transition-delay: 0.2s; } .delay-2 { transition-delay: 0.4s; } .delay-3 { transition-delay: 0.6s; }
