@@ -402,105 +402,19 @@
                     <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-emerald)]"><i class="fa-solid fa-shield-halved"></i></div><div class="text-white font-bold text-sm">3. דגשים קריטיים</div><p class="text-slate-400 text-xs mt-1">אבטחת סודות, מספר ייעודי, ומניעת המצאות.</p></div>
                     <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-cyan)]"><i class="fa-solid fa-diagram-project"></i></div><div class="text-white font-bold text-sm">4. זרימת עבודה</div><p class="text-slate-400 text-xs mt-1">מאיסוף הידע ועד עלייה לאוויר בפרודקשן.</p></div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Slide: Recap 1 - Infrastructure -->
-        <section class="slide" id="slide-sum-1">
-            <div class="cyber-panel">
-                <div class="reveal-content text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase">שלב 1 // בחירת הדרך הטכנית</div>
-                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">תשתית: דמו מול פרודקשן</h2>
-                <div class="grid md:grid-cols-2 gap-6 reveal-content delay-2">
-                    <div class="tech-box">
-                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-emerald)]"><i class="fa-solid fa-flask ml-2"></i>לדמו / הצגה</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">
-                            <strong>whatsapp-web.js</strong> - מחקה התחברות של דפדפן (סריקת QR), חינמי ופשוט להקמה. מושלם להדגמות.<br><br>
-                            <span class="text-red-400"><i class="fa-solid fa-triangle-exclamation ml-1"></i> אבל לא רשמי</span> - מנוגד לתנאי השימוש של וואטסאפ ועלול לחסום מספר. <strong>רק לדמו קצר.</strong>
-                        </p>
-                    </div>
-                    <div class="tech-box">
-                        <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-shield-halved ml-2"></i>לפרודקשן / שירות אמיתי</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">
-                            <strong>WhatsApp Cloud API</strong> - הערוץ הרשמי של Meta. ישירות מול Meta, או דרך <strong>ספק מורשה (BSP)</strong> כמו Twilio.<br><br>
-                            יש עלות לכל הודעה, אבל זה הערוץ היציב שמסיר את <strong>סיכון</strong> החסימה ומאפשר עבודה שקטה ובטוחה.
-                        </p>
-                    </div>
-                </div>
-                <div class="reveal-content delay-3 tech-box mt-6" style="border-color: rgba(0,243,255,0.4);">
-                    <p class="text-slate-200 text-sm leading-relaxed"><i class="fa-solid fa-circle-info text-[var(--neon-cyan)] ml-2"></i><strong class="text-[var(--neon-cyan)]">מה זה BSP?</strong> ראשי תיבות של <em>Business Solution Provider</em> - חברה <strong>מורשית של Meta</strong> שיושבת מעל ה-WhatsApp Business API ונותנת לך גישה אליו בלי להקים הכול לבד: היא מטפלת באישורי המספר, בתשתית, בתבניות ההודעה ובחיוב. דוגמאות: <strong>Twilio, 360dialog, MessageBird, Vonage</strong>. בקיצור - שכבת ביניים שמקצרת ומפשטת את החיבור לערוץ הרשמי.</p>
+                <div class="reveal-content delay-3 tech-box mt-6 max-w-3xl mx-auto text-center" style="border-color: rgba(0,255,157,0.5); background: rgba(0,255,157,0.05);">
+                    <p class="text-slate-200 text-base leading-relaxed"><span class="text-xl ml-1">🎯</span> <strong class="text-[var(--neon-emerald)]">השורה התחתונה:</strong> המוח (ה-AI) נשאר זהה - רק מחליפים את ה"צינור" שדרכו עוברות ההודעות: מדמו ב-Web לחיבור API רשמי.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Slide: Recap 2 - Building blocks -->
-        <section class="slide" id="slide-sum-2">
-            <div class="cyber-panel">
-                <div class="reveal-content text-[var(--neon-purple)] font-bold tracking-widest mb-2 text-sm uppercase">שלב 2 // אבני הבניין</div>
-                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">משלושה רכיבים מרכיבים בוט</h2>
-                <div class="grid md:grid-cols-3 gap-6 reveal-content delay-2">
-                    <div class="tech-box text-center">
-                        <div class="text-5xl mb-3 text-[var(--neon-cyan)]"><i class="fa-solid fa-brain"></i></div>
-                        <h3 class="text-xl font-bold text-white mb-2">המוח (AI)</h3>
-                        <p class="text-slate-400 text-sm">מודל שפה (כמו Claude) שמקבל את מסמכי הידע על העסק ועונה תשובות מדויקות בשפה טבעית.</p>
-                    </div>
-                    <div class="tech-box text-center">
-                        <div class="text-5xl mb-3 text-[var(--neon-purple)]"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                        <h3 class="text-xl font-bold text-white mb-2">זיכרון שיחה</h3>
-                        <p class="text-slate-400 text-sm">זיכרון פר-לקוח (למשל קובצי JSON) - הבוט זוכר את ההקשר משיחות קודמות גם אחרי ריסטארט.</p>
-                    </div>
-                    <div class="tech-box text-center">
-                        <div class="text-5xl mb-3 text-[var(--neon-emerald)]"><i class="fa-solid fa-book-open"></i></div>
-                        <h3 class="text-xl font-bold text-white mb-2">מסמכי ידע</h3>
-                        <p class="text-slate-400 text-sm">קבצי טקסט (<span dir="ltr">.md</span>): שעות פעילות, מוצרים, מדיניות ושאלות נפוצות - הבסיס לכל תשובה.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        
 
-        <!-- Slide: Recap 3 - Critical points -->
-        <section class="slide" id="slide-sum-3">
-            <div class="cyber-panel">
-                <div class="reveal-content text-[var(--neon-emerald)] font-bold tracking-widest mb-2 text-sm uppercase">שלב 3 // דגשים קריטיים</div>
-                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-emerald">מה שחייבים לא לפספס</h2>
-                <div class="grid md:grid-cols-2 gap-6 reveal-content delay-2">
-                    <div class="tech-box">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-cyan)]"><i class="fa-solid fa-lock ml-2"></i>אבטחה ופרטיות</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">חובה <strong>.gitignore</strong> כדי שקבצים רגישים - מפתח ה-API, קובצי ה-Session של וואטסאפ ופרטי לקוחות - לא יעלו ל-GitHub.</p>
-                    </div>
-                    <div class="tech-box">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-cyan)]"><i class="fa-solid fa-hashtag ml-2"></i>ניהול מספרים</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">מספר וואטסאפ מחובר ל<strong>ערוץ אחד בלבד</strong> בכל רגע. לדמו - מספר ייעודי, <strong>לא</strong> המספר הראשי של העסק, כדי לא לסכן אותו.</p>
-                    </div>
-                    <div class="tech-box">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-cyan)]"><i class="fa-solid fa-cloud ml-2"></i>סביבת הרצה</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed"><strong>לדמו:</strong> ריצה מקומית על המחשב.<br><strong>לפרודקשן:</strong> שרת מנוהל בענן (Cloud API מבוסס-webhooks מתאים גם ל-serverless כמו Cloudflare Workers).</p>
-                    </div>
-                    <div class="tech-box" style="border-color: rgba(0,255,157,0.4);">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-emerald)]"><i class="fa-solid fa-ban ml-2"></i>מניעת המצאות</h3>
-                        <p class="text-slate-300 text-sm leading-relaxed">מנחים את הבוט במפורש: <em>"אל תמציא מחירים או תאריכים - אם אינך בטוח לפי המסמכים, הפנה לנציג."</em> זה ההבדל בין כלי אמין לכלי מביך.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        
 
-        <!-- Slide: Recap 4 - Workflow + bottom line -->
-        <section class="slide" id="slide-sum-4">
-            <div class="cyber-panel">
-                <div class="reveal-content text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase">שלב 4 // זרימת העבודה</div>
-                <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">מהמידע ועד האוויר</h2>
-                <div class="grid md:grid-cols-4 gap-4 reveal-content delay-2">
-                    <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-emerald)]"><i class="fa-solid fa-folder-open"></i></div><h4 class="text-white font-bold mb-1 text-sm">1. איסוף מידע</h4><p class="text-slate-400 text-xs">כותבים את מסמכי הידע של העסק.</p></div>
-                    <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-cyan)]"><i class="fa-solid fa-code"></i></div><h4 class="text-white font-bold mb-1 text-sm">2. פיתוח</h4><p class="text-slate-400 text-xs">שלד Node.js + חיבור ל-Claude + טעינת הידע.</p></div>
-                    <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-purple)]"><i class="fa-solid fa-vial"></i></div><h4 class="text-white font-bold mb-1 text-sm">3. בדיקות</h4><p class="text-slate-400 text-xs">הרצה מקומית (<span dir="ltr">npm start</span>) וסריקת QR.</p></div>
-                    <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-emerald)]"><i class="fa-solid fa-rocket"></i></div><h4 class="text-white font-bold mb-1 text-sm">4. פרודקשן</h4><p class="text-slate-400 text-xs">החלפת שכבת הערוץ (Adapter) ל-Cloud API רשמי.</p></div>
-                </div>
-                <div class="reveal-content delay-3 tech-box mt-8 text-center" style="border-color: rgba(0,255,157,0.5); background: rgba(0,255,157,0.05);">
-                    <div class="text-3xl mb-2">🎯</div>
-                    <h3 class="text-2xl font-bold text-[var(--neon-emerald)] mb-2">השורה התחתונה</h3>
-                    <p class="text-slate-200 text-lg leading-relaxed max-w-3xl mx-auto"><strong>המוח (ה-AI) נשאר זהה</strong> - אנחנו רק מחליפים את ה<strong>"צינור"</strong> שדרכו עוברות ההודעות: מדמו ב-Web לחיבור API רשמי.</p>
-                </div>
-            </div>
-        </section>
+        
+
+        
 
         <!-- Slide 8: QR to Bot -->
         <section class="slide" id="slide-7">
