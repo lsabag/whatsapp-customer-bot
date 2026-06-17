@@ -361,7 +361,7 @@
                 clone.querySelectorAll('.cyber-panel').forEach(p => p.removeAttribute('contenteditable'));
                 clone.querySelectorAll('.slide').forEach(s => s.classList.remove('in-view'));
                 clone.querySelectorAll('.slide-controls, .print-glossary').forEach(b => b.remove());
-                clone.querySelectorAll('.term').forEach(s => s.replaceWith(document.createTextNode(s.textContent)));
+                clone.querySelectorAll('.term').forEach(s => { try { s.replaceWith(document.createTextNode(s.textContent)); } catch (e) {} });
                 return clone.innerHTML;
             };
 
@@ -395,11 +395,18 @@
                     alert('⚠️ לא הוזן קוד — השינויים לא נשמרו בענן. הזינו את קוד העריכה כדי לשמור.');
                     return 'no-password';
                 }
+                let body;
+                try {
+                    body = cleanDeckHtml();
+                } catch (e) {
+                    alert('❌ שגיאה בהכנת התוכן לשמירה: ' + (e && e.message ? e.message : e));
+                    return 'error';
+                }
                 try {
                     const res = await fetch(API_CONTENT, {
                         method: 'POST',
                         headers: { 'content-type': 'text/plain; charset=utf-8', 'x-edit-password': editPassword, 'x-template': (document.documentElement.dataset.template || 'dark') },
-                        body: cleanDeckHtml()
+                        body: body
                     });
                     if (res.status === 401) {
                         try { sessionStorage.removeItem('deck_pw'); } catch (e) {}
@@ -417,8 +424,8 @@
                     }
                     return 'ok';
                 } catch (e) {
-                    /* no server endpoint (e.g. GitHub Pages mirror) — saved locally only */
-                    return 'no-server';
+                    alert('❌ אין חיבור לשרת — השינויים לא נשמרו בענן. בדקו את החיבור לאינטרנט ונסו שוב.');
+                    return 'error';
                 }
             };
 
