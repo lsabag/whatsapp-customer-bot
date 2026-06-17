@@ -172,23 +172,7 @@
             box-shadow: 0 0 15px var(--neon-cyan);
             transform: scale(1.5);
         }
-        .nav-dot::after {
-            content: attr(data-label);
-            position: absolute;
-            top: 22px; /* label below the dot */
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.75rem;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        .nav-dot:hover::after, .nav-dot.active::after {
-            opacity: 1;
-            color: var(--neon-cyan);
-        }
+        /* תווית הטקסט של הנקודות הוסרה - היא נחתכה בקצוות עם כותרות ארוכות. הנקודות נשארות אינדיקטור נקי. */
 
         /* Content Reveal Animation */
         .reveal-content {
@@ -833,6 +817,7 @@
                     dot.className = 'nav-dot' + (i === currentIndex ? ' active' : '');
                     dot.setAttribute('data-index', i);
                     dot.setAttribute('data-label', labelFor(slide, i));
+                    dot.title = labelFor(slide, i); // tooltip מובנה של הדפדפן - לא נחתך
                     dot.addEventListener('click', () => goTo(i));
                     scrollNav.appendChild(dot);
                 });
