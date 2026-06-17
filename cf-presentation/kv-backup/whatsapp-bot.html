@@ -99,11 +99,11 @@
                         <div class="text-4xl mb-4 text-[var(--neon-purple)]"><i class="fa-solid fa-triangle-exclamation animate-pulse"></i></div>
                         <h3 class="text-2xl font-bold mb-3 text-white">מודעות וסיכונים</h3>
                         <p class="text-slate-300 text-sm leading-relaxed">
-                            שימוש בספריות כמו <code>whatsapp-web.js</code> (שמדמות דפדפן כדי לסרוק QR) הוא <strong>אינו רשמי</strong> בעיני פייסבוק.<br><br>
+                            שימוש בספריות כמו whatsapp-web.js (שמדמות דפדפן כדי לסרוק QR) הוא <strong>אינו רשמי</strong> בעיני פייסבוק.<br><br>
                             הסכנה: המערכות של מטא עלולות לזהות פעילות רובוטית ולחסום את המספר לצמיתות (Ban). לכן, שיטה זו מתאימה <strong>אך ורק לדמו קצר</strong>, ואסור לחבר אליה מספר של עסק אמיתי פעיל.
                         </p>
                         <p class="text-slate-300 text-sm leading-relaxed mt-3">
-                            <strong class="text-[var(--neon-purple)]">🔒 אבטחת סודות:</strong> לעולם לא להעלות ל-GitHub את מפתח ה-API, קובץ ה-<code>.env</code> וקובצי ה-session של וואטסאפ - חובה <code>.gitignore</code>.
+                            <strong class="text-[var(--neon-purple)]">🔒 אבטחת סודות:</strong> לעולם לא להעלות ל-GitHub את מפתח ה-API, קובץ ה-.env וקובצי ה-session של וואטסאפ - חובה .gitignore.
                         </p>
                         <p class="text-slate-300 text-sm leading-relaxed mt-3">
                             <strong class="text-[var(--neon-purple)]">👤 פרטיות לקוחות:</strong> הבוט שומר היסטוריית שיחות (מידע אישי) - יש לאחסן אותו בזהירות ובהתאם לחוק הגנת הפרטיות.
@@ -214,7 +214,7 @@
                 </div>
                 <div class="reveal-content delay-3 tech-box border-[var(--neon-emerald)] mt-3" style="padding:0.8rem 1rem;">
                     <h3 class="text-base font-bold mb-2 text-[var(--neon-emerald)] text-center">Knowledge Graph - רשת הקשרים של הידע</h3>
-                    <div id="interactive-graph" style="width:100%; height:360px; background:rgba(3,7,18,0.4); border-radius:12px;"></div>
+                    <div id="interactive-graph" style="width: 100%; height: 360px; background: rgba(3, 7, 18, 0.4); border-radius: 12px; position: relative;"></div>
                     <p class="text-slate-400 text-xs mt-2 text-center">גררו את הצמתים כדי לחקור, והשתמשו בכפתורי הזום (+/−) שבפינה כדי להתקרב.</p>
                 </div>
             </div>
@@ -266,7 +266,7 @@
                 <div class="reveal-content text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase">שלב שני // יציבות מערכתית</div>
                 <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-8 glow-text-cyan">חלק ב': המעבר לפרודקשן</h2>
                 <p class="reveal-content delay-1 text-lg text-slate-300 mb-8 border-r-4 border-[var(--neon-cyan)] pr-4">
-                    כשמעבירים את זה מעסק ללקוח שמשלם כסף, אנחנו עוזבים את ה"מחשב בבית" ועוברים למוצר עמיד, יציב ב-100% וחוקי.
+                    כשמעבירים את זה מעסק ללקוח שמשלם כסף, אנחנו עוזבים את ה"מחשב בבית" ועוברים למוצר עמיד, <b style="color: rgb(0, 255, 157);">יציב ב-100% וחוקי</b>.
                 </p>
 
                 <div class="space-y-6 reveal-content delay-2">
@@ -306,17 +306,17 @@
                     <div class="tech-box">
                         <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-shield-halved ml-2"></i>ניהול ואבטחה</h3>
                         <ul class="space-y-3 text-slate-300 text-sm">
-                            <li><strong>הפרדת סביבות:</strong> הפרדת מפתחות API וטוקנים לכל לקוח בנפרד (Multi-tenancy).</li>
+                            <li><strong>הפרדת סביבות:</strong> הפרדת מפתחות API וטוקנים לכל לקוח בנפרד.</li>
                             <li><strong>לוגים וניטור:</strong> מערכות שמתריעות לכם לטלפון בזמן אמת על קריסות (לפני שהלקוח מתלונן).</li>
-                            <li><strong>מנגנון הסלמה (Fallback):</strong> הבוט מזהה קושי או כעס, עוצר את ה-AI ומעביר שיחה לנציג מיד.</li>
+                            <li><strong>מנגנון עצירה (Fallback):</strong> הבוט מזהה קושי או כעס, עוצר את ה-AI ומעביר שיחה לנציג מיד.</li>
                         </ul>
                     </div>
 
                     <div class="tech-box">
                         <h3 class="text-xl font-bold mb-4 text-[var(--neon-cyan)]"><i class="fa-solid fa-scale-balanced ml-2"></i>משפטי ועסקי</h3>
                         <ul class="space-y-3 text-slate-300 text-sm leading-relaxed">
-                            <li><strong class="text-[var(--neon-cyan)]">Opt-in (הסכמה מראש):</strong> לפי חוק, אסור לשלוח הודעות אוטומטיות ללקוח לפני שהוא אישר במפורש לקבל אותן. בלי הסכמה זה נחשב ספאם - חושף לתביעות ואף עלול לגרום לחסימת המספר. בפועל: סימון הסכמה בטופס ההצטרפות או הודעת אישור ראשונה.</li>
-                            <li><strong class="text-[var(--neon-cyan)]">SLA (הסכם רמת שירות):</strong> חוזה בינך ללקוח שמגדיר למה אתה מתחייב - זמינות המערכת וזמני תגובה. ולא פחות חשוב: הוא כולל <strong>פטור מאחריות</strong> אם ה-AI טועה או נותן מידע שגוי, וכך מגן עליך משפטית כשמשהו משתבש.</li>
+                            <li><strong class="text-[var(--neon-cyan)]">הסכמה מראש:</strong> לפי חוק, אסור לשלוח הודעות אוטומטיות ללקוח לפני שהוא אישר במפורש לקבל אותן. בלי הסכמה זה נחשב ספאם - חושף לתביעות ואף עלול לגרום לחסימת המספר. בפועל: סימון הסכמה בטופס ההצטרפות או הודעת אישור ראשונה.</li>
+                            <li><strong class="text-[var(--neon-cyan)]">הסכם רמת שירות:</strong> חוזה בינך ללקוח שמגדיר למה אתה מתחייב - זמינות המערכת וזמני תגובה. ולא פחות חשוב: הוא כולל <strong>פטור מאחריות</strong> אם ה-AI טועה או נותן מידע שגוי, וכך מגן עליך משפטית כשמשהו משתבש.&nbsp;</li>
                         </ul>
                     </div>
 
@@ -350,7 +350,7 @@
                     </div>
                     <div class="tech-box">
                         <div class="text-5xl mb-4">👁️</div>
-                        <h3 class="text-2xl font-bold text-white mb-3">בקרה אנושית <span class="text-base text-slate-500">(Human In Loop)</span></h3>
+                        <h3 class="text-2xl font-bold text-white mb-3">בקרה אנושית</h3>
                         <p class="text-slate-300 text-base leading-relaxed">הפיצ'ר שהכי מרגיע בעלי עסקים. ממשק שבו הם רואים את שיחות הבוט בזמן אמת ויכולים להתערב בכל רגע - וברגע ההתערבות הבוט מושתק (Muted) אוטומטית והשליטה חוזרת לאדם.</p>
                     </div>
                     <div class="tech-box">
@@ -377,7 +377,7 @@
                     <div class="tech-box text-center"><div class="text-3xl mb-2 text-[var(--neon-cyan)]"><i class="fa-solid fa-diagram-project"></i></div><div class="text-white font-bold text-sm">4. זרימת עבודה</div><p class="text-slate-400 text-xs mt-1">מאיסוף הידע ועד עלייה לאוויר בפרודקשן.</p></div>
                 </div>
                 <div class="reveal-content delay-3 tech-box mt-6 max-w-3xl mx-auto text-center" style="border-color: rgba(0,255,157,0.5); background: rgba(0,255,157,0.05);">
-                    <p class="text-slate-200 text-base leading-relaxed"><span class="text-xl ml-1">🎯</span> <strong class="text-[var(--neon-emerald)]">השורה התחתונה:</strong> המוח (ה-AI) נשאר זהה - רק מחליפים את ה"צינור" שדרכו עוברות ההודעות: מדמו ב-Web לחיבור API רשמי.</p>
+                    <p class="text-slate-200 text-base leading-relaxed"><span class="text-xl ml-1">🎯</span> <strong class="text-[var(--neon-emerald)]">השורה התחתונה:</strong> <br>המוח (ה-AI) נשאר זהה - רק מחליפים את ה"צינור" שדרכו עוברות ההודעות: <br>מדמו ב-Web לחיבור API רשמי.</p>
                 </div>
             </div>
         </section>
