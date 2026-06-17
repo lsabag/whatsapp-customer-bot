@@ -67,7 +67,7 @@
         .fullscreen-btn { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 55; opacity: 0.5; transition: opacity 0.25s; font-family: inherit; font-size: 0.8rem; font-weight: 600; color: #1e293b; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.4rem 1rem; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 12px rgba(30,41,59,0.1); }
         .fullscreen-btn:hover { opacity: 1; border-color: #4f46e5; color: #4f46e5; }
         body.edit-mode .fullscreen-btn { display: none; }
-        .nav-burger { position: fixed; top: 0; right: 0; z-index: 60; height: 4rem; width: 4rem; display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: #475569; font-size: 1.15rem; }
+        .nav-burger { position: fixed; top: 0; right: 0; z-index: 70; height: 4rem; width: 4rem; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border: none; border-left: 1px solid #e2e8f0; cursor: pointer; color: #475569; font-size: 1.15rem; }
         .nav-burger:hover { color: #4f46e5; }
         .nav-drawer-overlay { position: fixed; inset: 0; z-index: 80; background: rgba(30,41,59,0.35); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .nav-drawer-overlay.open { opacity: 1; pointer-events: auto; }
@@ -351,7 +351,9 @@
                 { key: 'dotenvfile', term: '.env', tip: 'קובץ "סודות" נפרד שמחזיק מפתחות וסיסמאות (כמו מפתח ה-API), כדי שלא יהיו כתובים בתוך הקוד עצמו.' },
                 { key: 'gitignore', term: '.gitignore', tip: 'קובץ שאומר ל-Git אילו קבצים לא להעלות — כך שסודות וקבצים רגישים לא מגיעים ל-GitHub.' },
                 { key: 'session', term: 'session', tip: 'קבצים שבהם whatsapp-web.js שומר את ההתחברות לוואטסאפ (כדי לא לסרוק QR כל פעם). רגישים — מי שמשיג אותם יכול להתחבר לחשבון.' },
-                { key: 'dotenvlib', term: 'dotenv', tip: 'ספריית Node.js שטוענת את המשתנים מקובץ ה-.env אל הקוד בזמן ריצה (כך הסודות זמינים לקוד בלי להיכתב בתוכו).' }
+                { key: 'dotenvlib', term: 'dotenv', tip: 'ספריית Node.js שטוענת את המשתנים מקובץ ה-.env אל הקוד בזמן ריצה (כך הסודות זמינים לקוד בלי להיכתב בתוכו).' },
+                { key: 'vectordbhe', term: 'מסד וקטורי', tip: 'מסד נתונים וקטורי - שומר ייצוגים מספריים (embeddings) של טקסט ומאפשר למצוא במהירות את הקטעים הדומים ביותר לשאלה (משמש ל-RAG).' },
+                { key: 'sdk', term: 'sdk', tip: 'SDK (Software Development Kit) - ערכת כלים/ספרייה רשמית שמקלה על חיבור לשירות. כאן: הספרייה הרשמית לחיבור הקוד ל-Claude.' }
             ];
 
             const wrapTerm = (root, term, tip, key) => {
