@@ -901,6 +901,17 @@
 
             // ביטול שינויים — שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
             const cancelEdit = async () => {
+                // אם לא בוצע שום שינוי — יוצאים בשקט, בלי הודעת אישור ובלי טעינה מחדש
+                if (typeof isDirty === 'function' && !isDirty()) {
+                    stopHistory();
+                    editMode = false;
+                    document.body.classList.remove('edit-mode');
+                    setEditable(false);
+                    buildNav();
+                    editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                    editToggle.title = 'מצב עריכה';
+                    return;
+                }
                 if (!confirm('לבטל את השינויים שלא נשמרו ולחזור לגרסה השמורה?')) return;
                 let restored = false;
                 try {
@@ -964,6 +975,11 @@
                 histObserver.observe(mainContainer, { subtree: true, childList: true, characterData: true, attributes: true });
             };
             const stopHistory = () => { if (histObserver) { histObserver.disconnect(); histObserver = null; } clearTimeout(histTimer); };
+            // האם בוצע שינוי מאז הכניסה למצב עריכה (השוואה לצילום-המצב הראשון)
+            const isDirty = () => {
+                if (!editHistory.length) return false;
+                try { return cleanDeckHtml() !== editHistory[0]; } catch (e) { return true; }
+            };
 
             // תוויות תפריט מותאמות אישית (נשמרות פר-מצגת ב-#deck-nav, לפי מזהה השקף)
             const readNavOverrides = () => {
@@ -1257,6 +1273,17 @@
                     updatePwChip();
                     buildNav(); // נבנה מחדש כדי לאפשר עריכת שמות התפריט
                     startHistory();
+                    return;
+                }
+                // אם לא בוצע שום שינוי — יוצאים בשקט בלי לשמור ובלי לבקש קוד
+                if (!isDirty()) {
+                    stopHistory();
+                    editMode = false;
+                    document.body.classList.remove('edit-mode');
+                    setEditable(false);
+                    buildNav();
+                    editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+                    editToggle.title = 'מצב עריכה';
                     return;
                 }
                 // מסיימים עריכה — מנסים לשמור לפני שיוצאים
