@@ -393,6 +393,43 @@
             let editPassword = null;
             try { editPassword = sessionStorage.getItem('deck_pw'); } catch (e) {}
 
+            // חלון הזנת קוד עם הסתרה (כוכביות) במקום prompt רגיל
+            const askPassword = (message, def) => new Promise((resolve) => {
+                let m = document.getElementById('pw-modal');
+                if (!m) {
+                    m = document.createElement('div');
+                    m.id = 'pw-modal';
+                    m.style.cssText = 'position:fixed;inset:0;z-index:300;display:none;align-items:center;justify-content:center;background:rgba(30,41,59,0.45);backdrop-filter:blur(3px);';
+                    m.innerHTML = '<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:1.4rem 1.5rem;width:min(90vw,340px);box-shadow:0 20px 50px rgba(30,41,59,0.25);font-family:inherit;">' +
+                        '<div id="pw-msg" style="color:#1e293b;font-weight:700;margin-bottom:0.9rem;font-size:0.98rem;line-height:1.4;"></div>' +
+                        '<input id="pw-input" type="password" autocomplete="off" style="width:100%;box-sizing:border-box;padding:0.6rem 0.8rem;border-radius:9px;border:1px solid #cbd5e1;background:#f8fafc;color:#1e293b;font-size:1.2rem;letter-spacing:0.2em;outline:none;text-align:center;" />' +
+                        '<div style="display:flex;gap:0.6rem;justify-content:flex-end;margin-top:1.1rem;">' +
+                        '<button id="pw-cancel" style="padding:0.45rem 1rem;border-radius:9999px;border:1px solid #cbd5e1;background:transparent;color:#475569;cursor:pointer;font-family:inherit;font-weight:600;">ביטול</button>' +
+                        '<button id="pw-ok" style="padding:0.45rem 1.2rem;border-radius:9999px;border:none;background:#4f46e5;color:#fff;cursor:pointer;font-family:inherit;font-weight:700;">אישור</button>' +
+                        '</div></div>';
+                    document.body.appendChild(m);
+                }
+                const input = m.querySelector('#pw-input');
+                const okBtn = m.querySelector('#pw-ok');
+                const cancelBtn = m.querySelector('#pw-cancel');
+                m.querySelector('#pw-msg').textContent = message;
+                input.value = def || '';
+                m.style.display = 'flex';
+                setTimeout(() => { input.focus(); input.select(); }, 30);
+                const cleanup = () => {
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                    input.removeEventListener('keydown', onKey);
+                };
+                const close = (val) => { m.style.display = 'none'; cleanup(); resolve(val); };
+                const onOk = () => close(input.value);
+                const onCancel = () => close(null);
+                const onKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); onOk(); } else if (e.key === 'Escape') { e.preventDefault(); onCancel(); } };
+                okBtn.addEventListener('click', onOk);
+                cancelBtn.addEventListener('click', onCancel);
+                input.addEventListener('keydown', onKey);
+            });
+
             // API endpoint scoped to the current deck path (e.g. /whatsapp-bot/api/content)
             const API_CONTENT = (() => {
                 const p = location.pathname.replace(/\/(index|presentation)\.html$/i, '').replace(/\/+$/, '');
@@ -455,7 +492,7 @@
             // Returns: 'ok' | 'no-password' | 'unauthorized' | 'error' | 'no-server'
             const saveToServer = async () => {
                 if (!editPassword) {
-                    editPassword = (typeof prompt === 'function' ? prompt('הזינו את קוד העריכה כדי לשמור:') : '') || '';
+                    editPassword = (await askPassword('הזינו את קוד העריכה כדי לשמור:')) || '';
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
                 }
                 if (!editPassword) {
@@ -503,7 +540,7 @@
                 const target = cur === 'light' ? 'dark' : 'light';
                 if (!confirm('להחליף את עיצוב המצגת ל' + (target === 'light' ? 'בהיר' : 'כהה') + '? התוכן יישמר ויוצג בעיצוב החדש.')) return;
                 if (!editPassword) {
-                    editPassword = (typeof prompt === 'function' ? prompt('הזינו את קוד העריכה כדי לשמור ולהחליף עיצוב:') : '') || '';
+                    editPassword = (await askPassword('הזינו את קוד העריכה כדי לשמור ולהחליף עיצוב:')) || '';
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
                 }
                 if (!editPassword) { alert('⚠️ לא הוזן קוד — העיצוב לא הוחלף.'); return; }
@@ -849,7 +886,7 @@
 
             // Keep text selection alive when clicking toolbar buttons (don't steal focus)
             editToolbar.addEventListener('mousedown', (e) => { e.preventDefault(); });
-            editToolbar.addEventListener('click', (e) => {
+            editToolbar.addEventListener('click', async (e) => {
                 const btn = e.target.closest('button');
                 if (!btn) return;
                 const act = btn.getAttribute('data-act');
@@ -858,7 +895,7 @@
                 else if (act === 'theme') switchTheme();
                 else if (act === 'download') downloadHtml();
                 else if (act === 'pwstatus') {
-                    const v = prompt('קוד עריכה לשמירה בענן (השאירו ריק כדי לנקות):', editPassword || '');
+                    const v = await askPassword('קוד עריכה לשמירה בענן (השאירו ריק כדי לנקות):', editPassword || '');
                     if (v === null) return;
                     editPassword = v.trim();
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); else sessionStorage.removeItem('deck_pw'); } catch (e) {}
