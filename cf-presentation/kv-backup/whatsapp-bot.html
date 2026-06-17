@@ -220,6 +220,39 @@
             </div>
         </section>
 
+        <!-- Slide: RAG vs Graph - decision -->
+        <section class="slide" id="slide-rag-vs-graph">
+            <div class="cyber-panel">
+                <div class="reveal-content text-[var(--neon-cyan)] font-bold tracking-widest mb-2 text-sm uppercase">החלטה // RAG מול Graph</div>
+                <h2 class="reveal-content delay-1 text-3xl md:text-4xl font-bold mb-3 glow-text-cyan">RAG או Graph - מה עדיף לבוט?</h2>
+                <p class="reveal-content delay-1 text-lg text-slate-200 mb-5 border-r-4 border-[var(--neon-cyan)] pr-4">לרוב הבוטים <strong class="text-[var(--neon-cyan)]">RAG עדיף</strong> - פשוט יותר, זול יותר, ומתאים לידע טקסטואלי.</p>
+                <div class="grid md:grid-cols-2 gap-5 reveal-content delay-2">
+                    <div class="tech-box border-[var(--neon-purple)]">
+                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-purple)]"><i class="fa-solid fa-magnifying-glass ml-2"></i>למה RAG ברירת המחדל</h3>
+                        <ul class="space-y-2 text-slate-300 text-sm leading-relaxed">
+                            <li><span class="text-[var(--neon-purple)] ml-1">■</span> רוב הידע של בוט הוא טקסט חופשי (שאלות נפוצות, מדיניות) - RAG בנוי בדיוק לזה.</li>
+                            <li><span class="text-[var(--neon-purple)] ml-1">■</span> הרבה יותר פשוט וזול להקים ולתחזק.</li>
+                            <li><span class="text-[var(--neon-purple)] ml-1">■</span> קל לעדכן - מוסיפים מסמך, בלי לבנות מחדש רשת.</li>
+                        </ul>
+                    </div>
+                    <div class="tech-box border-[var(--neon-emerald)]">
+                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-emerald)]"><i class="fa-solid fa-diagram-project ml-2"></i>מתי Graph עדיף</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-2">רק כששני התנאים מתקיימים:</p>
+                        <ul class="space-y-2 text-slate-300 text-sm leading-relaxed">
+                            <li><span class="text-[var(--neon-emerald)] ml-1">1)</span> הנתונים מובנים ומקושרים (קטלוג, מלאי, הזמנות).</li>
+                            <li><span class="text-[var(--neon-emerald)] ml-1">2)</span> השאלות דורשות חיבור בין דברים ("מה בסייל שלקוח עוד לא קנה?").</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="reveal-content delay-3 tech-box mt-5" style="border-color: rgba(0,243,255,0.4);">
+                    <p class="text-slate-200 text-sm leading-relaxed"><i class="fa-solid fa-layer-group text-[var(--neon-cyan)] ml-2"></i><strong class="text-[var(--neon-cyan)]">בפועל לרוב משלבים:</strong> RAG לכל הידע הטקסטואלי + מקור מובנה / API לשאלות מדויקות (כמו סטטוס הזמנה) - בדיוק כמו בדמו של חנות הבגדים.</p>
+                </div>
+                <div class="reveal-content delay-3 tech-box mt-4 text-center" style="border-color: rgba(0,255,157,0.4);">
+                    <p class="text-slate-200 text-sm leading-relaxed"><i class="fa-solid fa-graduation-cap text-[var(--neon-emerald)] ml-2"></i><strong class="text-[var(--neon-emerald)]">לבוט של AI Agency School:</strong> הידע קטן-בינוני וטקסטואלי - אז הזרקת ידע מספיקה כרגע, RAG כשיגדל, ו-Graph לא נחוץ.</p>
+                </div>
+            </div>
+        </section>
+
         <!-- Slide 4: Production Tech -->
         <section class="slide" id="slide-3">
             <div class="cyber-panel">
