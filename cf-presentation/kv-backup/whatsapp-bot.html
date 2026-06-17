@@ -120,43 +120,61 @@
                 <h2 class="reveal-content delay-1 text-4xl md:text-5xl font-bold mb-3 glow-text-emerald">איך מאחסנים את הידע: 3 גישות</h2>
                 <p class="reveal-content delay-1 text-base text-slate-400 mb-6">הבסיס לכל גישה הוא אותו <strong class="text-slate-200">מידע על העסק</strong> (תיקיית knowledge/) - השאלה היא רק <strong class="text-slate-200">איך מגישים אותו ל-AI</strong>.</p>
 
-                <div class="grid md:grid-cols-3 gap-5 reveal-content delay-2">
-                    <div class="tech-box border-[var(--neon-cyan)]">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-cyan)]"><i class="fa-solid fa-syringe ml-2"></i>הזרקת ידע <span class="text-xs text-slate-500">(מה שעשינו)</span></h3>
-                        <ul class="space-y-2 text-slate-300 text-sm leading-relaxed">
-                            <li><strong class="text-slate-100">מה זה:</strong> כל המידע נכנס ל-prompt בכל הודעה.</li>
-                            <li><strong class="text-slate-100">דוגמה:</strong> כל קובצי ה-knowledge נכנסים ל-prompt, והבוט עונה ישירות מתוכם - בדיוק כמו הבוט שבנינו היום.</li>
-                            <li><strong class="text-slate-100">מתאים ל:</strong> ידע קטן-בינוני, טקסט חופשי.</li>
-                            <li><span class="text-[var(--neon-emerald)]">✔ יתרון:</span> הכי פשוט ומהיר, בלי תשתית.</li>
-                            <li><span class="text-red-400">✘ חיסרון:</span> מוגבל בגודל, יקר בנפח גדול.</li>
-                            <li><strong class="text-slate-100">השקעה בתשתית:</strong> <span class="text-[var(--neon-emerald)]">●</span><span class="text-slate-600">○○</span> נמוכה</li>
-                            <li><strong class="text-slate-100">מה צריך:</strong> רק את קובצי הטקסט ב-prompt. כלום מעבר לזה.</li>
-                        </ul>
-                    </div>
-                    <div class="tech-box border-[var(--neon-purple)]">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-purple)]"><i class="fa-solid fa-magnifying-glass ml-2"></i>RAG</h3>
-                        <ul class="space-y-2 text-slate-300 text-sm leading-relaxed">
-                            <li><strong class="text-slate-100">מה זה:</strong> שולפים רק את הקטעים הרלוונטיים לכל שאלה.</li>
-                            <li><strong class="text-slate-100">דוגמה:</strong> לקוח שואל על מדיניות החזרות, והמערכת שולפת רק את פסקת ההחזרות מתוך מאות עמודים.</li>
-                            <li><strong class="text-slate-100">מתאים ל:</strong> המון מסמכים / טקסט.</li>
-                            <li><span class="text-[var(--neon-emerald)]">✔ יתרון:</span> מתרחב להמון ידע, זול לכל הודעה.</li>
-                            <li><span class="text-red-400">✘ חיסרון:</span> הקמה מורכבת יותר.</li>
-                            <li><strong class="text-slate-100">השקעה בתשתית:</strong> <span class="text-[var(--neon-emerald)]">●●</span><span class="text-slate-600">○</span> בינונית</li>
-                            <li><strong class="text-slate-100">מה צריך:</strong> כלי מוכן שמאחסן את המידע ומחפש בו לפי משמעות. <span class="text-slate-500">לדוגמה: Chroma, Supabase או Pinecone (חלקם חינמיים).</span></li>
-                        </ul>
-                    </div>
-                    <div class="tech-box border-[var(--neon-emerald)]">
-                        <h3 class="text-lg font-bold mb-3 text-[var(--neon-emerald)]"><i class="fa-solid fa-diagram-project ml-2"></i>Knowledge Graph</h3>
-                        <ul class="space-y-2 text-slate-300 text-sm leading-relaxed">
-                            <li><strong class="text-slate-100">מה זה:</strong> מסדרים את המידע כרשת של פריטים והקשרים ביניהם (מוצר ← קטגוריה ← עונה).</li>
-                            <li><strong class="text-slate-100">דוגמה:</strong> לקוח שואל "אילו ג'קטים בסייל החורף?", והגרף מחזיר רשימה מדויקת לפי הקשרים בין מוצר, קטגוריה ומבצע.</li>
-                            <li><strong class="text-slate-100">מתאים ל:</strong> נתונים מובנים ומקושרים (קטלוג, הזמנות).</li>
-                            <li><span class="text-[var(--neon-emerald)]">✔ יתרון:</span> תשובות מדויקות על קשרים, בלי המצאות.</li>
-                            <li><span class="text-red-400">✘ חיסרון:</span> הכי מורכב לבנות ולתחזק.</li>
-                            <li><strong class="text-slate-100">השקעה בתשתית:</strong> <span class="text-[var(--neon-emerald)]">●●●</span> גבוהה</li>
-                            <li><strong class="text-slate-100">מה צריך:</strong> כלי שמסדר את המידע כרשת קשרים, ועבודה של הגדרת מה קשור למה. <span class="text-slate-500">לדוגמה: Neo4j.</span></li>
-                        </ul>
-                    </div>
+                <div class="reveal-content delay-2 overflow-x-auto">
+                    <table class="w-full text-sm text-right border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-slate-600">
+                                <th class="p-3"></th>
+                                <th class="p-3 align-top text-[var(--neon-cyan)] font-bold">הזרקת ידע<span class="block text-xs text-slate-500 font-normal">(מה שעשינו)</span></th>
+                                <th class="p-3 align-top text-[var(--neon-purple)] font-bold">RAG</th>
+                                <th class="p-3 align-top text-[var(--neon-emerald)] font-bold">Knowledge Graph</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-300 align-top">
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-slate-100 whitespace-nowrap">מה זה</td>
+                                <td class="p-3">כל המידע ב-prompt בכל הודעה</td>
+                                <td class="p-3">שליפת הקטעים הרלוונטיים בלבד</td>
+                                <td class="p-3">רשת של פריטים והקשרים ביניהם</td>
+                            </tr>
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-slate-100 whitespace-nowrap">דוגמה</td>
+                                <td class="p-3 text-slate-400">הבוט שבנינו היום</td>
+                                <td class="p-3 text-slate-400">שליפת פסקת ההחזרות בלבד</td>
+                                <td class="p-3 text-slate-400">"אילו ג'קטים בסייל?"</td>
+                            </tr>
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-slate-100 whitespace-nowrap">מתאים ל</td>
+                                <td class="p-3">ידע קטן-בינוני</td>
+                                <td class="p-3">המון מסמכים / טקסט</td>
+                                <td class="p-3">נתונים מובנים ומקושרים</td>
+                            </tr>
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-[var(--neon-emerald)] whitespace-nowrap">✔ יתרון</td>
+                                <td class="p-3">הכי פשוט ומהיר</td>
+                                <td class="p-3">מתרחב להמון ידע, זול</td>
+                                <td class="p-3">תשובות מדויקות על קשרים</td>
+                            </tr>
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-red-400 whitespace-nowrap">✘ חיסרון</td>
+                                <td class="p-3">מוגבל בגודל, יקר בנפח</td>
+                                <td class="p-3">הקמה מורכבת יותר</td>
+                                <td class="p-3">הכי מורכב לתחזק</td>
+                            </tr>
+                            <tr class="border-b border-slate-700/40">
+                                <td class="p-3 font-bold text-slate-100 whitespace-nowrap">השקעה בתשתית</td>
+                                <td class="p-3"><span class="text-[var(--neon-emerald)]">●</span><span class="text-slate-600">○○</span> נמוכה</td>
+                                <td class="p-3"><span class="text-[var(--neon-emerald)]">●●</span><span class="text-slate-600">○</span> בינונית</td>
+                                <td class="p-3"><span class="text-[var(--neon-emerald)]">●●●</span> גבוהה</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold text-slate-100 whitespace-nowrap">מה צריך</td>
+                                <td class="p-3">רק קבצים, בלי תשתית</td>
+                                <td class="p-3">כלי חיפוש לפי משמעות <span class="text-slate-500">(Chroma / Pinecone)</span></td>
+                                <td class="p-3">כלי רשת-קשרים <span class="text-slate-500">(Neo4j)</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="reveal-content delay-3 tech-box mt-6 text-center" style="border-color: rgba(0,255,157,0.4);">
