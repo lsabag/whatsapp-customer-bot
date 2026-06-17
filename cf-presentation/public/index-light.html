@@ -260,6 +260,7 @@
             const editCancel = document.getElementById('editCancel');
             const editToolbar = document.getElementById('editToolbar');
             const STORAGE_KEY = 'presentation_state_v2';
+            const POS_KEY = 'deckpos:' + location.pathname; // מיקום נוכחי בשקפים, לשחזור אחרי רענון
 
             let currentIndex = 0;
             let isScrolling = false;
@@ -548,6 +549,7 @@
                             entry.target.classList.add('in-view');
                             currentIndex = getSlides().indexOf(entry.target);
                             setActiveDot(currentIndex);
+                            try { sessionStorage.setItem(POS_KEY, currentIndex); } catch (e) {}
                         }
                     });
                 }, { root: mainContainer, rootMargin: '0px', threshold: 0.5 });
@@ -652,6 +654,16 @@
             await loadContent();
             refresh();
             renderRichContent();
+            // שחזור המיקום בשקפים אחרי רענון (אותו טאב)
+            try {
+                const savedPos = parseInt(sessionStorage.getItem(POS_KEY), 10);
+                const slidesNow = getSlides();
+                if (savedPos > 0 && slidesNow[savedPos]) {
+                    currentIndex = savedPos;
+                    mainContainer.scrollTop = slidesNow[savedPos].offsetTop;
+                    setActiveDot(savedPos);
+                }
+            } catch (e) {}
             document.dispatchEvent(new CustomEvent('deck-loaded'));
 
             editToggle.addEventListener('click', async () => {
