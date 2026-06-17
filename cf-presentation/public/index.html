@@ -482,6 +482,7 @@
     <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
     <div class="edit-toolbar" id="editToolbar">
+        <button data-act="pwstatus" id="pwStatus" style="border-color: rgba(251,191,36,0.6); color:#fbbf24;"><i class="fa-solid fa-key"></i> הזן קוד לשמירה</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
         <button data-act="add-block"><i class="fa-solid fa-plus"></i> אזור</button>
         <button data-act="theme"><i class="fa-solid fa-circle-half-stroke"></i> החלף עיצוב</button>
@@ -679,6 +680,30 @@
 
             // Persist to server (KV) once when finishing an edit.
             // Returns: 'ok' | 'no-password' | 'unauthorized' | 'error' | 'no-server'
+            const showToast = (msg, ok) => {
+                let t = document.getElementById('save-toast');
+                if (!t) { t = document.createElement('div'); t.id = 'save-toast'; t.style.cssText = 'position:fixed;bottom:4.2rem;left:50%;transform:translateX(-50%);z-index:200;padding:0.6rem 1.3rem;border-radius:9999px;font-family:inherit;font-weight:700;font-size:0.9rem;box-shadow:0 8px 24px rgba(0,0,0,0.5);transition:opacity .3s;pointer-events:none;'; document.body.appendChild(t); }
+                t.style.background = ok === false ? 'rgba(239,68,68,0.95)' : 'rgba(0,255,157,0.95)';
+                t.style.color = ok === false ? '#fff' : '#03210f';
+                t.textContent = msg; t.style.opacity = '1';
+                clearTimeout(t._h); t._h = setTimeout(() => { t.style.opacity = '0'; }, 2500);
+            };
+
+            // חיווי בסרגל העריכה: האם הוזן קוד (שמירה תעבוד) או לא
+            const updatePwChip = () => {
+                const c = document.getElementById('pwStatus');
+                if (!c) return;
+                if (editPassword) {
+                    c.innerHTML = '<i class="fa-solid fa-lock-open"></i> שמירה פעילה';
+                    c.style.borderColor = 'rgba(0,255,157,0.6)'; c.style.color = 'var(--neon-emerald)';
+                    c.title = 'הקוד הוזן — השמירה תעבוד. לחצו לשינוי או ניקוי הקוד.';
+                } else {
+                    c.innerHTML = '<i class="fa-solid fa-key"></i> הזן קוד לשמירה';
+                    c.style.borderColor = 'rgba(251,191,36,0.6)'; c.style.color = '#fbbf24';
+                    c.title = 'כדי לשמור בענן צריך קוד. לחצו כדי להזין אותו.';
+                }
+            };
+
             const saveToServer = async () => {
                 if (!editPassword) {
                     editPassword = (typeof prompt === 'function' ? prompt('הזינו את קוד העריכה כדי לשמור:') : '') || '';
@@ -985,16 +1010,19 @@
                     setEditable(true);
                     editToggle.innerHTML = '<i class="fa-solid fa-check"></i>';
                     editToggle.title = 'שמור וסיים';
+                    updatePwChip();
                     return;
                 }
                 // מסיימים עריכה — מנסים לשמור לפני שיוצאים
                 saveState();
                 const result = await saveToServer();
+                updatePwChip();
                 if (result === 'no-password' || result === 'unauthorized' || result === 'error') {
                     // השמירה נכשלה — נשארים במצב עריכה כדי לא לאבד את השינויים
                     return;
                 }
-                // הצלחה (או שמירה מקומית כשאין שרת) — יוצאים ממצב עריכה
+                // הצלחה — יוצאים ממצב עריכה
+                showToast('✓ השינויים נשמרו בענן');
                 editMode = false;
                 document.body.classList.remove('edit-mode');
                 setEditable(false);
@@ -1013,6 +1041,13 @@
                 else if (act === 'add-block') addBlock();
                 else if (act === 'theme') switchTheme();
                 else if (act === 'download') downloadHtml();
+                else if (act === 'pwstatus') {
+                    const v = prompt('קוד עריכה לשמירה בענן (השאירו ריק כדי לנקות):', editPassword || '');
+                    if (v === null) return;
+                    editPassword = v.trim();
+                    try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); else sessionStorage.removeItem('deck_pw'); } catch (e) {}
+                    updatePwChip();
+                }
             });
             editCancel.addEventListener('click', cancelEdit);
 
