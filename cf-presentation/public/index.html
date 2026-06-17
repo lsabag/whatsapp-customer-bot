@@ -144,35 +144,43 @@
         /* Scroll Indicators (Right Side) */
         .scroll-nav {
             position: fixed;
-            top: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0; left: 0; right: 0;
             display: flex;
             flex-direction: row;
             align-items: center;
-            gap: 1.5rem;
+            justify-content: safe center;
+            gap: 2rem;
             z-index: 50;
-            padding: 0.75rem 1.5rem;
-            background: rgba(10, 15, 30, 0.5);
+            height: 3.5rem;
+            padding: 0 1.5rem;
+            background: rgba(10, 15, 30, 0.7);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 9999px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            overflow-x: auto;
         }
-        .nav-dot {
-            width: 12px; height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: all 0.4s ease;
+        .scroll-nav::-webkit-scrollbar { display: none; }
+        .nav-link {
             cursor: pointer;
+            white-space: nowrap;
+            color: rgba(226, 232, 240, 0.65);
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.3s;
+            flex-shrink: 0;
             position: relative;
         }
-        .nav-dot.active {
+        .nav-link:hover { color: var(--neon-cyan); }
+        .nav-link.active { color: var(--neon-cyan); }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px; left: 0; right: 0;
+            height: 2px;
             background: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--neon-cyan);
-            transform: scale(1.5);
+            border-radius: 2px;
+            box-shadow: 0 0 8px var(--neon-cyan);
         }
-        /* תווית הטקסט של הנקודות הוסרה - היא נחתכה בקצוות עם כותרות ארוכות. הנקודות נשארות אינדיקטור נקי. */
 
         /* Content Reveal Animation */
         .reveal-content {
@@ -440,16 +448,7 @@
     <div class="orb orb-3"></div>
 
     <!-- Fixed Side Navigation -->
-    <div class="scroll-nav" id="scrollNav">
-        <div class="nav-dot active" data-index="0" data-label="התחלה"></div>
-        <div class="nav-dot" data-index="1" data-label="חלק א': הקמה"></div>
-        <div class="nav-dot" data-index="2" data-label="חלק א': סכנות"></div>
-        <div class="nav-dot" data-index="3" data-label="חלק ב': פרודקשן"></div>
-        <div class="nav-dot" data-index="4" data-label="חלק ב': עסקי"></div>
-        <div class="nav-dot" data-index="5" data-label="חלק ג': נחיתה רכה"></div>
-        <div class="nav-dot" data-index="6" data-label="חלק ג': ולידציה"></div>
-        <div class="nav-dot" data-index="7" data-label="דברו עם הבוט"></div>
-    </div>
+    <div class="scroll-nav" id="scrollNav"></div>
 
     <!-- Main Scrolling Container -->
     <div class="scroll-container" id="mainContainer">
@@ -807,19 +806,21 @@
             };
 
             const setActiveDot = (i) => {
-                scrollNav.querySelectorAll('.nav-dot').forEach((d, di) => d.classList.toggle('active', di === i));
+                scrollNav.querySelectorAll('.nav-item').forEach((d, di) => d.classList.toggle('active', di === i));
+                const active = scrollNav.querySelector('.nav-item.active');
+                if (active) scrollNav.scrollTo({ left: active.offsetLeft - scrollNav.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
             };
 
             const buildNav = () => {
                 scrollNav.innerHTML = '';
                 getSlides().forEach((slide, i) => {
-                    const dot = document.createElement('div');
-                    dot.className = 'nav-dot' + (i === currentIndex ? ' active' : '');
-                    dot.setAttribute('data-index', i);
-                    dot.setAttribute('data-label', labelFor(slide, i));
-                    dot.title = labelFor(slide, i); // tooltip מובנה של הדפדפן - לא נחתך
-                    dot.addEventListener('click', () => goTo(i));
-                    scrollNav.appendChild(dot);
+                    const item = document.createElement('div');
+                    item.className = 'nav-item nav-link' + (i === currentIndex ? ' active' : '');
+                    item.setAttribute('data-index', i);
+                    item.textContent = labelFor(slide, i);
+                    item.title = labelFor(slide, i);
+                    item.addEventListener('click', () => goTo(i));
+                    scrollNav.appendChild(item);
                 });
             };
 
