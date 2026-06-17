@@ -657,9 +657,26 @@
                 node.parentNode.insertBefore(span, after);
             };
 
+            // מילון פעיל: אם המצגת מכילה בלוק נסתר #deck-glossary (JSON) - משתמשים בו;
+            // אחרת נופלים חזרה למילון המובנה (תאימות לאחור למצגות קיימות).
+            // פורמט: מערך [{key,term,tip}] (=replace), או {mode:"merge|replace", terms:[...]}.
+            const getActiveGlossary = () => {
+                const el = document.getElementById('deck-glossary');
+                if (!el) return GLOSSARY;
+                let data;
+                try { data = JSON.parse(el.getAttribute('data-glossary') || el.textContent || 'null'); } catch (e) { return GLOSSARY; }
+                if (!data) return GLOSSARY;
+                const terms = Array.isArray(data) ? data : (data.terms || []);
+                const mode = Array.isArray(data) ? 'replace' : (data.mode || 'replace');
+                const clean = terms.filter(t => t && t.term && t.tip).map((t, i) => ({ key: t.key || ('dg' + i), term: t.term, tip: t.tip }));
+                if (!clean.length) return GLOSSARY;
+                return mode === 'merge' ? clean.concat(GLOSSARY) : clean;
+            };
+
             const applyGlossary = () => {
+                const gl = getActiveGlossary();
                 getSlides().forEach(slide => {
-                    GLOSSARY.forEach(g => wrapTerm(slide, g.term, g.tip, g.key));
+                    gl.forEach(g => wrapTerm(slide, g.term, g.tip, g.key));
                 });
             };
 
