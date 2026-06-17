@@ -182,6 +182,16 @@
             box-shadow: 0 0 8px var(--neon-cyan);
         }
         body.edit-mode .nav-link { border-bottom: 1px dashed rgba(0, 243, 255, 0.45); cursor: text; }
+        .fullscreen-btn {
+            position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+            z-index: 55; opacity: 0.5; transition: opacity 0.25s;
+            font-family: 'Varela Round', 'Heebo', sans-serif; font-size: 0.8rem; font-weight: 600;
+            color: #e2e8f0; background: rgba(10, 15, 30, 0.85); backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 9999px;
+            padding: 0.4rem 1rem; cursor: pointer; white-space: nowrap;
+        }
+        .fullscreen-btn:hover { opacity: 1; border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        body.edit-mode .fullscreen-btn { display: none; }
 
         /* Content Reveal Animation */
         .reveal-content {
@@ -410,7 +420,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls { display: none !important; }
+            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls, .fullscreen-btn { display: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
             .slide {
                 height: auto !important;
@@ -465,6 +475,7 @@
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
+    <button class="fullscreen-btn" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> מסך מלא</button>
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="pwstatus" id="pwStatus" style="border-color: rgba(251,191,36,0.6); color:#fbbf24;"><i class="fa-solid fa-key"></i> הזן קוד לשמירה</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
@@ -1021,6 +1032,18 @@
             } catch (e) {}
             renderGraph();
             document.dispatchEvent(new CustomEvent('deck-loaded'));
+
+            // כפתור מסך מלא
+            const fsBtn = document.getElementById('fullscreenBtn');
+            const updateFsLabel = () => { if (fsBtn) fsBtn.innerHTML = document.fullscreenElement ? '<i class="fa-solid fa-compress"></i> סגור מסך מלא' : '<i class="fa-solid fa-expand"></i> מסך מלא'; };
+            if (fsBtn) {
+                fsBtn.addEventListener('click', () => {
+                    if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
+                    else { document.documentElement.requestFullscreen().catch(() => {}); }
+                });
+                document.addEventListener('fullscreenchange', updateFsLabel);
+                updateFsLabel();
+            }
 
             editToggle.addEventListener('click', async () => {
                 if (!editMode) {

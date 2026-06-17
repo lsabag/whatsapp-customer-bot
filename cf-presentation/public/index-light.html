@@ -64,6 +64,9 @@
         .nav-link.active { color: #4f46e5; font-weight: 700; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: #4f46e5; border-radius: 2px; }
         body.edit-mode .nav-link { border-bottom: 1px dashed rgba(79,70,229,0.45); cursor: text; }
+        .fullscreen-btn { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 55; opacity: 0.5; transition: opacity 0.25s; font-family: inherit; font-size: 0.8rem; font-weight: 600; color: #1e293b; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border: 1px solid rgba(30,41,59,0.2); border-radius: 9999px; padding: 0.4rem 1rem; cursor: pointer; white-space: nowrap; box-shadow: 0 4px 12px rgba(30,41,59,0.1); }
+        .fullscreen-btn:hover { opacity: 1; border-color: #4f46e5; color: #4f46e5; }
+        body.edit-mode .fullscreen-btn { display: none; }
         .reveal-content { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2,1,0.3,1), transform 0.8s cubic-bezier(0.2,1,0.3,1); }
         .slide.in-view .reveal-content { opacity: 1; transform: translateY(0); }
         .delay-1 { transition-delay: 0.2s; } .delay-2 { transition-delay: 0.4s; } .delay-3 { transition-delay: 0.6s; }
@@ -99,7 +102,7 @@
         @media print {
             @page { size: A4 landscape; margin: 0; }
             body { overflow: visible !important; background: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .orb, .scroll-nav, .edit-toggle, .export-pdf, .edit-toolbar, .slide-controls { display: none !important; }
+            .orb, .scroll-nav, .edit-toggle, .export-pdf, .edit-toolbar, .slide-controls, .fullscreen-btn { display: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
             .slide { height: auto !important; min-height: 100vh; page-break-after: always; break-after: page; overflow: visible !important; }
             .slide:last-child { page-break-after: auto; break-after: auto; }
@@ -246,6 +249,7 @@
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
+    <button class="fullscreen-btn" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> מסך מלא</button>
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="pwstatus" id="pwStatus" style="border-color: rgba(217,119,6,0.6); color:#d97706;"><i class="fa-solid fa-key"></i> הזן קוד לשמירה</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
@@ -743,6 +747,18 @@
                 }
             } catch (e) {}
             document.dispatchEvent(new CustomEvent('deck-loaded'));
+
+            // כפתור מסך מלא
+            const fsBtn = document.getElementById('fullscreenBtn');
+            const updateFsLabel = () => { if (fsBtn) fsBtn.innerHTML = document.fullscreenElement ? '<i class="fa-solid fa-compress"></i> סגור מסך מלא' : '<i class="fa-solid fa-expand"></i> מסך מלא'; };
+            if (fsBtn) {
+                fsBtn.addEventListener('click', () => {
+                    if (document.fullscreenElement) { document.exitFullscreen().catch(() => {}); }
+                    else { document.documentElement.requestFullscreen().catch(() => {}); }
+                });
+                document.addEventListener('fullscreenchange', updateFsLabel);
+                updateFsLabel();
+            }
 
             editToggle.addEventListener('click', async () => {
                 if (!editMode) {
