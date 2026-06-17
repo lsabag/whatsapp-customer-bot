@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מצגת</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -591,7 +592,47 @@
                 clone.querySelectorAll('.slide').forEach(s => s.classList.remove('in-view'));
                 clone.querySelectorAll('.slide-controls, .print-glossary').forEach(b => b.remove());
                 clone.querySelectorAll('.term').forEach(s => s.replaceWith(document.createTextNode(s.textContent)));
+                clone.querySelectorAll('#interactive-graph').forEach(g => { g.innerHTML = ''; }); // אל תשמור את ה-canvas של הגרף
                 return clone.innerHTML;
+            };
+
+            // גרף ידע אינטראקטיבי (vis-network) — נבנה כשקיים בתוכן אלמנט #interactive-graph
+            const renderGraph = () => {
+                const container = document.getElementById('interactive-graph');
+                if (!container || typeof vis === 'undefined') return;
+                container.innerHTML = '';
+                const nodes = new vis.DataSet([
+                    { id: 1, label: 'תוכנית הליווי', value: 30, color: '#00f3ff' },
+                    { id: 2, label: 'משולש העסק המצליח', value: 22, color: '#bc13fe' },
+                    { id: 3, label: 'מיומנות עסקית', value: 16 },
+                    { id: 4, label: 'ידע מקצועי', value: 16 },
+                    { id: 5, label: 'התפתחות אישית', value: 16 },
+                    { id: 6, label: 'Claude', value: 12, color: '#00ff9d' },
+                    { id: 7, label: 'Make', value: 12, color: '#00ff9d' },
+                    { id: 8, label: 'ליווי 1:1', value: 12 },
+                    { id: 9, label: 'לייבים שבועיים', value: 12 },
+                    { id: 10, label: 'אנשי טק (קהל יעד)', value: 14 },
+                    { id: 11, label: 'מנטורים: ניצן/אריה/יניב', value: 14, color: '#bc13fe' }
+                ]);
+                const edges = new vis.DataSet([
+                    { from: 1, to: 2, label: 'מבוססת על' },
+                    { from: 2, to: 3, label: 'צלע' },
+                    { from: 2, to: 4, label: 'צלע' },
+                    { from: 2, to: 5, label: 'צלע' },
+                    { from: 4, to: 6, label: 'כלי' },
+                    { from: 4, to: 7, label: 'כלי' },
+                    { from: 1, to: 8, label: 'כוללת' },
+                    { from: 1, to: 9, label: 'כוללת' },
+                    { from: 1, to: 10, label: 'מיועדת ל' },
+                    { from: 11, to: 1, label: 'מלווים' }
+                ]);
+                const options = {
+                    nodes: { shape: 'dot', color: { background: '#00f3ff', border: '#0891b2', highlight: { background: '#67e8f9', border: '#06b6d4' } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 14, color: '#e2e8f0', strokeWidth: 0 } },
+                    edges: { color: { color: 'rgba(148,163,184,0.4)', highlight: '#00f3ff' }, smooth: false, arrows: { to: { enabled: true, scaleFactor: 0.4 } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 11, align: 'top', color: '#94a3b8', strokeWidth: 0 } },
+                    physics: { forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.005, springLength: 160, springConstant: 0.05 }, maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 150 } },
+                    interaction: { hover: true, zoomView: false, dragView: true }
+                };
+                try { new vis.Network(container, { nodes, edges }, options); } catch (e) {}
             };
 
             const saveState = () => {
@@ -686,6 +727,7 @@
                 document.body.classList.remove('edit-mode');
                 setEditable(false);
                 refresh();
+                renderGraph();
                 if (typeof renderRichContent === 'function') { try { renderRichContent(); } catch (e) {} }
                 saveState();
                 editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
@@ -902,6 +944,7 @@
                     setActiveDot(savedPos);
                 }
             } catch (e) {}
+            renderGraph();
             document.dispatchEvent(new CustomEvent('deck-loaded'));
 
             editToggle.addEventListener('click', async () => {
