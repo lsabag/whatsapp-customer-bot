@@ -63,6 +63,7 @@
         .nav-link:hover { color: #4f46e5; }
         .nav-link.active { color: #4f46e5; font-weight: 700; }
         .nav-link.active::after { content: ''; position: absolute; bottom: -4px; left: 0; right: 0; height: 2px; background: #4f46e5; border-radius: 2px; }
+        body.edit-mode .nav-link { border-bottom: 1px dashed rgba(79,70,229,0.45); cursor: text; }
         .reveal-content { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2,1,0.3,1), transform 0.8s cubic-bezier(0.2,1,0.3,1); }
         .slide.in-view .reveal-content { opacity: 1; transform: translateY(0); }
         .delay-1 { transition-delay: 0.2s; } .delay-2 { transition-delay: 0.4s; } .delay-3 { transition-delay: 0.6s; }
@@ -499,7 +500,27 @@
                 editToggle.title = 'מצב עריכה';
             };
 
+            // תוויות תפריט מותאמות אישית (נשמרות פר-מצגת ב-#deck-nav, לפי מזהה השקף)
+            const readNavOverrides = () => {
+                const el = document.getElementById('deck-nav');
+                if (el && el.dataset.labels) { try { return JSON.parse(el.dataset.labels); } catch (e) {} }
+                return {};
+            };
+            const writeNavOverride = (key, label) => {
+                let el = document.getElementById('deck-nav');
+                if (!el) { el = document.createElement('div'); el.id = 'deck-nav'; el.hidden = true; mainContainer.insertBefore(el, mainContainer.firstChild); }
+                const map = readNavOverrides();
+                if (label) map[key] = label; else delete map[key];
+                el.dataset.labels = JSON.stringify(map);
+            };
+            const slideKey = (slide, i) => {
+                if (!slide.id) slide.id = 'sld-' + i + '-' + Math.random().toString(36).slice(2, 7);
+                return slide.id;
+            };
             const labelFor = (slide, i) => {
+                const ov = readNavOverrides();
+                const key = slide.id;
+                if (key && ov[key]) return ov[key];
                 const h = slide.querySelector('h1, h2');
                 const t = (h ? h.textContent : '').trim();
                 return t ? (t.length > 45 ? t.slice(0, 45) + '…' : t) : ('שקופית ' + (i + 1));
@@ -540,7 +561,16 @@
                     item.className = 'nav-item nav-link' + (i === currentIndex ? ' active' : '');
                     item.setAttribute('data-index', i);
                     item.textContent = labelFor(slide, i);
-                    item.addEventListener('click', () => goTo(i));
+                    item.title = editMode ? 'לחצו לשינוי שם בתפריט' : labelFor(slide, i);
+                    item.addEventListener('click', () => {
+                        if (editMode) {
+                            const key = slideKey(slide, i);
+                            const v = prompt('שם בתפריט (השאירו ריק כדי לחזור לשם לפי כותרת השקף):', labelFor(slide, i));
+                            if (v === null) return;
+                            writeNavOverride(key, v.trim());
+                            buildNav();
+                        } else { goTo(i); }
+                    });
                     scrollNav.appendChild(item);
                 });
             };
@@ -723,6 +753,7 @@
                     editToggle.innerHTML = '<i class="fa-solid fa-check"></i>';
                     editToggle.title = 'שמור וסיים';
                     updatePwChip();
+                    buildNav(); // נבנה מחדש כדי לאפשר עריכת שמות התפריט
                     return;
                 }
                 // מסיימים עריכה — מנסים לשמור לפני שיוצאים
