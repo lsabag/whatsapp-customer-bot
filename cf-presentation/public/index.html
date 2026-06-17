@@ -627,9 +627,9 @@
                     { from: 11, to: 1, label: 'מלווים' }
                 ]);
                 const options = {
-                    nodes: { shape: 'dot', color: { background: '#00f3ff', border: '#0891b2', highlight: { background: '#67e8f9', border: '#06b6d4' } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 14, color: '#e2e8f0', strokeWidth: 0 } },
-                    edges: { color: { color: 'rgba(148,163,184,0.4)', highlight: '#00f3ff' }, smooth: false, arrows: { to: { enabled: true, scaleFactor: 0.4 } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 11, align: 'top', color: '#94a3b8', strokeWidth: 0 } },
-                    physics: { forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.005, springLength: 160, springConstant: 0.05 }, maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 150 } },
+                    nodes: { shape: 'dot', scaling: { min: 16, max: 40 }, color: { background: '#00f3ff', border: '#0891b2', highlight: { background: '#67e8f9', border: '#06b6d4' } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 24, color: '#f1f5f9', strokeWidth: 6, strokeColor: '#030712' } },
+                    edges: { color: { color: 'rgba(148,163,184,0.5)', highlight: '#00f3ff' }, smooth: false, width: 2, arrows: { to: { enabled: true, scaleFactor: 0.55 } }, font: { face: 'Varela Round, Heebo, sans-serif', size: 17, align: 'top', color: '#cbd5e1', strokeWidth: 6, strokeColor: '#030712' } },
+                    physics: { forceAtlas2Based: { gravitationalConstant: -65, centralGravity: 0.004, springLength: 240, springConstant: 0.05 }, maxVelocity: 50, solver: 'forceAtlas2Based', timestep: 0.35, stabilization: { iterations: 200 } },
                     interaction: { hover: true, zoomView: false, dragView: true }
                 };
                 try { new vis.Network(container, { nodes, edges }, options); } catch (e) {}
