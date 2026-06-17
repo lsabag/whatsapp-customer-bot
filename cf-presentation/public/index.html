@@ -537,7 +537,13 @@
                 { key: 'chroma', term: 'Chroma', tip: 'מסד וקטורי חינמי וקוד-פתוח — מאחסן מידע ומאפשר חיפוש לפי משמעות (ל-RAG).' },
                 { key: 'pinecone', term: 'Pinecone', tip: 'שירות ענן לאחסון וחיפוש לפי משמעות (ל-RAG).' },
                 { key: 'neo4j', term: 'Neo4j', tip: 'מסד נתונים מסוג גרף — שומר מידע כרשת של פריטים והקשרים ביניהם (ל-Knowledge Graph).' },
-                { key: 'bsp', term: 'BSP', tip: 'Business Solution Provider — חברה מורשית של Meta שנותנת גישה ל-WhatsApp Business API ומטפלת בתשתית, אישורי מספר, תבניות וחיוב (כמו Twilio).' }
+                { key: 'bsp', term: 'BSP', tip: 'Business Solution Provider — חברה מורשית של Meta שנותנת גישה ל-WhatsApp Business API ומטפלת בתשתית, אישורי מספר, תבניות וחיוב (כמו Twilio).' },
+                { key: 'oraclecloud', term: 'Oracle Cloud', tip: 'שירות ענן של Oracle להשכרת שרתים וירטואליים (יש גם שכבה חינמית תמידית) — אפשר להריץ עליו את הבוט 24/7.' },
+                { key: 'aws', term: 'AWS', tip: 'Amazon Web Services — ספקית הענן הגדולה בעולם; משכירים בה שרתים ושירותים מנוהלים להרצת אפליקציות 24/7.' },
+                { key: 'vps', term: 'VPS', tip: 'Virtual Private Server — שרת וירטואלי פרטי שאתה שוכר (בתשלום חודשי) ומנהל בעצמך, רץ תמיד.' },
+                { key: 'cfworkers', term: 'Cloudflare Workers', tip: 'פלטפורמת serverless של Cloudflare — מריצה קוד בענן בלי לנהל שרת, ומשלמים רק לפי שימוש. זול ויעיל לבוט מבוסס Cloud API ו-webhooks.' },
+                { key: 'postgres', term: 'Postgres', tip: 'PostgreSQL — מסד נתונים רלציוני פופולרי וקוד-פתוח לשמירת מידע מסודר (כאן: היסטוריית השיחות והזיכרון).' },
+                { key: 'supabase', term: 'Supabase', tip: 'פלטפורמה מנוהלת מעל Postgres — מסד נתונים בענן עם API מוכן (תומך גם בחיפוש וקטורי ל-RAG).' }
             ];
 
             const wrapTerm = (root, term, tip, key) => {
