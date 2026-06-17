@@ -308,7 +308,12 @@
                 { key: 'vps', term: 'VPS', tip: 'Virtual Private Server — שרת וירטואלי פרטי שאתה שוכר (בתשלום חודשי) ומנהל בעצמך, רץ תמיד.' },
                 { key: 'cfworkers', term: 'Cloudflare Workers', tip: 'פלטפורמת serverless של Cloudflare — מריצה קוד בענן בלי לנהל שרת, ומשלמים רק לפי שימוש. זול ויעיל לבוט מבוסס Cloud API ו-webhooks.' },
                 { key: 'postgres', term: 'Postgres', tip: 'PostgreSQL — מסד נתונים רלציוני פופולרי וקוד-פתוח לשמירת מידע מסודר (כאן: היסטוריית השיחות והזיכרון).' },
-                { key: 'supabase', term: 'Supabase', tip: 'פלטפורמה מנוהלת מעל Postgres — מסד נתונים בענן עם API מוכן (תומך גם בחיפוש וקטורי ל-RAG).' }
+                { key: 'supabase', term: 'Supabase', tip: 'פלטפורמה מנוהלת מעל Postgres — מסד נתונים בענן עם API מוכן (תומך גם בחיפוש וקטורי ל-RAG).' },
+                { key: 'github', term: 'GitHub', tip: 'פלטפורמה לאחסון וניהול קוד (מבוססת Git) — מעלים אליה פרויקטים, שומרים גרסאות ומשתפים קוד.' },
+                { key: 'dotenvfile', term: '.env', tip: 'קובץ "סודות" נפרד שמחזיק מפתחות וסיסמאות (כמו מפתח ה-API), כדי שלא יהיו כתובים בתוך הקוד עצמו.' },
+                { key: 'gitignore', term: '.gitignore', tip: 'קובץ שאומר ל-Git אילו קבצים לא להעלות — כך שסודות וקבצים רגישים לא מגיעים ל-GitHub.' },
+                { key: 'session', term: 'session', tip: 'קבצים שבהם whatsapp-web.js שומר את ההתחברות לוואטסאפ (כדי לא לסרוק QR כל פעם). רגישים — מי שמשיג אותם יכול להתחבר לחשבון.' },
+                { key: 'dotenvlib', term: 'dotenv', tip: 'ספריית Node.js שטוענת את המשתנים מקובץ ה-.env אל הקוד בזמן ריצה (כך הסודות זמינים לקוד בלי להיכתב בתוכו).' }
             ];
 
             const wrapTerm = (root, term, tip, key) => {
