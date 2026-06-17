@@ -193,6 +193,67 @@
         .fullscreen-btn:hover { opacity: 1; border-color: var(--neon-cyan); color: var(--neon-cyan); }
         body.edit-mode .fullscreen-btn { display: none; }
 
+        /* כפתור המבורגר + תפריט צד נפתח (drawer) */
+        .nav-burger {
+            position: fixed; top: 0; right: 0; z-index: 60;
+            height: 3.5rem; width: 3.5rem;
+            display: flex; align-items: center; justify-content: center;
+            background: transparent; border: none; cursor: pointer;
+            color: rgba(226, 232, 240, 0.85); font-size: 1.15rem;
+        }
+        .nav-burger:hover { color: var(--neon-cyan); }
+        .nav-drawer-overlay {
+            position: fixed; inset: 0; z-index: 80;
+            background: rgba(3, 7, 18, 0.6); backdrop-filter: blur(2px);
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .nav-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .nav-drawer {
+            position: fixed; top: 0; right: 0; bottom: 0; z-index: 90;
+            width: 300px; max-width: 82vw;
+            background: rgba(10, 15, 30, 0.97); backdrop-filter: blur(14px);
+            border-left: 1px solid rgba(0, 243, 255, 0.25);
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.5);
+            transform: translateX(100%); transition: transform 0.3s ease;
+            display: flex; flex-direction: column; padding: 0.6rem 0 1rem;
+            overflow-y: auto;
+        }
+        .nav-drawer.open { transform: translateX(0); }
+        .nav-drawer-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.6rem 1.2rem 0.8rem; margin-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: #e2e8f0; font-weight: 700; font-size: 1.05rem;
+        }
+        .nav-drawer-close { background: transparent; border: none; color: #94a3b8; font-size: 1.25rem; cursor: pointer; line-height: 1; }
+        .nav-drawer-close:hover { color: var(--neon-cyan); }
+        .drawer-item {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.65rem 1.2rem; cursor: pointer;
+            color: rgba(226, 232, 240, 0.78); font-weight: 600; font-size: 0.95rem;
+            border-right: 3px solid transparent; transition: background 0.2s, color 0.2s;
+        }
+        .drawer-item:hover { background: rgba(0, 243, 255, 0.08); color: var(--neon-cyan); }
+        .drawer-item.active { color: var(--neon-cyan); border-right-color: var(--neon-cyan); background: rgba(0, 243, 255, 0.06); }
+        .drawer-item .di-num {
+            width: 1.7rem; height: 1.7rem; flex-shrink: 0; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; color: #94a3b8;
+        }
+        .drawer-item.active .di-num { background: var(--neon-cyan); color: #030712; }
+        .drawer-item .di-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* כפתור חזרה לתחילת המצגת (מופיע רק בשקף האחרון) */
+        .back-to-first {
+            position: fixed; bottom: 3.4rem; left: 50%; transform: translateX(-50%);
+            z-index: 56; font-family: inherit; font-size: 0.85rem; font-weight: 700;
+            color: #030712; background: var(--neon-cyan); border: none; border-radius: 9999px;
+            padding: 0.5rem 1.3rem; cursor: pointer; white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0, 243, 255, 0.45); display: none;
+        }
+        .back-to-first:hover { filter: brightness(1.1); }
+        body.edit-mode .back-to-first { display: none !important; }
+
         /* Content Reveal Animation */
         .reveal-content {
             opacity: 0;
@@ -420,7 +481,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls, .fullscreen-btn { display: none !important; }
+            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls, .fullscreen-btn, .nav-burger, .nav-drawer, .nav-drawer-overlay, .back-to-first { display: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
             .slide {
                 height: auto !important;
@@ -460,6 +521,12 @@
 
     <!-- Fixed Side Navigation -->
     <div class="scroll-nav" id="scrollNav"></div>
+    <button class="nav-burger" id="navBurger" title="תפריט ניווט"><i class="fa-solid fa-bars"></i></button>
+    <div class="nav-drawer-overlay" id="navDrawerOverlay"></div>
+    <aside class="nav-drawer" id="navDrawer">
+        <div class="nav-drawer-head"><span>ניווט בשקפים</span><button class="nav-drawer-close" id="navDrawerClose" title="סגור"><i class="fa-solid fa-xmark"></i></button></div>
+        <div id="navDrawerList"></div>
+    </aside>
 
     <!-- Main Scrolling Container -->
     <div class="scroll-container" id="mainContainer">
@@ -476,6 +543,7 @@
     <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
     <button class="fullscreen-btn" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> מסך מלא</button>
+    <button class="back-to-first" id="backToFirstBtn"><i class="fa-solid fa-arrow-up"></i> חזרה לתחילת המצגת</button>
     <div class="edit-toolbar" id="editToolbar">
         <button data-act="pwstatus" id="pwStatus" style="border-color: rgba(251,191,36,0.6); color:#fbbf24;"><i class="fa-solid fa-key"></i> הזן קוד לשמירה</button>
         <button data-act="add-slide"><i class="fa-solid fa-plus"></i> שקופית</button>
@@ -488,6 +556,14 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const mainContainer = document.getElementById('mainContainer');
             const scrollNav = document.getElementById('scrollNav');
+            const navBurger = document.getElementById('navBurger');
+            const navDrawer = document.getElementById('navDrawer');
+            const navDrawerOverlay = document.getElementById('navDrawerOverlay');
+            const navDrawerList = document.getElementById('navDrawerList');
+            const navDrawerClose = document.getElementById('navDrawerClose');
+            const backToFirstBtn = document.getElementById('backToFirstBtn');
+            const openDrawer = () => { navDrawer.classList.add('open'); navDrawerOverlay.classList.add('open'); };
+            const closeDrawer = () => { navDrawer.classList.remove('open'); navDrawerOverlay.classList.remove('open'); };
             const editToggle = document.getElementById('editToggle');
             const editCancel = document.getElementById('editCancel');
             const editToolbar = document.getElementById('editToolbar');
@@ -841,10 +917,14 @@
                 scrollNav.querySelectorAll('.nav-item').forEach((d, di) => d.classList.toggle('active', di === i));
                 const active = scrollNav.querySelector('.nav-item.active');
                 if (active) scrollNav.scrollTo({ left: active.offsetLeft - scrollNav.clientWidth / 2 + active.clientWidth / 2, behavior: 'smooth' });
+                if (navDrawerList) navDrawerList.querySelectorAll('.drawer-item').forEach((d, di) => d.classList.toggle('active', di === i));
+                const last = getSlides().length - 1;
+                if (backToFirstBtn) backToFirstBtn.style.display = (i >= last && last > 0 && !editMode) ? 'block' : 'none';
             };
 
             const buildNav = () => {
                 scrollNav.innerHTML = '';
+                if (navDrawerList) navDrawerList.innerHTML = '';
                 getSlides().forEach((slide, i) => {
                     const item = document.createElement('div');
                     item.className = 'nav-item nav-link' + (i === currentIndex ? ' active' : '');
@@ -861,6 +941,15 @@
                         } else { goTo(i); }
                     });
                     scrollNav.appendChild(item);
+                    // פריט מקביל בתפריט הצד הנפתח
+                    if (navDrawerList) {
+                        const di = document.createElement('div');
+                        di.className = 'drawer-item' + (i === currentIndex ? ' active' : '');
+                        di.innerHTML = '<span class="di-num">' + (i + 1) + '</span><span class="di-label"></span>';
+                        di.querySelector('.di-label').textContent = labelFor(slide, i);
+                        di.addEventListener('click', () => { closeDrawer(); goTo(i); });
+                        navDrawerList.appendChild(di);
+                    }
                 });
             };
 
@@ -1032,6 +1121,14 @@
             } catch (e) {}
             renderGraph();
             document.dispatchEvent(new CustomEvent('deck-loaded'));
+
+            // תפריט צד נפתח — פתיחה דרך כפתור המבורגר או לחיצה על רקע התפריט העליון
+            if (navBurger) navBurger.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
+            scrollNav.addEventListener('click', (e) => { if (e.target === scrollNav) openDrawer(); });
+            if (navDrawerOverlay) navDrawerOverlay.addEventListener('click', closeDrawer);
+            if (navDrawerClose) navDrawerClose.addEventListener('click', closeDrawer);
+            window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+            if (backToFirstBtn) backToFirstBtn.addEventListener('click', () => goTo(0));
 
             // כפתור מסך מלא
             const fsBtn = document.getElementById('fullscreenBtn');
