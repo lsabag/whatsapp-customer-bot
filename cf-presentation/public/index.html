@@ -912,6 +912,7 @@
                     location.reload();
                     return;
                 }
+                stopHistory();
                 editMode = false;
                 document.body.classList.remove('edit-mode');
                 setEditable(false);
@@ -922,6 +923,47 @@
                 editToggle.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
                 editToggle.title = 'מצב עריכה';
             };
+
+            // ===== היסטוריית עריכה: Undo / Redo (צילומי-מצב של תוכן המצגת) =====
+            let editHistory = [];
+            let histIndex = -1;
+            let histTimer = null;
+            let histRestoring = false;
+            let histObserver = null;
+            const pushHistory = () => {
+                if (histRestoring) return;
+                let html;
+                try { html = cleanDeckHtml(); } catch (e) { return; }
+                if (editHistory[histIndex] === html) return;
+                editHistory = editHistory.slice(0, histIndex + 1);
+                editHistory.push(html);
+                if (editHistory.length > 60) editHistory.shift();
+                histIndex = editHistory.length - 1;
+            };
+            const restoreHistory = (idx) => {
+                if (idx < 0 || idx >= editHistory.length) return;
+                histRestoring = true;
+                histIndex = idx;
+                mainContainer.innerHTML = editHistory[idx];
+                refresh();
+                renderGraph();
+                saveState();
+                setTimeout(() => { histRestoring = false; }, 60);
+            };
+            const undoEdit = () => { if (histIndex > 0) restoreHistory(histIndex - 1); };
+            const redoEdit = () => { if (histIndex < editHistory.length - 1) restoreHistory(histIndex + 1); };
+            const startHistory = () => {
+                editHistory = []; histIndex = -1; histRestoring = false;
+                pushHistory();
+                if (histObserver) histObserver.disconnect();
+                histObserver = new MutationObserver(() => {
+                    if (histRestoring) return;
+                    clearTimeout(histTimer);
+                    histTimer = setTimeout(pushHistory, 450);
+                });
+                histObserver.observe(mainContainer, { subtree: true, childList: true, characterData: true, attributes: true });
+            };
+            const stopHistory = () => { if (histObserver) { histObserver.disconnect(); histObserver = null; } clearTimeout(histTimer); };
 
             // תוויות תפריט מותאמות אישית (נשמרות פר-מצגת ב-#deck-nav, לפי מזהה השקף)
             const readNavOverrides = () => {
@@ -1214,6 +1256,7 @@
                     editToggle.title = 'שמור וסיים';
                     updatePwChip();
                     buildNav(); // נבנה מחדש כדי לאפשר עריכת שמות התפריט
+                    startHistory();
                     return;
                 }
                 // מסיימים עריכה — מנסים לשמור לפני שיוצאים
@@ -1226,6 +1269,7 @@
                 }
                 // הצלחה — יוצאים ממצב עריכה
                 showToast('✓ השינויים נשמרו בענן');
+                stopHistory();
                 editMode = false;
                 document.body.classList.remove('edit-mode');
                 setEditable(false);
@@ -1309,6 +1353,14 @@
                 goTo(currentIndex + (e.deltaY > 0 ? 1 : -1));
                 setTimeout(() => { isScrolling = false; }, 1000);
             }, { passive: false });
+
+            // Undo / Redo במצב עריכה (Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y)
+            window.addEventListener('keydown', (e) => {
+                if (!editMode || !(e.ctrlKey || e.metaKey)) return;
+                const k = (e.key || '').toLowerCase();
+                if (k === 'z' && !e.shiftKey) { e.preventDefault(); undoEdit(); }
+                else if ((k === 'z' && e.shiftKey) || k === 'y') { e.preventDefault(); redoEdit(); }
+            });
 
             // Keyboard navigation (disabled while editing so you can type freely)
             window.addEventListener('keydown', (e) => {
@@ -1567,6 +1619,12 @@
                     const file = items[i].getAsFile();
                     if (file) { e.preventDefault(); fileToImage(file, insertImage); return; }
                 }
+            }
+            // הדבקת טקסט לאזור עריכה - תמיד כטקסט נקי (בלי עיצוב/HTML מלוכלך)
+            const ce = e.target && e.target.closest ? e.target.closest('[contenteditable="true"]') : null;
+            if (ce && e.clipboardData) {
+                const text = e.clipboardData.getData('text/plain');
+                if (text) { e.preventDefault(); document.execCommand('insertText', false, text); }
             }
         });
 
