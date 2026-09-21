@@ -124,6 +124,31 @@ Font Awesome is loaded: `<i class="fa-solid fa-rocket"></i>`, `<i class="fa-bran
 <span dir="ltr" class="text-[var(--neon-cyan)] font-semibold">055-1234567</span>
 ```
 
+### QR code (`data-qr`)
+The shell renders a QR into any element carrying `data-qr`, after the content loads.
+Content can't do this itself (no `<script>` allowed), so just leave an empty element:
+```html
+<div data-qr="https://wa.me/972552425091"></div>
+<div data-qr="https://wa.me/972552425091" data-qr-size="220" data-qr-caption="סרקו וכתבו לבוט"></div>
+```
+- `data-qr` — required, the link that gets encoded.
+- `data-qr-size` — optional, width of the white card in px. Default 150, clamped to 80-600.
+  It shrinks on narrow screens, so a big number is safe. The in-browser button offers
+  three presets: קטן 120 / רגיל 180 / ענק 300.
+- `data-qr-caption` — optional, caption under the code.
+
+Easiest route: in the browser, edit mode -> the **QR** button in the toolbar. Pick
+link / WhatsApp / dialer, type the value, pick a size (קטן / רגיל / ענק), done. A local number like `052-1234567`
+becomes `972521234567` automatically. Each code gets pencil/x controls in edit mode.
+Authoring the attributes by hand (above) is equivalent.
+
+Notes:
+- Error correction level M with a white quiet zone, so it scans off a projector.
+- An element that **already contains an `<svg>`** is left alone (hand-embedded codes keep working).
+- The rendered code is stripped on save, so KV keeps only your `data-qr` attributes -
+  never paste a generated `<svg>` into the content.
+- Works in both templates. Nothing to add to the deck beyond the attributes.
+
 ---
 
 ## 4. Conventions

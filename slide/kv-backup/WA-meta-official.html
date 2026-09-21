@@ -1,0 +1,591 @@
+<div id="deck-nav" hidden data-labels='{"slide-0":"פתיחה","slide-recap":"איפה עצרנו","slide-problem":"הבעיה","slide-why-graph":"למה לא טבלה","slide-rule":"מה מתאים למה","slide-provenance":"מאיפה זה הגיע","slide-prompt":"דף ההוראות","slide-loop":"רגע, אני בודק","slide-build-1":"פרומפטים: צנרת","slide-connect":"מחברים למטא","slide-build-2":"פרומפטים: מוח","slide-before-client":"לפני שזה יוצא","slide-improve":"משתפר עם הזמן","slide-trap":"המבחן","slide-demo":"תנסו אתם"}'></div>
+
+<div id="deck-swatches" hidden data-colors="#10b981,#00f3ff,#bc13fe,#1e293b,#94a3b8"></div>
+
+<div id="deck-glossary" hidden data-glossary='{"mode":"replace","terms":[
+  {"key":"kg","term":"Knowledge Graph","tip":"דרך לשמור מידע שבה לא רק הפריטים נשמרים, אלא גם הקשרים ביניהם. מי מתאים למי, מי שייך למה."},
+  {"key":"prompt","term":"דף ההוראות","tip":"הטקסט שנותנים לבוט לפני השיחה, שמגדיר לו איך להתנהג ומה אסור לו. בעגה המקצועית קוראים לזה prompt."},
+  {"key":"maagar","term":"המאגר","tip":"מסד הנתונים של החנות. המוצרים, המחירים, המלאי והקשרים ביניהם."}
+]}'></div>
+
+
+<section class="slide" id="slide-0" style="padding:1rem 2rem;">
+  <div class="cyber-panel text-center">
+    <div class="reveal-content mb-8 flex justify-center">
+      <span class="inline-flex items-center justify-center w-24 h-24 rounded-3xl text-5xl" style="background:rgba(16,185,129,0.12); color:#10b981;">
+        <i class="fa-brands fa-whatsapp"></i>
+      </span>
+    </div>
+    <h1 class="reveal-content delay-1 text-6xl md:text-8xl font-black mb-6 tracking-tight leading-tight">
+      בוט שלא ממציא מחירים
+    </h1>
+    <p class="reveal-content delay-2 text-2xl opacity-60 max-w-3xl mx-auto mb-10 leading-relaxed">
+      בוט שעונה רק ממה שבאמת יש בחנות
+    </p>
+    <div class="reveal-content delay-3 mx-auto rounded-full" style="width:72px; height:5px; background:#10b981;"></div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-recap" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">איפה עצרנו</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-8 max-w-4xl">
+      בשיעור הקודם עם יניב הקמנו את כל הצנרת, ואז נגמר הזמן. ההודעות כבר מגיעות אליכם, אבל אף אחד עוד לא ענה עליהן.
+    </p>
+    <div class="grid md:grid-cols-2 gap-6 reveal-content delay-2 max-w-3xl mx-auto">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-shield-halved"></i></span>
+        <h3 class="text-xl font-black mb-3">הדרך הרשמית</h3>
+        <p class="opacity-65 leading-relaxed">למה עובדים ישירות מול מטא, ולא דרך כלים עוקפים שנחסמים.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-id-card"></i></span>
+        <h3 class="text-xl font-black mb-3">חשבון ומספר</h3>
+        <p class="opacity-65 leading-relaxed">אפליקציה, מספר טלפון לבוט, ואישור לשלוח ממנו הודעות.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-plug"></i></span>
+        <h3 class="text-xl font-black mb-3">חיבור לשרת</h3>
+        <p class="opacity-65 leading-relaxed">כל הודעה שמישהו כותב לבוט כבר מגיעה אליכם.</p>
+      </div>
+    </div>
+
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-2 shadow-xl p-6 mt-7 max-w-4xl mx-auto" style="border-color:#10b981;">
+      <div class="flex items-start gap-5">
+        <span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl flex-shrink-0" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-code-branch"></i></span>
+        <div>
+          <p class="text-lg font-black">והשאלה שחזרה הכי הרבה: "למה קוד ולא n8n או מניצ'אט?"</p>
+          <p class="opacity-65 mt-2">שם מציירים את המסלול מראש: אם שאלו על מחיר לך לכאן, על מלאי לכאן. כל דרך אפשרית מצוירת מראש.</p>
+          <p class="opacity-65 mt-2">אצלנו לא ציירנו מסלול. נתנו לבוט כלים, והוא מחליט לבד במה להשתמש ובאיזה סדר.</p>
+          <p class="text-sm font-bold mt-3">המבחן: שאלה שלא חשבתם עליה מראש. במסלול מצויר היא נופלת בין הכיסאות.</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal-content delay-3 text-center text-2xl font-bold mt-7">
+      היום אנחנו בונים את מי שעונה.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-problem" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">"כמה עולה אייפון 18 פרו?"</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-7 max-w-4xl">
+      ההודעה הכי נפוצה שמגיעה בוואטסאפ, ושתי הדרכים לענות עליה.
+    </p>
+    <div class="grid md:grid-cols-[1fr_auto_1fr] gap-6 items-center reveal-content delay-2">
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl" style="background:rgba(100,116,139,0.14); color:#475569;"><i class="fa-solid fa-user"></i></span>
+          <h3 class="text-2xl font-black">בלי בוט</h3>
+        </div>
+        <ul class="space-y-3 text-lg">
+          <li class="flex gap-3"><i class="fa-solid fa-chevron-left text-xs mt-2 opacity-40"></i><span>ההודעה מחכה עד שמישהו פנוי</span></li>
+          <li class="flex gap-3"><i class="fa-solid fa-chevron-left text-xs mt-2 opacity-40"></i><span>בערב, בשבת ובחגים אין מענה</span></li>
+          <li class="flex gap-3"><i class="fa-solid fa-chevron-left text-xs mt-2 opacity-40"></i><span>בינתיים הלקוח שואל את המתחרים</span></li>
+        </ul>
+        <p class="mt-6 text-lg font-bold">התשובה מדויקת. היא פשוט מגיעה מאוחר.</p>
+      </div>
+
+      <div class="flex md:flex-row justify-center items-center gap-1 text-3xl py-4" style="color:#10b981;" aria-hidden="true">
+        <i class="fa-solid fa-chevron-left fa-fade" style="--fa-animation-delay:0s; --fa-animation-duration:1.4s;"></i>
+        <i class="fa-solid fa-chevron-left fa-fade" style="--fa-animation-delay:.2s; --fa-animation-duration:1.4s;"></i>
+        <i class="fa-solid fa-chevron-left fa-fade" style="--fa-animation-delay:.4s; --fa-animation-duration:1.4s;"></i>
+      </div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl" style="background:rgba(100,116,139,0.14); color:#475569;"><i class="fa-solid fa-robot"></i></span>
+          <h3 class="text-2xl font-black">עם בוט שיש לו את הקטלוג</h3>
+        </div>
+        <ul class="space-y-3 text-lg">
+          <li class="flex gap-3"><i class="fa-solid fa-chevron-left text-xs mt-2 opacity-40"></i><span>עונה תוך שניות, בכל שעה</span></li>
+          <li class="flex gap-3"><i class="fa-solid fa-chevron-left text-xs mt-2 opacity-40"></i><span>עונה על הכל, תמיד</span></li>
+        </ul>
+        <p class="mt-6 text-lg font-bold">מיידי. והשאלה היחידה היא מאיפה הגיעה כל תשובה.</p>
+      </div>
+
+    </div>
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-0 shadow-xl p-6 mt-8 text-center">
+      <p class="text-2xl font-black">כמה עולה, יש במלאי, ויש לכם את זה בכלל.</p>
+      <p class="text-lg opacity-65 mt-3">אלה נתונים שרק אתם מחזיקים. שום מודל בעולם לא יודע אותם.</p>
+    </div>
+    <p class="reveal-content delay-3 text-center text-2xl font-bold mt-7">
+      אנחנו רוצים את המהירות של אחד, עם הדיוק של השני.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-loop" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">"רגע, אני בודק"</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-7 max-w-4xl">
+      הבוט לא עונה ישר. הוא עושה בדיוק מה שעושים בחנות טובה: עוצר, בודק, ורק אז מדבר.
+    </p>
+    <div class="reveal-content delay-2 flex items-stretch justify-center gap-2 max-w-6xl mx-auto">
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5 text-center flex-1">
+        <div class="text-lg font-black"><i class="fa-brands fa-whatsapp ml-2" style="color:#10b981;"></i>הלקוח שואל</div>
+        <div class="text-sm opacity-60 mt-2">"אני מחפש טלפון עד 2000 שקל, מה יש לכם?"</div>
+      </div>
+
+      <div class="flex items-center text-xl opacity-30 flex-shrink-0"><i class="fa-solid fa-arrow-left"></i></div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5 text-center flex-1">
+        <div class="text-lg font-black">הבוט עוצר ומחליט מה לבדוק</div>
+        <div class="text-sm opacity-55 mt-2">כי לענות מיד זה בעצם לנחש</div>
+      </div>
+
+      <div class="flex items-center text-xl opacity-30 flex-shrink-0"><i class="fa-solid fa-arrow-left"></i></div>
+
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-5 text-center flex-1" style="border-color:#10b981;">
+        <div class="text-lg font-black" style="color:#10b981;">המחשב מחזיר עובדות אמיתיות</div>
+        <div class="text-sm opacity-55 mt-2">כאן ורק כאן נכנסים מחיר, מלאי ותאימות</div>
+      </div>
+
+      <div class="flex items-center text-xl opacity-30 flex-shrink-0"><i class="fa-solid fa-arrow-left"></i></div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5 text-center flex-1">
+        <div class="text-lg font-black">הבוט מנסח את התשובה</div>
+        <div class="text-sm opacity-55 mt-2">התפקיד שלו הוא לנסח, לא לדעת</div>
+      </div>
+
+    </div>
+
+    <p class="reveal-content delay-3 text-center text-lg opacity-60 mt-7">
+      לפעמים הוא בודק פעם אחת, לפעמים שלוש. הוא מחליט לבד מה צריך.
+    </p>
+    <p class="reveal-content delay-3 text-center text-2xl font-bold mt-4">
+      ואם המחשב לא החזיר מחיר, אין לו מאיפה להמציא אותו.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-why-graph" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">למה לא סתם טבלה</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-8 max-w-4xl">
+      שאלה אחת מלקוח אמיתי: "יש לי אייפון 17, אני רוצה שעון ספורט עד 2000"
+    </p>
+    <div class="grid md:grid-cols-2 gap-6 reveal-content delay-2">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl opacity-60" style="background:rgba(100,116,139,0.14);"><i class="fa-solid fa-table"></i></span>
+          <h3 class="text-2xl font-black opacity-70">בטבלה</h3>
+        </div>
+        <p class="opacity-70 leading-relaxed text-lg">הטבלה יודעת כמה עולה כל שעון.</p>
+        <p class="opacity-70 leading-relaxed text-lg mt-3">היא לא יודעת אם הוא מתאים לאייפון. את זה צריך לחפש בנפרד, ואז לחבר בעצמכם.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-6" style="border-color:#10b981;">
+        <div class="flex items-center gap-4 mb-6">
+          <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-diagram-project"></i></span>
+          <h3 class="text-2xl font-black" style="color:#10b981;">ב-Knowledge Graph</h3>
+        </div>
+        <p class="leading-relaxed text-lg">המידע עצמו כבר יודע מי מתאים למי.</p>
+        <p class="leading-relaxed text-lg mt-3">שאלה אחת מחזירה את הכל: מה מתאים, כמה עולה, ומה יש במלאי.</p>
+      </div>
+    </div>
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-0 shadow-xl p-6 mt-8 text-center">
+      <p class="text-xl font-bold">המבחן פשוט: כששאלה אחת נוגעת בכמה דברים ביחד, טבלה כבר לא מספיקה.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-rule" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-7">איך הבוט יודע מה מתאים למה</h2>
+
+    <div class="max-w-4xl space-y-5">
+      <p class="reveal-content delay-1 text-2xl leading-relaxed">
+        בקטלוג כתוב על כל שעון עם איזו מערכת הוא עובד, ועל כל טלפון איזו מערכת הוא מריץ.
+      </p>
+
+      <p class="reveal-content delay-1 text-2xl leading-relaxed">
+        מה שלא כתוב בשום מקום: איזה שעון מתאים לאיזה טלפון.
+      </p>
+
+      <p class="reveal-content delay-2 text-2xl leading-relaxed">
+        אז כתבנו כלל אחד והרצנו אותו על כל הקטלוג: <strong>שעון מתאים לטלפון אם שניהם על אותה מערכת.</strong>
+      </p>
+
+      <p class="reveal-content delay-2 text-2xl leading-relaxed">
+        הכלל עבר על כל השעונים מול כל הטלפונים, וסימן כל זוג שמתאים.
+      </p>
+
+      <p class="reveal-content delay-3 text-2xl leading-relaxed font-bold">
+        עכשיו כששואלים אותו, הבוט לא מחשב כלום. הוא שולף זוג שכבר מסומן.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-provenance" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">לדעת מאיפה כל פרט הגיע</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-8 max-w-4xl">
+      לכל פרט יש תווית שאומרת מי שם אותו שם. כי כשמשהו יוצא שגוי, צריך לדעת מאיפה הוא הגיע.
+    </p>
+    <div class="grid md:grid-cols-3 gap-6 reveal-content delay-2">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 text-center">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-user-pen"></i></span>
+        <div class="text-xl font-black mb-3">אדם כתב</div>
+        <p class="opacity-65 leading-relaxed">מישהו כתב את זה בעצמו. אפשר לסמוך.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 text-center">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-gears"></i></span>
+        <div class="text-xl font-black mb-3">כלל יצר</div>
+        <p class="opacity-65 leading-relaxed">נוצר אוטומטית, והכלל שיצר אותו שמור לידו.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 text-center">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-circle-question"></i></span>
+        <div class="text-xl font-black mb-3">הערכה בלבד</div>
+        <p class="opacity-65 leading-relaxed">מחיר שלא בדקנו. הבוט יגיד שהוא לא סופי.</p>
+      </div>
+    </div>
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-0 shadow-xl p-6 mt-8 text-center">
+      <p class="text-xl font-bold">בוט שיכול להגיד למה אמר משהו, הוא בוט שאפשר לתקן.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-prompt" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">דף ההוראות לעובד החדש</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-7 max-w-4xl">
+      כל ההגנה מפני המצאות נמצאת בפסקה אחת, כתובה בעברית פשוטה.
+    </p>
+    <div class="reveal-content delay-2 tech-box rounded-3xl border-2 shadow-xl p-12 max-w-4xl mx-auto" style="border-color:#10b981;">
+      <p class="text-3xl leading-relaxed font-black">
+        "אסור לך להגיד מחיר שלא בדקת עכשיו.<br>
+        גם אם אתה בטוח.<br>
+        לא בדקת? תגיד שאתה לא יודע."
+      </p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 mt-7 reveal-content delay-3">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <h3 class="text-xl font-black mb-4">זה לא קוד</h3>
+        <p class="opacity-65 leading-relaxed">זו פסקה בעברית, בדף ההוראות שהבוט קורא לפני כל שיחה.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <h3 class="text-xl font-black mb-4">ולמה זה עובד</h3>
+        <p class="opacity-65 leading-relaxed">הבעיה היא לא יכולת, היא הרשאה. הבוט יודע להמציא מצוין. פשוט אמרנו לו שאסור.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-build-1" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">מה אומרים ל-Claude Code</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-6 max-w-4xl">
+      שלושת הראשונים בונים את הנתונים ואת הצינור. אפשר להעתיק אותם כמו שהם.
+    </p>
+    <div class="space-y-3 reveal-content delay-2 max-w-4xl mx-auto">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">01</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">קח את קובץ המוצרים והפוך אותו לגרף אמיתי. ישויות מטופסות, קשרים עם ציון מקור, וולידציה. קשר בין מוצרים צריך להיווצר מכלל ולא מרשימה ידנית.</p>
+            <p class="text-sm opacity-70 mt-2 leading-relaxed">כל מוצר ומותג הופך לפריט עם סוג משלו, כל קשר נושא תווית שאומרת מי יצר אותו, והבנייה נעצרת אם משהו לא מסתדר במקום לייצר גרף שבור.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> הקטלוג הופך למאגר שאפשר לשאול אותו</p>
+          </div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">02</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">תבנה שרת Express שמקבל הודעות מוואטסאפ. נתיב אחד לאימות מול מטא, ונתיב שני לקבלת הודעות. תחזיר 200 מיד ותעבד אחר כך, ותסנן עדכוני סטטוס.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> הצינור פתוח לשני הכיוונים</p>
+          </div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-5">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">03</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">תוסיף אימות שהבקשות באמת הגיעו ממטא. שים לב שצריך את גוף הבקשה הגולמי, לפני הפרסור.</p>
+            <p class="text-sm opacity-70 mt-2 leading-relaxed">מטא חותמת על הבייטים המדויקים ששלחה. <span dir="ltr" style="unicode-bidi:isolate;">express.json</span> הופך אותם לאובייקט וזורק את המקור, וטקסט שמרכיבים ממנו מחדש יוצא דומה אבל לא זהה. אז החתימה לא מתאימה, וכל הודעה אמיתית נראית מזויפת.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> אף אחד לא יכול לשלוח לבוט הודעות מזויפות</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="reveal-content delay-3 text-center text-lg font-bold mt-8">
+      עד כאן יש שרת שרץ. הוא עדיין לא מקבל אף הודעה מוואטסאפ.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-connect" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">מחברים את מטא לשרת</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-8 max-w-4xl">
+      את המנהרה Claude Code מרים בטרמינל. את ההדבקה אצל מטא רק אתם יכולים לעשות, לקונסולה שלה הוא לא נכנס.
+    </p>
+    <div class="grid md:grid-cols-2 gap-4 reveal-content delay-2 max-w-6xl mx-auto">
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">01</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">מרימים מנהרה שחושפת את השרת המקומי לאינטרנט.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> למטא אין דרך להגיע למחשב שלכם בלי זה</p>
+            <p class="text-sm mt-3 flex items-start gap-2"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0" style="color:#10b981;"></i><span dir="ltr" class="opacity-70" style="unicode-bidi:isolate; text-align:start;">cloudflared tunnel --url http://localhost:3111</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">02</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">לוקחים את הכתובת שקיבלתם ומוסיפים <strong>/webhook</strong> בסוף.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> בלי הסיומת הזו זה נכשל בשקט, בלי שום שגיאה</p>
+            <p class="text-sm mt-3 flex items-start gap-2"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0" style="color:#10b981;"></i><span dir="ltr" class="opacity-70" style="unicode-bidi:isolate; text-align:start;">https://xxxx.trycloudflare.com/webhook</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">03</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">מדביקים אותה אצל מטא, יחד עם הסיסמה שהמצאתם בקובץ ההגדרות.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> מטא בודקת אתכם כאן, וזו לחיצת היד</p>
+            <p class="text-sm mt-3 flex items-start gap-2"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0" style="color:#10b981;"></i><span dir="ltr" class="opacity-70" style="unicode-bidi:isolate; text-align:start;">developers.facebook.com/apps &rarr; your app &rarr; WhatsApp &rarr; Configuration &rarr; Webhook &rarr; Edit</span></p>
+            <p class="text-sm opacity-55">ממלאים Callback URL ו-Verify token, ואז Verify and save.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-6" style="border-color:#10b981;">
+        <div class="flex items-start gap-5">
+          <span class="inline-flex items-center justify-center w-11 h-11 rounded-2xl flex-shrink-0 text-xl" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">ואם בכל זאת לא מגיעות הודעות, בודקים ש-<strong>messages</strong> מסומן.</p>
+            <p class="text-sm opacity-55 mt-2"><i class="fa-solid fa-arrow-turn-down ml-1"></i> מטא מסמנת אותו לבד כשמגדירים את הוובהוק, אז בדרך כלל הוא כבר שם</p>
+            <p class="text-sm mt-3 flex items-start gap-2"><i class="fa-solid fa-location-dot mt-1 flex-shrink-0" style="color:#10b981;"></i><span dir="ltr" class="opacity-70" style="unicode-bidi:isolate; text-align:start;">Configuration &rarr; Webhook fields</span></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p class="reveal-content delay-3 text-center text-lg font-bold mt-8">
+      עכשיו כותבים לבוט מהטלפון. אם חוזרת תשובה, הצנרת סגורה.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-build-2" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">ועכשיו המוח</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-4 max-w-4xl">
+      שלושת האחרונים מחברים את הבוט למאגר, ואוסרים עליו להמציא.
+    </p>
+    <div class="space-y-2 reveal-content delay-2 max-w-4xl mx-auto">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-4">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">04</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">תגדיר ככלים את הבדיקות שהבוט יכול לבקש מהמאגר: מה מתאים למה, האם צמד מסוים מתאים, חיפוש לפי תקציב, פרטי מוצר, ומדיניות החנות.</p>
+            <p class="text-sm opacity-55 mt-1"><i class="fa-solid fa-arrow-turn-down ml-1"></i> הבוט יכול לבקש לבדוק, אבל לא מריץ בעצמו</p>
+          </div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-4">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">05</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">תכתוב את ההוראות הקבועות של הבוט, ואת הקוד שמריץ בשבילו את הכלים.<br><strong>בהוראות:</strong> אסור לו להגיד שום דבר שהוא לא בדק עכשיו. הוא עונה רק על החנות, המוצרים והמדיניות שלה. לא מבטיח תאריך אספקה, לא נותן הנחות, ולא מאשר הזמנות. לא מבקש אשראי או תעודת זהות. כל דבר שמערב כסף או תלונה עובר לנציג אנושי.<br><strong>בקוד:</strong> כל עוד הוא מבקש בדיקה, תריץ ותחזיר לו. אם ביקש כמה בדיקות ביחד, תחזיר את כולן בהודעה אחת.</p>
+            <p class="text-sm opacity-55 mt-1"><i class="fa-solid fa-arrow-turn-down ml-1"></i> הבוט בודק לפני שהוא עונה, ויודע מתי לא לענות בכלל</p>
+          </div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-4">
+        <div class="flex items-start gap-5">
+          <span dir="ltr" class="text-3xl font-black opacity-25 flex-shrink-0">06</span>
+          <div class="min-w-0">
+            <p class="text-base leading-relaxed">עכשיו תחבר. במקום שהשרת יחזיר את ההודעה כמו שהיא, שיעביר אותה לבוט ויחזיר ללקוח את התשובה שלו.</p>
+            <p class="text-sm opacity-55 mt-1"><i class="fa-solid fa-arrow-turn-down ml-1"></i> הכל מחובר</p>
+          </div>
+        </div>
+      </div></div>
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-2 shadow-xl p-4 mt-5 max-w-4xl mx-auto text-center" style="border-color:#10b981;">
+      <p class="text-lg font-bold">שימו לב שכל פרומפט מסתיים במשהו שאפשר לבדוק.</p>
+      <p class="text-sm opacity-60 mt-2">זה מה שמונע מצב שבו בונים שלושה חלקים ואז מחפשים איפה נשבר.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-before-client" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">לפני שזה יוצא ללקוח</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-7 max-w-4xl">
+      שלושה דברים שלא קשורים לקוד, ויפילו אתכם אם לא תדעו אותם.
+    </p>
+    <div class="grid md:grid-cols-3 gap-6 reveal-content delay-2">
+
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-6" style="border-color:#10b981;">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-toggle-on"></i></span>
+        <h3 class="text-xl font-black mb-3">המתג שחייב להיות דלוק</h3>
+        <p class="opacity-65 leading-relaxed">כל עוד האפליקציה לא מפורסמת, אף הודעה לא מגיעה. גם לא שלכם.</p>
+        <p class="text-sm font-bold mt-3">ואין שום שגיאה שתסביר למה.</p>
+      </div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-clock"></i></span>
+        <h3 class="text-xl font-black mb-3">24 שעות</h3>
+        <p class="opacity-65 leading-relaxed">לענות ללקוח שכתב אליכם: תמיד אפשר, כל הודעה שלו פותחת חלון חדש.</p>
+        <p class="text-sm font-bold mt-3">לכתוב לו ראשונים: רק בתבנית שמטא אישרה.</p>
+      </div>
+
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <span class="inline-flex items-center justify-center w-12 h-12 rounded-2xl text-xl mb-4" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-shekel-sign"></i></span>
+        <h3 class="text-xl font-black mb-3">כמה זה עולה</h3>
+        <p class="opacity-65 leading-relaxed">תשובות ללקוחות בחינם, עד אלף שיחות בחודש.</p>
+        <p class="text-sm font-bold mt-3">משלמים רק על הודעות שהעסק יוזם.</p>
+      </div>
+
+    </div>
+    <p class="reveal-content delay-3 text-center text-xl font-bold mt-7">
+      זו גם התשובה לשאלה הראשונה שכל לקוח ישאל אתכם.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-improve" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-7">ואיך הוא משתפר עם הזמן</h2>
+
+    <div class="max-w-4xl space-y-5">
+      <p class="reveal-content text-2xl leading-relaxed">
+        הבוט עונה רק ממה שיש לו. כשחסר לו משהו, אפשר להגדיר לו להביא אותו מבחוץ, למשל מהאתר הרשמי של היצרן.
+      </p>
+
+      <p class="reveal-content delay-1 text-2xl leading-relaxed">
+        כל שאלה שהבוט לא ידע לענות עליה היא לא תקלה. היא פריט ברשימת המשימות שלכם.
+      </p>
+
+      <p class="reveal-content delay-1 text-2xl leading-relaxed">
+        תעדו את מה שהוא לא ידע. אחרי שבוע תראו אילו שאלות חוזרות.
+      </p>
+
+      <p class="reveal-content delay-2 text-2xl leading-relaxed">
+        <strong>שאלה שחוזרת, מקומה במאגר. שאלה חד פעמית, אפשר להביא מבחוץ.</strong>
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8 reveal-content delay-3">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <h3 class="text-xl font-black mb-3">מהיר יותר</h3>
+        <p class="opacity-65 leading-relaxed">שליפה מהמאגר לוקחת רגע. פנייה לאתר חיצוני לוקחת שניות, והלקוח מחכה.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <h3 class="text-xl font-black mb-3">זהה בכל פעם</h3>
+        <p class="opacity-65 leading-relaxed">אותה שאלה מקבלת אותה תשובה. מאתר חיצוני היא עלולה להשתנות בלי שתדעו.</p>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6">
+        <h3 class="text-xl font-black mb-3">לא נשבר</h3>
+        <p class="opacity-65 leading-relaxed">אתר של מישהו אחר יכול ליפול או להשתנות. ואז דווקא השאלה הנפוצה מפסיקה לעבוד.</p>
+      </div>
+    </div>
+
+    <p class="reveal-content delay-3 text-center text-xl font-bold mt-7">
+      וגם זול יותר, אבל זו הסיבה הכי פחות חשובה מהשלוש.
+    </p>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-trap" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">המבחן האמיתי</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-5 max-w-4xl">
+      שיחה אמיתית מהבוט. שאלנו אותו על דגם שלא קיים בעולם.
+    </p>
+    <div class="reveal-content delay-2 max-w-3xl mx-auto space-y-4">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-4">
+        <div class="text-xs opacity-50 mb-1">לקוח</div>
+        <div class="text-lg">יש לכם גלקסי אס 30?</div>
+      </div>
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-4" style="border-color:#10b981;">
+        <div class="text-xs mb-1" style="color:#10b981;">הבוט</div>
+        <div class="text-lg">אין לנו דגם כזה בקטלוג.</div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-4">
+        <div class="text-xs opacity-50 mb-1">לקוח</div>
+        <div class="text-lg">S30 יש?</div>
+      </div>
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-4" style="border-color:#10b981;">
+        <div class="text-xs mb-1" style="color:#10b981;">הבוט</div>
+        <div class="text-lg">זה אותו דגם, ואין לנו אותו.</div>
+      </div>
+    </div>
+    <div class="reveal-content delay-3 tech-box rounded-3xl border-0 shadow-xl p-4 mt-4 text-center">
+      <p class="text-xl font-bold">הוא הבין ששתי הצורות הן אותו דגם, ולא נשבר בפעם השנייה.</p>
+      <p class="text-lg opacity-65 mt-3">ואף אחד לא כתב לו כלל מיוחד למקרה הזה.</p>
+    </div>
+  </div>
+</section>
+
+
+<section class="slide" id="slide-demo" style="padding:1rem 2rem;">
+  <div class="cyber-panel">
+    <h2 class="reveal-content text-4xl md:text-5xl font-black mb-4">עכשיו תנסו אתם</h2>
+    <p class="reveal-content delay-1 text-xl opacity-60 mb-8 max-w-4xl">
+      סרקו את הקוד וכתבו לבוט. ארבע שאלות, כל אחת מראה משהו אחר.
+    </p>
+    <div class="space-y-4 reveal-content delay-2 max-w-4xl">
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 flex items-center gap-6">
+        <span dir="ltr" class="text-3xl font-black opacity-25">01</span>
+        <div>
+          <div class="text-lg font-black">כמה עולה אייפון 18 פרו</div>
+          <div class="opacity-60 text-sm mt-1">מחיר אמיתי מהמאגר, לא ניחוש</div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-2 shadow-xl p-6 flex items-center gap-6" style="border-color:#10b981;">
+        <span dir="ltr" class="text-3xl font-black" style="color:#10b981; opacity:0.6;">02</span>
+        <div>
+          <div class="text-lg font-black">יש לי אייפון 17, רוצה שעון ספורט עד 2000</div>
+          <div class="opacity-60 text-sm mt-1">כאן רואים למה צריך Knowledge Graph ולא טבלה</div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 flex items-center gap-6">
+        <span dir="ltr" class="text-3xl font-black opacity-25">03</span>
+        <div>
+          <div class="text-lg font-black">אותה שאלה מגיעה לבד למוצר שאזל</div>
+          <div class="opacity-60 text-sm mt-1">והבוט מציע חלופה אמיתית במקום להמציא</div>
+        </div>
+      </div>
+      <div class="tech-box rounded-3xl border-0 shadow-xl p-6 flex items-center gap-6">
+        <span dir="ltr" class="text-3xl font-black opacity-25">04</span>
+        <div>
+          <div class="text-lg font-black">יש לכם Galaxy S30</div>
+          <div class="opacity-60 text-sm mt-1">דגם שלא קיים. הבוט אומר שאין</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal-content delay-3 flex flex-col items-center mt-6" data-qr="https://wa.me/972552425091">
+      <div class="bg-white rounded-2xl shadow-xl p-3" style="width:150px;">
+        <svg style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 27 27" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h27v27H0z"/><path stroke="#1e293b" d="M1 1.5h7m1 0h2m2 0h1m1 0h1m3 0h7M1 2.5h1m5 0h1m4 0h1m2 0h2m2 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m3 0h3m2 0h1m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h1m1 0h1m5 0h1m1 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h5m3 0h1m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h1m5 0h3m1 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h6m2 0h1M1 9.5h1m3 0h1m1 0h5m1 0h3m1 0h6m2 0h1M2 10.5h1m5 0h1m2 0h2m1 0h1m1 0h1m4 0h2m1 0h1M1 11.5h1m1 0h1m2 0h2m1 0h2m1 0h1m3 0h3m1 0h4M1 12.5h1m1 0h1m4 0h2m1 0h1m1 0h1m1 0h3m2 0h1m2 0h2M1 13.5h1m2 0h4m3 0h3m3 0h1m1 0h1m2 0h4M1 14.5h4m3 0h1m1 0h1m4 0h1m5 0h1m2 0h1M3 15.5h1m1 0h1m1 0h1m1 0h2m4 0h2m2 0h5M4 16.5h1m3 0h1m4 0h1m4 0h4m1 0h2M1 17.5h2m2 0h3m1 0h1m1 0h2m1 0h10M9 18.5h3m1 0h1m1 0h1m1 0h1m3 0h1M1 19.5h7m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1M1 20.5h1m5 0h1m2 0h3m1 0h1m1 0h2m3 0h5M1 21.5h1m1 0h3m1 0h1m1 0h3m1 0h2m2 0h8M1 22.5h1m1 0h3m1 0h1m3 0h1m2 0h3m1 0h3m2 0h1m1 0h1M1 23.5h1m1 0h3m1 0h1m3 0h1m5 0h3m2 0h1m1 0h1M1 24.5h1m5 0h1m5 0h1m1 0h2m2 0h6M1 25.5h7m1 0h1m1 0h2m1 0h3m1 0h2m3 0h3"/></svg>
+      </div>
+      <p class="text-sm opacity-60 mt-2">סרקו וכתבו לבוט</p>
+    </div>
+  </div>
+</section>
