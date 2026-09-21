@@ -513,7 +513,7 @@
 
         /* ===== קודי QR (data-qr) ===== */
         /* נוצרים ע"י ה-shell אחרי טעינת התוכן, כי תוכן הדק נשמר בלי script ובלי style */
-        .qr-render { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .qr-render { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative; }
         .qr-card { background: #ffffff; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); padding: 0.7rem; max-width: 100%; }
         .qr-card svg { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; }
         .qr-caption { font-size: 0.875rem; opacity: 0.75; margin-block-start: 0.5rem; text-align: center; }
@@ -537,7 +537,7 @@
         .qr-modal-actions button.qr-primary { border: 2px solid var(--neon-cyan); font-weight: 800; }
         .qr-modal :focus-visible, .qr-ctrl:focus-visible { outline: 2px solid var(--neon-cyan); outline-offset: 2px; }
         /* פקדים שמופיעים על הקוד רק במצב עריכה. הם בתוך העטיפה שנמחקת לפני שמירה, לכן לא נשמרים */
-        .qr-tools { display: none; gap: 0.4rem; margin-block-start: 0.5rem; }
+        .qr-tools { display: none; gap: 0.4rem; position: absolute; top: 0; left: 50%; transform: translate(-50%, -115%); }
         body.edit-mode .qr-tools { display: flex; }
         .qr-ctrl { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; border: 1px solid rgba(127, 127, 127, 0.45); background: var(--dark-bg); color: inherit; cursor: pointer; font-size: 0.9rem; }
 
@@ -809,7 +809,7 @@
                     holder.setAttribute('data-qr-generated', '1');
                     holder.setAttribute('contenteditable', 'false');
                     holder.appendChild(qrToolsFor(el));
-                    el.appendChild(holder);
+                    el.insertBefore(holder, el.firstChild);
                 });
                 if (!targets.length) return;
                 const qr = await loadQrLib();
