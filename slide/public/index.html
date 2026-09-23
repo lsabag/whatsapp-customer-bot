@@ -328,7 +328,7 @@
         }
 
         /* Add-slide button (shown only in edit mode, next to the toggle) */
-        /* Edit toolbar — shown only in edit mode (add slide/area, glow) */
+        /* Edit toolbar - shown only in edit mode (add slide/area, glow) */
         .edit-toolbar {
             position: fixed;
             bottom: 1rem;
@@ -365,7 +365,7 @@
         .edit-toolbar button:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
         .edit-toolbar button[data-act="glow-emerald"]:hover { border-color: var(--neon-emerald); color: var(--neon-emerald); }
 
-        /* Cancel button (floating, next to the save/confirm toggle — shown only in edit mode) */
+        /* Cancel button (floating, next to the save/confirm toggle - shown only in edit mode) */
         .edit-cancel {
             position: fixed;
             bottom: 1rem;
@@ -438,7 +438,7 @@
         .slide-ctrl.del { background: rgba(255, 70, 70, 0.15); border-color: rgba(255, 90, 90, 0.5); color: #ff7b7b; }
         .slide-ctrl.del:hover { background: rgba(255, 70, 70, 0.3); }
 
-        /* Glossary terms — dotted underline + hover/tap tooltip */
+        /* Glossary terms - dotted underline + hover/tap tooltip */
         .term {
             border-bottom: 1px dotted var(--neon-cyan);
             cursor: help;
@@ -472,14 +472,17 @@
         }
         .term:hover::after, .term.show-tip::after { opacity: 1; visibility: visible; }
 
-        /* Per-slide glossary box — hidden on screen, shown only in the PDF/print */
+        /* Per-slide glossary box - hidden on screen, shown only in the PDF/print */
         .print-glossary { display: none; }
 
         /* ===== Print / Export to PDF ===== */
         @media print {
             @page { size: A4 landscape; margin: 0; }
+            /* overflow-x: גלישה אופקית זעירה בפריסת ההדפסה מזיזה את העמוד ב-RTL
+               ומשאירה פס לבן בצד. חיתוך שלה מחזיר את הרקע לקצה. */
+            html, body { overflow-x: hidden !important; }
             body {
-                overflow: visible !important;
+                overflow-y: visible !important;
                 background: var(--dark-bg) !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -576,7 +579,7 @@
         <section class="slide" id="slide-0">
             <div class="cyber-panel text-center">
                 <h1 class="reveal-content delay-1 text-6xl md:text-7xl font-black mb-6 glow-text-cyan">כותרת המצגת</h1>
-                <p class="reveal-content delay-2 text-xl text-slate-400 max-w-2xl mx-auto">לחצו על ⋯ (מצב עריכה) כדי להתחיל — הוסיפו שקפים, אזורים, זוהר וטקסט. השמירה אוטומטית לענן.</p>
+                <p class="reveal-content delay-2 text-xl text-slate-400 max-w-2xl mx-auto">לחצו על ⋯ (מצב עריכה) כדי להתחיל - הוסיפו שקפים, אזורים, זוהר וטקסט. השמירה אוטומטית לענן.</p>
             </div>
         </section>
     </div>
@@ -628,43 +631,43 @@
                 { key: 'cloudapi', term: 'Cloud API', tip: 'ה-API הרשמי של וואטסאפ (Meta) לשליחה וקבלה של הודעות באופן חוקי ויציב.' },
                 { key: 'whatsappwebjs', term: 'whatsapp-web.js', tip: 'ספריית קוד לא-רשמית שמתחברת לוואטסאפ ווב על ידי הפעלת דפדפן נסתר (Puppeteer).' },
                 { key: 'multitenancy', term: 'Multi-tenancy', tip: 'ארכיטקטורה שבה מערכת אחת משרתת כמה לקוחות בנפרד, עם הפרדה מלאה ביניהם.' },
-                { key: 'humanloop', term: 'Human In Loop', tip: '"אדם בלולאה" — אדם שמפקח על התהליך האוטומטי ויכול להתערב בכל רגע.' },
-                { key: 'vectordb', term: 'Vector DB', tip: 'מסד נתונים וקטורי — שומר embeddings ומאפשר למצוא במהירות את הקטעים הדומים ביותר לשאלה.' },
-                { key: 'mvp', term: 'MVP', tip: 'Minimum Viable Product — גרסה ראשונית ומינימלית שמוכיחה שהרעיון עובד, לפני פיתוח מלא.' },
-                { key: 'nodejs', term: 'Node.js', tip: 'סביבת הרצה להרצת קוד JavaScript מחוץ לדפדפן — על השרת/מחשב.' },
-                { key: 'tunnel', term: 'מנהרה', tip: 'Tunnel — כלי שחושף שרת מקומי שרץ על המחשב שלך אל האינטרנט, כדי ששירות חיצוני יגיע אליו (כמו Ngrok / Cloudflare Tunnel). במקרה שלנו לא צריך אותו.' },
-                { key: 'ban', term: 'Ban', tip: 'חסימה — וואטסאפ חוסמת את המספר מלהשתמש בשירות.' },
-                { key: 'embedding', term: 'embedding', tip: 'ייצוג מספרי (וקטור) של טקסט שמקודד את המשמעות שלו — מאפשר להשוות דמיון בין טקסטים.' },
-                { key: 'production', term: 'פרודקשן', tip: 'סביבת הייצור — המערכת "האמיתית" שמשרתת לקוחות, להבדיל מסביבת פיתוח/בדיקות.' },
+                { key: 'humanloop', term: 'Human In Loop', tip: '"אדם בלולאה" - אדם שמפקח על התהליך האוטומטי ויכול להתערב בכל רגע.' },
+                { key: 'vectordb', term: 'Vector DB', tip: 'מסד נתונים וקטורי - שומר embeddings ומאפשר למצוא במהירות את הקטעים הדומים ביותר לשאלה.' },
+                { key: 'mvp', term: 'MVP', tip: 'Minimum Viable Product - גרסה ראשונית ומינימלית שמוכיחה שהרעיון עובד, לפני פיתוח מלא.' },
+                { key: 'nodejs', term: 'Node.js', tip: 'סביבת הרצה להרצת קוד JavaScript מחוץ לדפדפן - על השרת/מחשב.' },
+                { key: 'tunnel', term: 'מנהרה', tip: 'Tunnel - כלי שחושף שרת מקומי שרץ על המחשב שלך אל האינטרנט, כדי ששירות חיצוני יגיע אליו (כמו Ngrok / Cloudflare Tunnel). במקרה שלנו לא צריך אותו.' },
+                { key: 'ban', term: 'Ban', tip: 'חסימה - וואטסאפ חוסמת את המספר מלהשתמש בשירות.' },
+                { key: 'embedding', term: 'embedding', tip: 'ייצוג מספרי (וקטור) של טקסט שמקודד את המשמעות שלו - מאפשר להשוות דמיון בין טקסטים.' },
+                { key: 'production', term: 'פרודקשן', tip: 'סביבת הייצור - המערכת "האמיתית" שמשרתת לקוחות, להבדיל מסביבת פיתוח/בדיקות.' },
                 { key: 'twilio', term: 'Twilio', tip: 'חברה שמספקת גישה נוחה ל-APIs של תקשורת (כולל וואטסאפ הרשמי) דרך שירות מנוהל אחד.' },
                 { key: 'webhooks', term: 'webhooks', tip: 'מנגנון שבו שירות חיצוני "דוחף" אליך קריאת HTTP ברגע שמשהו קורה (למשל כשמתקבלת הודעה).' },
-                { key: 'serverless', term: 'serverless', tip: 'הרצת קוד בלי לנהל שרת — הספק מריץ את הקוד רק כשצריך ומחייב לפי שימוש בפועל.' },
-                { key: 'database', term: 'Database', tip: 'מסד נתונים — מערכת לשמירה מסודרת של מידע (כאן: היסטוריית השיחות והזיכרון).' },
-                { key: 'fallback', term: 'Fallback', tip: 'מנגנון גיבוי — מה קורה כשהבוט נתקע: העברה אוטומטית לנציג אנושי.' },
+                { key: 'serverless', term: 'serverless', tip: 'הרצת קוד בלי לנהל שרת - הספק מריץ את הקוד רק כשצריך ומחייב לפי שימוש בפועל.' },
+                { key: 'database', term: 'Database', tip: 'מסד נתונים - מערכת לשמירה מסודרת של מידע (כאן: היסטוריית השיחות והזיכרון).' },
+                { key: 'fallback', term: 'Fallback', tip: 'מנגנון גיבוי - מה קורה כשהבוט נתקע: העברה אוטומטית לנציג אנושי.' },
                 { key: 'optin', term: 'Opt-in', tip: 'הסכמה מפורשת ומראש של הלקוח לקבל הודעות אוטומטיות.' },
-                { key: 'sla', term: 'SLA', tip: 'Service Level Agreement — הסכם שמגדיר רמת שירות, זמינות ואחריות.' },
+                { key: 'sla', term: 'SLA', tip: 'Service Level Agreement - הסכם שמגדיר רמת שירות, זמינות ואחריות.' },
                 { key: 'retainer', term: 'Retainer', tip: 'תשלום חודשי קבוע עבור שירות מתמשך (תחזוקה, שרתים, תמיכה).' },
-                { key: 'hallucination', term: 'הלוצינציות', tip: 'Hallucinations — מצב שבו ה-AI ממציא מידע שגוי ומציג אותו בביטחון.' },
-                { key: 'muted', term: 'Muted', tip: 'מושתק — הבוט מפסיק לענות אוטומטית כשנציג אנושי נכנס לשיחה.' },
-                { key: 'vm', term: 'VM', tip: 'Virtual Machine — מחשב וירטואלי בענן שרץ תמיד, כמו מחשב מרוחק שתמיד דלוק.' },
-                { key: 'qa', term: 'QA', tip: 'Quality Assurance — בדיקות איכות שמוודאות שהמערכת עובדת נכון לפני עלייה לאוויר.' },
-                { key: 'api', term: 'API', tip: 'Application Programming Interface — "שקע" תקשורת שדרכו תוכנה מבקשת שירות מתוכנה אחרת.' },
-                { key: 'rag', term: 'RAG', tip: 'Retrieval-Augmented Generation — שליפת קטעי המידע הרלוונטיים לכל שאלה והזרקתם ל-AI בזמן אמת.' },
-                { key: 'kgraph', term: 'Knowledge Graph', tip: 'גרף ידע — ייצוג המידע כרשת של פריטים והקשרים ביניהם, לשליפת תשובות מדויקות על קשרים.' },
-                { key: 'chroma', term: 'Chroma', tip: 'מסד וקטורי חינמי וקוד-פתוח — מאחסן מידע ומאפשר חיפוש לפי משמעות (ל-RAG).' },
+                { key: 'hallucination', term: 'הלוצינציות', tip: 'Hallucinations - מצב שבו ה-AI ממציא מידע שגוי ומציג אותו בביטחון.' },
+                { key: 'muted', term: 'Muted', tip: 'מושתק - הבוט מפסיק לענות אוטומטית כשנציג אנושי נכנס לשיחה.' },
+                { key: 'vm', term: 'VM', tip: 'Virtual Machine - מחשב וירטואלי בענן שרץ תמיד, כמו מחשב מרוחק שתמיד דלוק.' },
+                { key: 'qa', term: 'QA', tip: 'Quality Assurance - בדיקות איכות שמוודאות שהמערכת עובדת נכון לפני עלייה לאוויר.' },
+                { key: 'api', term: 'API', tip: 'Application Programming Interface - "שקע" תקשורת שדרכו תוכנה מבקשת שירות מתוכנה אחרת.' },
+                { key: 'rag', term: 'RAG', tip: 'Retrieval-Augmented Generation - שליפת קטעי המידע הרלוונטיים לכל שאלה והזרקתם ל-AI בזמן אמת.' },
+                { key: 'kgraph', term: 'Knowledge Graph', tip: 'גרף ידע - ייצוג המידע כרשת של פריטים והקשרים ביניהם, לשליפת תשובות מדויקות על קשרים.' },
+                { key: 'chroma', term: 'Chroma', tip: 'מסד וקטורי חינמי וקוד-פתוח - מאחסן מידע ומאפשר חיפוש לפי משמעות (ל-RAG).' },
                 { key: 'pinecone', term: 'Pinecone', tip: 'שירות ענן לאחסון וחיפוש לפי משמעות (ל-RAG).' },
-                { key: 'neo4j', term: 'Neo4j', tip: 'מסד נתונים מסוג גרף — שומר מידע כרשת של פריטים והקשרים ביניהם (ל-Knowledge Graph).' },
-                { key: 'bsp', term: 'BSP', tip: 'Business Solution Provider — חברה מורשית של Meta שנותנת גישה ל-WhatsApp Business API ומטפלת בתשתית, אישורי מספר, תבניות וחיוב (כמו Twilio).' },
-                { key: 'oraclecloud', term: 'Oracle Cloud', tip: 'שירות ענן של Oracle להשכרת שרתים וירטואליים (יש גם שכבה חינמית תמידית) — אפשר להריץ עליו את הבוט 24/7.' },
-                { key: 'aws', term: 'AWS', tip: 'Amazon Web Services — ספקית הענן הגדולה בעולם; משכירים בה שרתים ושירותים מנוהלים להרצת אפליקציות 24/7.' },
-                { key: 'vps', term: 'VPS', tip: 'Virtual Private Server — שרת וירטואלי פרטי שאתה שוכר (בתשלום חודשי) ומנהל בעצמך, רץ תמיד.' },
-                { key: 'cfworkers', term: 'Cloudflare Workers', tip: 'פלטפורמת serverless של Cloudflare — מריצה קוד בענן בלי לנהל שרת, ומשלמים רק לפי שימוש. זול ויעיל לבוט מבוסס Cloud API ו-webhooks.' },
-                { key: 'postgres', term: 'Postgres', tip: 'PostgreSQL — מסד נתונים רלציוני פופולרי וקוד-פתוח לשמירת מידע מסודר (כאן: היסטוריית השיחות והזיכרון).' },
-                { key: 'supabase', term: 'Supabase', tip: 'פלטפורמה מנוהלת מעל Postgres — מסד נתונים בענן עם API מוכן (תומך גם בחיפוש וקטורי ל-RAG).' },
-                { key: 'github', term: 'GitHub', tip: 'פלטפורמה לאחסון וניהול קוד (מבוססת Git) — מעלים אליה פרויקטים, שומרים גרסאות ומשתפים קוד.' },
+                { key: 'neo4j', term: 'Neo4j', tip: 'מסד נתונים מסוג גרף - שומר מידע כרשת של פריטים והקשרים ביניהם (ל-Knowledge Graph).' },
+                { key: 'bsp', term: 'BSP', tip: 'Business Solution Provider - חברה מורשית של Meta שנותנת גישה ל-WhatsApp Business API ומטפלת בתשתית, אישורי מספר, תבניות וחיוב (כמו Twilio).' },
+                { key: 'oraclecloud', term: 'Oracle Cloud', tip: 'שירות ענן של Oracle להשכרת שרתים וירטואליים (יש גם שכבה חינמית תמידית) - אפשר להריץ עליו את הבוט 24/7.' },
+                { key: 'aws', term: 'AWS', tip: 'Amazon Web Services - ספקית הענן הגדולה בעולם; משכירים בה שרתים ושירותים מנוהלים להרצת אפליקציות 24/7.' },
+                { key: 'vps', term: 'VPS', tip: 'Virtual Private Server - שרת וירטואלי פרטי שאתה שוכר (בתשלום חודשי) ומנהל בעצמך, רץ תמיד.' },
+                { key: 'cfworkers', term: 'Cloudflare Workers', tip: 'פלטפורמת serverless של Cloudflare - מריצה קוד בענן בלי לנהל שרת, ומשלמים רק לפי שימוש. זול ויעיל לבוט מבוסס Cloud API ו-webhooks.' },
+                { key: 'postgres', term: 'Postgres', tip: 'PostgreSQL - מסד נתונים רלציוני פופולרי וקוד-פתוח לשמירת מידע מסודר (כאן: היסטוריית השיחות והזיכרון).' },
+                { key: 'supabase', term: 'Supabase', tip: 'פלטפורמה מנוהלת מעל Postgres - מסד נתונים בענן עם API מוכן (תומך גם בחיפוש וקטורי ל-RAG).' },
+                { key: 'github', term: 'GitHub', tip: 'פלטפורמה לאחסון וניהול קוד (מבוססת Git) - מעלים אליה פרויקטים, שומרים גרסאות ומשתפים קוד.' },
                 { key: 'dotenvfile', term: '.env', tip: 'קובץ "סודות" נפרד שמחזיק מפתחות וסיסמאות (כמו מפתח ה-API), כדי שלא יהיו כתובים בתוך הקוד עצמו.' },
-                { key: 'gitignore', term: '.gitignore', tip: 'קובץ שאומר ל-Git אילו קבצים לא להעלות — כך שסודות וקבצים רגישים לא מגיעים ל-GitHub.' },
-                { key: 'session', term: 'session', tip: 'קבצים שבהם whatsapp-web.js שומר את ההתחברות לוואטסאפ (כדי לא לסרוק QR כל פעם). רגישים — מי שמשיג אותם יכול להתחבר לחשבון.' },
+                { key: 'gitignore', term: '.gitignore', tip: 'קובץ שאומר ל-Git אילו קבצים לא להעלות - כך שסודות וקבצים רגישים לא מגיעים ל-GitHub.' },
+                { key: 'session', term: 'session', tip: 'קבצים שבהם whatsapp-web.js שומר את ההתחברות לוואטסאפ (כדי לא לסרוק QR כל פעם). רגישים - מי שמשיג אותם יכול להתחבר לחשבון.' },
                 { key: 'dotenvlib', term: 'dotenv', tip: 'ספריית Node.js שטוענת את המשתנים מקובץ ה-.env אל הקוד בזמן ריצה (כך הסודות זמינים לקוד בלי להיכתב בתוכו).' },
                 { key: 'vectordbhe', term: 'מסד וקטורי', tip: 'מסד נתונים וקטורי - שומר ייצוגים מספריים (embeddings) של טקסט ומאפשר למצוא במהירות את הקטעים הדומים ביותר לשאלה (משמש ל-RAG).' },
                 { key: 'sdk', term: 'sdk', tip: 'SDK (Software Development Kit) - ערכת כלים/ספרייה רשמית שמקלה על חיבור לשירות. כאן: הספרייה הרשמית לחיבור הקוד ל-Claude.' },
@@ -779,7 +782,8 @@
                 clone.querySelectorAll('.term').forEach(s => { try { s.replaceWith(document.createTextNode(s.textContent)); } catch (e) {} });
                 clone.querySelectorAll('#interactive-graph').forEach(g => { g.innerHTML = ''; }); // אל תשמור את ה-canvas של הגרף
                 clone.querySelectorAll('[data-qr-generated]').forEach(n => n.remove()); // קודי QR נוצרים מחדש בכל טעינה
-                return clone.innerHTML;
+                // כלל הבית: אין מקף ארוך בשום טקסט. נורמליזציה בשמירה, כדי שלא יחזור דרך הדבקה או הקלדה.
+                return clone.innerHTML.replace(/[\u2014\u2013]/g, '-');
             };
 
             // ===== קודי QR =====
@@ -1060,7 +1064,7 @@
                 saveState();
             };
 
-            // גרף ידע אינטראקטיבי (vis-network) — נבנה כשקיים בתוכן אלמנט #interactive-graph
+            // גרף ידע אינטראקטיבי (vis-network) - נבנה כשקיים בתוכן אלמנט #interactive-graph
             const renderGraph = () => {
                 const container = document.getElementById('interactive-graph');
                 if (!container || typeof vis === 'undefined') return;
@@ -1128,7 +1132,7 @@
                         const txt = await res.text();
                         if (txt && txt.trim().length > 20) { mainContainer.innerHTML = txt; return; }
                     }
-                } catch (e) { /* no server (GitHub Pages / local file) — fall back */ }
+                } catch (e) { /* no server (GitHub Pages / local file) - fall back */ }
                 try {
                     const saved = localStorage.getItem(STORAGE_KEY);
                     if (saved) mainContainer.innerHTML = saved;
@@ -1153,7 +1157,7 @@
                 if (editPassword) {
                     c.innerHTML = '<i class="fa-solid fa-lock-open"></i> שמירה פעילה';
                     c.style.borderColor = 'rgba(0,255,157,0.6)'; c.style.color = 'var(--neon-emerald)';
-                    c.title = 'הקוד הוזן — השמירה תעבוד. לחצו לשינוי או ניקוי הקוד.';
+                    c.title = 'הקוד הוזן - השמירה תעבוד. לחצו לשינוי או ניקוי הקוד.';
                 } else {
                     c.innerHTML = '<i class="fa-solid fa-key"></i> הזן קוד לשמירה';
                     c.style.borderColor = 'rgba(251,191,36,0.6)'; c.style.color = '#fbbf24';
@@ -1167,7 +1171,7 @@
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
                 }
                 if (!editPassword) {
-                    alert('⚠️ לא הוזן קוד — השינויים לא נשמרו בענן. הזינו את קוד העריכה כדי לשמור.');
+                    alert('⚠️ לא הוזן קוד - השינויים לא נשמרו בענן. הזינו את קוד העריכה כדי לשמור.');
                     return 'no-password';
                 }
                 let body;
@@ -1186,11 +1190,11 @@
                     if (res.status === 401) {
                         try { sessionStorage.removeItem('deck_pw'); } catch (e) {}
                         editPassword = null;
-                        alert('❌ קוד העריכה שגוי — השינויים לא נשמרו בענן. נסו שוב.');
+                        alert('❌ קוד העריכה שגוי - השינויים לא נשמרו בענן. נסו שוב.');
                         return 'unauthorized';
                     }
                     if (res.status === 413) {
-                        alert('❌ התוכן כבד מדי לשמירה — כנראה תמונה גדולה מדי. נסו תמונה קטנה יותר או הסירו תמונה.');
+                        alert('❌ התוכן כבד מדי לשמירה - כנראה תמונה גדולה מדי. נסו תמונה קטנה יותר או הסירו תמונה.');
                         return 'error';
                     }
                     if (!res.ok) {
@@ -1199,12 +1203,12 @@
                     }
                     return 'ok';
                 } catch (e) {
-                    alert('❌ אין חיבור לשרת — השינויים לא נשמרו בענן. בדקו את החיבור לאינטרנט ונסו שוב.');
+                    alert('❌ אין חיבור לשרת - השינויים לא נשמרו בענן. בדקו את החיבור לאינטרנט ונסו שוב.');
                     return 'error';
                 }
             };
 
-            // החלפת עיצוב כהה⇄בהיר — שומר את התוכן ומגיש אותו בתבנית השנייה (אותו תוכן בדיוק)
+            // החלפת עיצוב כהה⇄בהיר - שומר את התוכן ומגיש אותו בתבנית השנייה (אותו תוכן בדיוק)
             const switchTheme = async () => {
                 const cur = (document.documentElement.dataset.template === 'light') ? 'light' : 'dark';
                 const target = cur === 'light' ? 'dark' : 'light';
@@ -1213,18 +1217,18 @@
                     editPassword = (await askPassword('הזינו את קוד העריכה כדי לשמור ולהחליף עיצוב:')) || '';
                     try { if (editPassword) sessionStorage.setItem('deck_pw', editPassword); } catch (e) {}
                 }
-                if (!editPassword) { alert('⚠️ לא הוזן קוד — העיצוב לא הוחלף.'); return; }
+                if (!editPassword) { alert('⚠️ לא הוזן קוד - העיצוב לא הוחלף.'); return; }
                 try {
                     const res = await fetch(API_CONTENT, { method: 'POST', headers: { 'content-type': 'text/plain; charset=utf-8', 'x-edit-password': editPassword, 'x-template': target }, body: cleanDeckHtml() });
-                    if (res.status === 401) { try { sessionStorage.removeItem('deck_pw'); } catch (e) {} editPassword = null; alert('❌ קוד העריכה שגוי — העיצוב לא הוחלף.'); return; }
+                    if (res.status === 401) { try { sessionStorage.removeItem('deck_pw'); } catch (e) {} editPassword = null; alert('❌ קוד העריכה שגוי - העיצוב לא הוחלף.'); return; }
                     if (!res.ok) { alert('❌ החלפת העיצוב נכשלה (שגיאת שרת ' + res.status + ').'); return; }
                     location.href = location.pathname + '?t=' + target;
                 } catch (e) { alert('❌ לא ניתן להחליף עיצוב כרגע (אין חיבור לשרת).'); }
             };
 
-            // ביטול שינויים — שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
+            // ביטול שינויים - שחזור הגרסה השמורה האחרונה מהשרת בלי לשמור
             const cancelEdit = async () => {
-                // אם לא בוצע שום שינוי — יוצאים בשקט, בלי הודעת אישור ובלי טעינה מחדש
+                // אם לא בוצע שום שינוי - יוצאים בשקט, בלי הודעת אישור ובלי טעינה מחדש
                 if (typeof isDirty === 'function' && !isDirty()) {
                     stopHistory();
                     editMode = false;
@@ -1464,7 +1468,7 @@
                 section.innerHTML =
                     '<div class="cyber-panel"' + (editMode ? ' contenteditable="true"' : '') + '>' +
                     '<h2 class="text-4xl md:text-5xl font-bold mb-6 glow-text-cyan">כותרת חדשה</h2>' +
-                    '<p class="text-lg leading-relaxed ' + (darkT ? 'text-slate-300' : 'text-slate-600') + '">טקסט רגיל — לחצו כאן כדי לערוך.</p>' +
+                    '<p class="text-lg leading-relaxed ' + (darkT ? 'text-slate-300' : 'text-slate-600') + '">טקסט רגיל - לחצו כאן כדי לערוך.</p>' +
                     '</div>';
                 // Insert before the last slide so the closing (QR) slide stays last
                 const last = slides[slides.length - 1];
@@ -1485,7 +1489,7 @@
                 block.className = 'tech-box mt-4';
                 block.innerHTML =
                     '<h3 class="text-xl font-bold mb-2 ' + (dark ? 'text-white' : 'text-slate-800') + '">כותרת אזור</h3>' +
-                    '<p class="text-sm ' + (dark ? 'text-slate-300' : 'text-slate-600') + '">טקסט — לחצו כאן כדי לערוך.</p>';
+                    '<p class="text-sm ' + (dark ? 'text-slate-300' : 'text-slate-600') + '">טקסט - לחצו כאן כדי לערוך.</p>';
                 panel.appendChild(block);
                 saveState();
             };
@@ -1564,7 +1568,7 @@
             renderGraph();
             document.dispatchEvent(new CustomEvent('deck-loaded'));
 
-            // תפריט צד נפתח — פתיחה דרך כפתור המבורגר או לחיצה על רקע התפריט העליון
+            // תפריט צד נפתח - פתיחה דרך כפתור המבורגר או לחיצה על רקע התפריט העליון
             if (navBurger) navBurger.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
             scrollNav.addEventListener('click', (e) => { if (e.target === scrollNav) openDrawer(); });
             if (navDrawerOverlay) navDrawerOverlay.addEventListener('click', closeDrawer);
@@ -1601,7 +1605,7 @@
                     startHistory();
                     return;
                 }
-                // אם לא בוצע שום שינוי — יוצאים בשקט בלי לשמור ובלי לבקש קוד
+                // אם לא בוצע שום שינוי - יוצאים בשקט בלי לשמור ובלי לבקש קוד
                 if (!isDirty()) {
                     stopHistory();
                     editMode = false;
@@ -1612,15 +1616,15 @@
                     editToggle.title = 'מצב עריכה';
                     return;
                 }
-                // מסיימים עריכה — מנסים לשמור לפני שיוצאים
+                // מסיימים עריכה - מנסים לשמור לפני שיוצאים
                 saveState();
                 const result = await saveToServer();
                 updatePwChip();
                 if (result === 'no-password' || result === 'unauthorized' || result === 'error') {
-                    // השמירה נכשלה — נשארים במצב עריכה כדי לא לאבד את השינויים
+                    // השמירה נכשלה - נשארים במצב עריכה כדי לא לאבד את השינויים
                     return;
                 }
-                // הצלחה — יוצאים ממצב עריכה
+                // הצלחה - יוצאים ממצב עריכה
                 showToast('✓ השינויים נשמרו בענן');
                 stopHistory();
                 editMode = false;
@@ -1699,9 +1703,9 @@
                 setTimeout(() => window.print(), 150);
             });
 
-            // גלילה עם הגלגלת — סקשן אחד בכל תנועה, באנימציה רכה ומבוקרת (~1ש', האטה בהתחלה ובסוף)
+            // גלילה עם הגלגלת - סקשן אחד בכל תנועה, באנימציה רכה ומבוקרת (~1ש', האטה בהתחלה ובסוף)
             mainContainer.addEventListener('wheel', (e) => {
-                if (editMode) return; // במצב עריכה — גלילה חופשית
+                if (editMode) return; // במצב עריכה - גלילה חופשית
                 e.preventDefault();
                 if (isScrolling || Math.abs(e.deltaY) < 8) return;
                 isScrolling = true;
@@ -1806,7 +1810,7 @@
             return b;
         }
 
-        // גודל גופן — שדה מספרי שמראה את הגודל הנוכחי (px) במקום +/-
+        // גודל גופן - שדה מספרי שמראה את הגודל הנוכחי (px) במקום +/-
         function applyFontPx(px) {
             restoreSel();
             try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
@@ -1818,20 +1822,20 @@
         }
         const sizeInput = document.createElement('input');
         sizeInput.type = 'number'; sizeInput.min = '8'; sizeInput.max = '200'; sizeInput.value = '24';
-        sizeInput.className = 'size-input'; sizeInput.title = 'גודל גופן (px) — הקלידו או גללו';
+        sizeInput.className = 'size-input'; sizeInput.title = 'גודל גופן (px) - הקלידו או גללו';
         sizeInput.addEventListener('mousedown', function (e) { e.stopPropagation(); });
         sizeInput.addEventListener('change', function () { const px = parseInt(sizeInput.value, 10); if (px) applyFontPx(px); });
         sizeInputRef = sizeInput;
         toolbar.appendChild(sizeInput);
 
-        // הדגשה ונטוי — מקובצים יחד
+        // הדגשה ונטוי - מקובצים יחד
         const fmtGroup = document.createElement('span');
         fmtGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;';
         toolbar.appendChild(fmtGroup);
         tbBtn('<i class="fa-solid fa-bold"></i>', 'מודגש (בולד)', function () { fmt('bold'); }, fmtGroup);
         tbBtn('<i class="fa-solid fa-italic"></i>', 'נטוי (italic)', function () { fmt('italic'); }, fmtGroup);
 
-        // כפתורי יישור — מקובצים יחד כך שלא יישברו לשורה נפרדת
+        // כפתורי יישור - מקובצים יחד כך שלא יישברו לשורה נפרדת
         const alignGroup = document.createElement('span');
         alignGroup.style.cssText = 'display:inline-flex;gap:0.4rem;flex-wrap:nowrap;';
         toolbar.appendChild(alignGroup);
@@ -1839,7 +1843,7 @@
         tbBtn('<i class="fa-solid fa-align-center"></i>', 'מרכוז', function () { fmt('justifyCenter'); }, alignGroup);
         tbBtn('<i class="fa-solid fa-align-left"></i>', 'יישור לשמאל', function () { fmt('justifyLeft'); }, alignGroup);
 
-        // לוח צבעים של המצגת — ניתן לעריכה, נשמר פר-מצגת בתוך התוכן (#deck-swatches)
+        // לוח צבעים של המצגת - ניתן לעריכה, נשמר פר-מצגת בתוך התוכן (#deck-swatches)
         const DEFAULT_SWATCHES = ['#00f3ff', '#bc13fe', '#00ff9d', '#ffffff', '#e2e8f0', '#94a3b8'];
 
         const color = document.createElement('input');
@@ -1881,7 +1885,7 @@
             swatchGroup.appendChild(edit);
         }
 
-        // עורך ויזואלי ללוח הצבעים — בוחרים צבע בעין, בלי קודי hex
+        // עורך ויזואלי ללוח הצבעים - בוחרים צבע בעין, בלי קודי hex
         function normalizeHex(c) {
             c = (c || '').trim();
             if (/^#[0-9a-fA-F]{3}$/.test(c)) return ('#' + c[1] + c[1] + c[2] + c[2] + c[3] + c[3]).toLowerCase();
@@ -1924,7 +1928,7 @@
         renderSwatches();
         document.addEventListener('deck-loaded', renderSwatches);
 
-        // ===== תמונות / לוגו — העלאה מהמחשב או הדבקה (Ctrl+V) =====
+        // ===== תמונות / לוגו - העלאה מהמחשב או הדבקה (Ctrl+V) =====
         function downscaleImage(dataUrl, cb) {
             const img = new Image();
             img.onload = function () {
@@ -1984,7 +1988,7 @@
             }
         });
 
-        // ===== זוהר חכם — מזהה זוהר קיים, מתחלף בין החלה/ביטול, עם צבע לבחירה =====
+        // ===== זוהר חכם - מזהה זוהר קיים, מתחלף בין החלה/ביטול, עם צבע לבחירה =====
         const GLOW_CLASSES = ['glow-text', 'glow-text-cyan', 'glow-text-emerald'];
         function findGlow(node) {
             while (node && node !== document.body) {
@@ -2004,7 +2008,7 @@
             if (node.classList.length === 0) node.removeAttribute('class');
             node.style.removeProperty('--glow-color');
             if (node.getAttribute('style') === '') node.removeAttribute('style');
-            // אם זה span עטיפה שלנו בלי שום תפקיד אחר — נפרק אותו
+            // אם זה span עטיפה שלנו בלי שום תפקיד אחר - נפרק אותו
             if (node.tagName === 'SPAN' && !node.attributes.length) {
                 const parent = node.parentNode;
                 while (node.firstChild) parent.insertBefore(node.firstChild, node);
@@ -2074,7 +2078,7 @@
             for (let i = 0; i < n; i++) {
                 const c = document.createElement('div');
                 c.className = 'tech-box';
-                c.innerHTML = '<h3 class="text-lg font-bold mb-2">כותרת</h3><p class="text-sm">טקסט — לחצו לעריכה.</p>';
+                c.innerHTML = '<h3 class="text-lg font-bold mb-2">כותרת</h3><p class="text-sm">טקסט - לחצו לעריכה.</p>';
                 grid.appendChild(c);
             }
             panel.appendChild(grid);

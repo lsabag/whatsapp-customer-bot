@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מצגות — Nextli</title>
+    <title>מצגות - Nextli</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -80,7 +80,7 @@
                 const res = await fetch('/api/decks', { cache: 'no-store' });
                 const data = await res.json();
                 const decks = (data && data.decks) || [];
-                if (!decks.length) { list.innerHTML = '<div class="text-slate-500">אין עדיין מצגות שמורות — צרו אחת למעלה.</div>'; return; }
+                if (!decks.length) { list.innerHTML = '<div class="text-slate-500">אין עדיין מצגות שמורות - צרו אחת למעלה.</div>'; return; }
                 list.innerHTML = '';
                 decks.forEach(d => {
                     const name = (typeof d === 'string') ? d : d.name;
@@ -97,7 +97,7 @@
                     a.className = 'deck-link flex-1 flex items-center bg-black/40 border border-slate-700 rounded-xl px-4 py-3 text-slate-200';
                     a.innerHTML = '<i class="fa-solid fa-display ml-2 text-[var(--neon-emerald)]"></i>' + badge + '<span class="flex-1">' + name + (custom ? ' <span class="text-xs text-slate-500">(מובנית)</span>' : '') + '</span>';
                     row.appendChild(a);
-                    // שינוי שם — לכל מצגת מבוססת-תוכן (גם מובנית/מוגנת); לא למצגות עצמאיות
+                    // שינוי שם - לכל מצגת מבוססת-תוכן (גם מובנית/מוגנת); לא למצגות עצמאיות
                     if (!standalone) {
                         const ren = document.createElement('button');
                         ren.title = 'שנה שם מצגת';
@@ -106,7 +106,7 @@
                         ren.addEventListener('click', () => renameDeck(name));
                         row.appendChild(ren);
                     }
-                    // מחיקה — רק למצגות שאינן מוגנות
+                    // מחיקה - רק למצגות שאינן מוגנות
                     if (!custom) {
                         const del = document.createElement('button');
                         del.title = 'מחק מצגת';
@@ -131,7 +131,7 @@
             try {
                 const res = await fetch('/' + encodeURIComponent(name) + '/api/rename', { method: 'POST', headers: { 'x-edit-password': pw, 'x-new-name': to } });
                 if (res.status === 200) { loadDecks(); }
-                else if (res.status === 401) alert('קוד שגוי — השם לא שונה.');
+                else if (res.status === 401) alert('קוד שגוי - השם לא שונה.');
                 else if (res.status === 403) alert('מצגת עם עיצוב עצמאי לא ניתנת לשינוי שם.');
                 else if (res.status === 409) alert('השם "' + to + '" כבר תפוס.');
                 else if (res.status === 400) alert('שם לא תקין.');
@@ -145,7 +145,7 @@
             try {
                 const res = await fetch('/' + encodeURIComponent(name) + '/api/content', { method: 'DELETE', headers: { 'x-edit-password': pw } });
                 if (res.status === 200) { loadDecks(); }
-                else if (res.status === 401) alert('קוד שגוי — המצגת לא נמחקה.');
+                else if (res.status === 401) alert('קוד שגוי - המצגת לא נמחקה.');
                 else if (res.status === 403) alert('לא ניתן למחוק מצגת מובנית.');
                 else alert('המחיקה נכשלה.');
             } catch (e) { alert('שגיאה במחיקה.'); }
