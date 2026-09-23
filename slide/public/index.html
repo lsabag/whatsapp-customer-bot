@@ -406,7 +406,9 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .export-pdf:hover { color: var(--neon-purple); border-color: var(--neon-purple); }
+        .slide-counter { position: fixed; bottom: 1rem; left: 6.2rem; z-index: 60; min-width: 34px; height: 34px; padding: 0 0.55rem; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.25); color: rgba(255, 255, 255, 0.85); font-size: 0.78rem; font-weight: 700; font-variant-numeric: tabular-nums; direction: ltr; user-select: none; }
+    body.edit-mode .slide-counter { display: none; }
+    .export-pdf:hover { color: var(--neon-purple); border-color: var(--neon-purple); }
         body.edit-mode .export-pdf { display: none; }
 
         /* Per-slide controls: move up / down / delete (shown only in edit mode) */
@@ -482,19 +484,26 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls, .fullscreen-btn, .nav-burger, .nav-drawer, .nav-drawer-overlay, .back-to-first { display: none !important; }
+            .slide-counter, .orb, .scroll-nav, .edit-toggle, .add-slide, .export-pdf, .slide-controls, .fullscreen-btn, .nav-burger, .nav-drawer, .nav-drawer-overlay, .back-to-first, .qr-tools { display: none !important; }
+            /* צללים ו-blur נצרבים כתמונות בייצוא ומנפחים את הקובץ פי כמה.
+               בהדפסה מוותרים עליהם ומשאירים רקע וגבול, כך שהקובץ נשאר טקסט. */
+            * { box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; text-shadow: none !important; }
             .scroll-container { height: auto !important; overflow: visible !important; scroll-snap-type: none !important; }
             .slide {
                 height: auto !important;
                 min-height: 100vh;
+                padding: 1.25rem;
                 page-break-after: always;
                 break-after: page;
+                break-inside: avoid;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             .slide:last-child { page-break-after: auto; break-after: auto; }
             .reveal-content { opacity: 1 !important; transform: none !important; }
-            .cyber-panel { outline: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            /* zoom (בניגוד ל-transform) מקטין גם את תיבת הפריסה, ולכן שקף צפוף
+               נשאר בתוך עמוד אחד במקום לגלוש לשני */
+            .cyber-panel { outline: none !important; padding: 1.5rem; zoom: 0.85; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .print-glossary {
                 display: block;
                 margin-top: 1.5rem;
@@ -506,9 +515,12 @@
                 text-align: right;
             }
             .print-glossary h4 { color: var(--neon-cyan); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.8rem; }
-            .print-glossary ul { list-style: disc; padding-right: 1.2rem; }
-            .print-glossary li { margin-bottom: 0.15rem; }
+            /* שתי עמודות, כדי שמילון ארוך לא ידחוף את השקף לעמוד שני */
+            .print-glossary ul { list-style: disc; padding-inline-start: 1.2rem; column-count: 2; column-gap: 1.6rem; }
+            .print-glossary li { margin-bottom: 0.15rem; break-inside: avoid; page-break-inside: avoid; }
             .print-glossary strong { color: #fff; }
+            .print-glossary-dense ul { column-count: 3; }
+            .print-glossary-dense { font-size: 0.64rem; line-height: 1.35; }
         }
 
         /* ===== קודי QR (data-qr) ===== */
@@ -573,6 +585,7 @@
     <button class="edit-toggle" id="editToggle" title="מצב עריכה"><i class="fa-solid fa-ellipsis"></i></button>
     <button class="edit-cancel" id="editCancel" title="בטל שינויים"><i class="fa-solid fa-xmark"></i></button>
     <button class="export-pdf" id="exportPdf" title="ייצוא ל-PDF"><i class="fa-solid fa-file-pdf"></i></button>
+    <div class="slide-counter" id="slideCounter" title="שקף נוכחי מתוך הסך הכל"></div>
     <button class="fullscreen-btn" id="fullscreenBtn"><i class="fa-solid fa-expand"></i> מסך מלא</button>
     <button class="back-to-first" id="backToFirstBtn"><i class="fa-solid fa-arrow-up"></i> חזרה לתחילת המצגת</button>
     <div class="edit-toolbar" id="editToolbar">
@@ -1432,7 +1445,7 @@
                         if (entry.isIntersecting) {
                             entry.target.classList.add('in-view');
                             currentIndex = getSlides().indexOf(entry.target);
-                            setActiveDot(currentIndex);
+                            setActiveDot(currentIndex); try { const _c = document.getElementById('slideCounter'); if (_c) _c.textContent = (currentIndex + 1) + ' / ' + getSlides().length; } catch (e) {}
                             try { sessionStorage.setItem(POS_KEY, currentIndex); } catch (e) {}
                         }
                     });
@@ -1659,11 +1672,12 @@
                         const key = t.getAttribute('data-term');
                         if (seen.has(key)) return;
                         seen.add(key);
-                        items.push('<li><strong>' + t.textContent + '</strong> — ' + (t.getAttribute('data-tip') || '') + '</li>');
+                        items.push('<li><strong>' + t.textContent + '</strong> - ' + (t.getAttribute('data-tip') || '') + '</li>');
                     });
                     if (!items.length) return;
                     const box = document.createElement('div');
-                    box.className = 'print-glossary';
+                    // מעל 6 מונחים - פריסה צפופה יותר, אחרת השקף נדחף לעמוד שני
+                    box.className = 'print-glossary' + (items.length > 6 ? ' print-glossary-dense' : '');
                     box.innerHTML = '<h4>מילון מונחים בשקופית זו</h4><ul>' + items.join('') + '</ul>';
                     (slide.querySelector('.cyber-panel') || slide).appendChild(box);
                 });
